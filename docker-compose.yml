@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # --- LA GATEWAY ---
+  gateway:
+    build:
+      context: ./Breezy-Gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - front
+      - service-auth
+      - service-post
+      - service-user
+
+  # --- LES BASES DE DONNÉES ---
+  db-auth:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: auth_db
+    volumes:
+      - pg_auth_data:/var/lib/postgresql/data
+
+  db-user:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: user_db
+    volumes:
+      - pg_user_data:/var/lib/postgresql/data
+
+  db-post:
+    image: mongo:latest
+    volumes:
+      - mongo_post_data:/data/db
+
+  # --- LE FRONT ---
+  front:
+    build:
+      context: ./Breezy-Front
+
+  # --- LES MICROSERVICES ---
+  service-auth:
+    build:
+      context: ./Breezy-Service-Auth
+    environment:
+      - DB_HOST=db-auth
+      - DB_USER=admin
+      - DB_PASSWORD=password
+      - DB_NAME=auth_db
+    depends_on:
+      - db-auth
+
+  service-user:
+    build:
+      context: ./Breezy-Service-User
+    environment:
+      - DB_HOST=db-user
+      - DB_USER=admin
+      - DB_PASSWORD=password
+      - DB_NAME=user_db
+    depends_on:
+      - db-user
+
+  service-post:
+    build:
+      context: ./Breezy-Service-Post
+    environment:
+      - MONGO_URI=mongodb://db-post:27017/post_db
+    depends_on:
+      - db-post
+
+volumes:
+  pg_auth_data:
+  pg_user_data:
+  mongo_post_data:
