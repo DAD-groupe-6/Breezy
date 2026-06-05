@@ -4,7 +4,7 @@ const port = 3000;
 
 // Route de test qui sera appelée via la Gateway
 app.get('/', (req, res) => {
-  res.send('[User Service] : Démarrage...');
+  res.send('[User Service] : Service fonctionnel');
 });
 
 app.listen(port, () => {
