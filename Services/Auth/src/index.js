@@ -3,6 +3,10 @@ const app = express();
 const port = 3000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const morgan = require('morgan');
+const logger = require('./logger');
+
+app.use(morgan('dev'));
 
 const swaggerOptions = {
   definition: {

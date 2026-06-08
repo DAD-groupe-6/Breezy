@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-white text-gray-800 p-4">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-white text-gray-800 p-4">
       <div className="text-center">
         
         <h1 className="text-6xl font-extrabold text-blue-500 mb-4 tracking-tight drop-shadow-sm animate-pulse">
