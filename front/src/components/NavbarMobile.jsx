@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser } from "react-icons/fi";
+import Avatar from "@/components/Avatar";
 
 const navItems = [
   { href: "/", icon: FiHome, label: "Accueil" },
   { href: "/explorer", icon: FiCompass, label: "Explorer" },
   { href: "/notifications", icon: FiBell, label: "Notifications" },
   { href: "/messages", icon: FiMessageSquare, label: "Messages" },
-  { href: "/profil", icon: FiUser, label: "Profil" },
+  { href: "/profil", icon: Avatar, label: "Profil" },
 ];
 
 export default function NavbarMobile() {
