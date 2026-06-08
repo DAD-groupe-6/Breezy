@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
   # --- LA GATEWAY ---
   gateway:
     build:
-      context: ./Breezy-Gateway
+      context: ./gateway
     ports:
       - "80:80"
     depends_on:
@@ -40,12 +38,12 @@ services:
   # --- LE FRONT ---
   front:
     build:
-      context: ./Breezy-Front
+      context: ./front
 
   # --- LES MICROSERVICES ---
   service-auth:
     build:
-      context: ./Breezy-Service-Auth
+      context: ./Services/Auth
     environment:
       - DB_HOST=db-auth
       - DB_USER=admin
@@ -56,7 +54,7 @@ services:
 
   service-user:
     build:
-      context: ./Breezy-Service-User
+      context: ./Services/User
     environment:
       - DB_HOST=db-user
       - DB_USER=admin
@@ -67,7 +65,7 @@ services:
 
   service-post:
     build:
-      context: ./Breezy-Service-Post
+      context: ./Services/Post
     environment:
       - MONGO_URI=mongodb://db-post:27017/post_db
     depends_on:
