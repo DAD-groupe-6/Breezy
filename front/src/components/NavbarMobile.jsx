@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaSearch, FaBell, FaEnvelope, FaUser } from "react-icons/fa";
+import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser } from "react-icons/fi";
 
 const navItems = [
-  { href: "/", icon: FaHome, label: "Accueil" },
-  { href: "/search", icon: FaSearch, label: "Recherche" },
-  { href: "/notifications", icon: FaBell, label: "Notifications" },
-  { href: "/messages", icon: FaEnvelope, label: "Messages" },
-  { href: "/profile", icon: FaUser, label: "Profil" },
+  { href: "/", icon: FiHome, label: "Accueil" },
+  { href: "/explorer", icon: FiCompass, label: "Explorer" },
+  { href: "/notifications", icon: FiBell, label: "Notifications" },
+  { href: "/messages", icon: FiMessageSquare, label: "Messages" },
+  { href: "/profil", icon: FiUser, label: "Profil" },
 ];
 
 export default function NavbarMobile() {

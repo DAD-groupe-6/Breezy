@@ -17,7 +17,7 @@ export default function Sidebar({ user = null }) {
   const pathname = usePathname()
 
   return (
-    <aside className="flex flex-col h-screen w-56 bg-white border-r border-gray-200 px-3 py-6 shrink-0">
+    <aside className="hidden md:flex flex-col h-screen w-56 bg-white border-r border-gray-200 px-3 py-6 shrink-0">
 
       <h1 className="mb-8 px-3 text-2xl font-bold text-[#5B5EF4]">Breezy</h1>
 
