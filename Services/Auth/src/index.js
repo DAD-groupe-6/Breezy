@@ -1,38 +1,32 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const sequelize = require("./config/database.config");
+const authRoutes = require("./routes/auth.route");
+const logger = require("./logger");
 const app = express();
-const port = 3000;
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const morgan = require('morgan');
-const logger = require('./logger');
+const port = process.env.API_PORT || 3001;
 
-app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API Auth Service',
-      version: '1.0.0',
-      description: 'Documentation du service d\'authentification',
-    },
-    servers: [
-      {
-        url: 'http://localhost/api/v1/auth',
-      },
-    ],
-  },
-  apis: ['./*.js'],
-};
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    logger.info("Connected to DB");
+    await sequelize.sync({ alter: true });
+    logger.info("Synchronized tables");
+    app.listen(port, () => {
+      logger.info(`Auth service → http://localhost:${port}`);
+    });
+  } catch (err) {
+    logger.error(`Erreur BDD : ${err.message}`);
+  }
+}
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// Route de test qui sera appelée via la Gateway
-app.get('/', (req, res) => {
-  res.send('[Auth Service] : Service fonctionnel');
+app.get("/api/v1/auth/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
 });
 
-app.listen(port, () => {
-  console.log(`Service Auth démarré sur le port ${port}`);
-});
+app.use("/api/v1/auth", authRoutes);
+
+startServer();
