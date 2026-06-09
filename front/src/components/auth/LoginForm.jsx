@@ -4,14 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
-
-function validate(email, password) {
-  const errors = {}
-  if (!email) errors.email = "L'email est requis"
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Email invalide'
-  if (!password) errors.password = 'Le mot de passe est requis'
-  return errors
-}
+import { validateLogin } from '@/utils/validation'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -20,7 +13,7 @@ export default function LoginForm() {
 
   function handleSubmit(e) {
     e.preventDefault()
-    const newErrors = validate(email, password)
+    const newErrors = validateLogin(email, password)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return

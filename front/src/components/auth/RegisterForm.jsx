@@ -4,29 +4,18 @@ import { useState } from 'react'
 import Link from 'next/link'
 import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
-
-function validate(form) {
-  const errors = {}
-  if (!form.username) errors.username = "Le nom d'utilisateur est requis"
-  if (!form.email) errors.email = "L'email est requis"
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) errors.email = 'Email invalide'
-  if (!form.password) errors.password = 'Le mot de passe est requis'
-  else if (form.password.length < 8) errors.password = 'Minimum 8 caractères'
-  if (form.confirm !== form.password) errors.confirm = 'Les mots de passe ne correspondent pas'
-  return errors
-}
+import { validateRegister } from '@/utils/validation'
 
 export default function RegisterForm() {
-  const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' })
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState({})
-
-  function update(field) {
-    return (e) => setForm(prev => ({ ...prev, [field]: e.target.value }))
-  }
 
   function handleSubmit(e) {
     e.preventDefault()
-    const newErrors = validate(form)
+    const newErrors = validateRegister(username, email, password, confirm)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -42,10 +31,10 @@ export default function RegisterForm() {
         <p className="text-sm text-slate-500">Rejoins Breezy dès maintenant</p>
       </div>
 
-      <InputField label="Nom d'utilisateur" id="username" value={form.username} onChange={update('username')} error={errors.username} placeholder="@tonpseudo" />
-      <InputField label="Email" id="email" type="email" value={form.email} onChange={update('email')} error={errors.email} placeholder="exemple@email.com" />
-      <InputField label="Mot de passe" id="password" type="password" value={form.password} onChange={update('password')} error={errors.password} placeholder="Minimum 8 caractères" />
-      <InputField label="Confirmer le mot de passe" id="confirm" type="password" value={form.confirm} onChange={update('confirm')} error={errors.confirm} placeholder="••••••••" />
+      <InputField label="Nom d'utilisateur" id="username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} placeholder="@tonpseudo" />
+      <InputField label="Email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} placeholder="exemple@email.com" />
+      <InputField label="Mot de passe" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} placeholder="Minimum 8 caractères" />
+      <InputField label="Confirmer le mot de passe" id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} placeholder="••••••••" />
 
       <Button type="submit" fullWidth>Créer mon compte</Button>
 
