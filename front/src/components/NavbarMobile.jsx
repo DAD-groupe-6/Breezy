@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus } from "react-icons/fa";
-import Avatar from "@/components/Avatar";
+import Badge from "@/components/ui/Badge";
 
 const navItems = [
   { href: "/", icon: FaHome, label: "Accueil" },
   { href: "/explorer", icon: FaCompass, label: "Explorer" },
-  { href: "/notifications", icon: FaBell, label: "Notifications" },
-  { href: "/messages", icon: FaEnvelope, label: "Messages" },
+  { href: "/notifications", icon: FaBell, label: "Notifications", badge: 3 },
+  { href: "/messages", icon: FaEnvelope, label: "Messages", badge: 2 },
   { href: "/profil", icon: FaUser, label: "Profil" },
 ];
 
@@ -25,18 +25,24 @@ export default function NavbarMobile() {
         <FaPlus size={24} />
       </button>
 
-      {navItems.map(({ href, icon: Icon, label }) => {
+      {navItems.map(({ href, icon: Icon, label, badge }) => {
         const isActive = pathname === href;
         return (
           <Link
             key={href}
             href={href}
             aria-label={label}
-            className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+            className={`relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
               isActive ? "text-indigo-600" : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            <Icon size={24} />
+            <span className="relative inline-flex items-center justify-center w-6 h-6">
+              <Icon size={20} />
+              {badge > 0 && (
+                <span className="absolute -top-2 left-3"><Badge count={badge} /></span>
+              )}
+            </span>
+            <span className="text-xs">{label}</span>
           </Link>
         );
       })}
