@@ -4,7 +4,7 @@ import Post from '@/components/Post'
 export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-      <div className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]/90 backdrop-blur-sm">
+      <div className="sticky top-0 z-40 border-b border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)]/90 backdrop-blur-sm">
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-3 md:py-4">
           <h2 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">Accueil</h2>
           <div className="flex items-center gap-3">
@@ -25,7 +25,7 @@ export default function Home() {
       </div>
 
       <main className="mx-auto w-full max-w-2xl px-0 pb-6 pt-2 sm:px-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-light-bg-surface)] shadow-lg">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] shadow-lg">
           <Post
             displayName="Marie Dupont"
             username="mariedupont"

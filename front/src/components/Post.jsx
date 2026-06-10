@@ -48,7 +48,7 @@ export default function Post({
   };
 
   return (
-    <article className="flex gap-3 border-b border-gray-100 px-4 py-4 hover:bg-slate-50 transition-colors cursor-pointer w-full">
+    <article className="flex w-full cursor-pointer gap-3 border-b border-[var(--color-bg-surface-2)] px-4 py-4 transition-colors hover:bg-[var(--color-bg-surface-2)]">
       {/* Colonne avatar */}
       <div className="shrink-0">
         <UserInfo
@@ -65,32 +65,32 @@ export default function Post({
         {/* Header : nom + handle + timestamp + menu */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1 min-w-0 flex-wrap">
-            <span className="font-bold text-gray-900 text-sm sm:text-base truncate">{displayName}</span>
-            <span className="text-gray-500 text-xs sm:text-sm truncate">@{username}</span>
-            <span className="text-gray-400 text-xs sm:text-sm">·</span>
-            <span className="text-gray-400 text-xs sm:text-sm whitespace-nowrap">{timestamp}</span>
+            <span className="truncate text-sm font-bold text-[var(--color-text-primary)] sm:text-base">{displayName}</span>
+            <span className="truncate text-xs text-[var(--color-text-secondary)] sm:text-sm">@{username}</span>
+            <span className="text-xs text-[var(--color-text-secondary)] sm:text-sm">·</span>
+            <span className="whitespace-nowrap text-xs text-[var(--color-text-secondary)] sm:text-sm">{timestamp}</span>
           </div>
 
           {/* Menu 3 points */}
           <div className="relative shrink-0" ref={menuRef}>
             <button
               onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-              className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full p-2 transition-colors"
+              className="rounded-full p-2 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-surface-2)] hover:text-[var(--color-text-title)]"
               aria-label="Plus d'options"
             >
               <FaEllipsisH size={14} />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-100 rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] shadow-lg">
                 <button
-                  className="w-full text-left px-4 py-3 hover:bg-indigo-50 text-gray-900 text-sm font-medium transition-colors"
+                  className="w-full px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-bg-surface-2)]"
                   onClick={() => { setShowMenu(false); onViewProfile?.(); }}
                 >
                   Voir le profil
                 </button>
                 <button
-                  className="w-full text-left px-4 py-3 hover:bg-rose-50 text-rose-600 text-sm font-medium transition-colors border-t border-gray-100"
+                  className="w-full border-t border-[var(--color-bg-surface-2)] px-4 py-3 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-rose-500/10"
                   onClick={() => { setShowMenu(false); onReport?.(); }}
                 >
                   Signaler
@@ -102,12 +102,12 @@ export default function Post({
 
         {/* Contenu textuel */}
         {content && (
-          <p className="text-gray-900 text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
+          <p className="mb-2 break-words text-sm leading-relaxed text-[var(--color-text-primary)] sm:text-base">{content}</p>
         )}
 
         {/* Image */}
         {image && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-gray-100 w-full">
+          <div className="mb-2 w-full overflow-hidden rounded-2xl border border-[var(--color-bg-surface-2)]">
             <img
               src={image}
               alt="Contenu du post"
@@ -118,7 +118,7 @@ export default function Post({
 
         {/* Vidéo */}
         {video && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-gray-100 w-full">
+          <div className="mb-2 w-full overflow-hidden rounded-2xl border border-[var(--color-bg-surface-2)]">
             <video
               src={video}
               controls
@@ -128,14 +128,14 @@ export default function Post({
         )}
 
         {/* Barre d'actions */}
-        <div className="flex items-center gap-4 text-gray-500 mt-2">
+        <div className="mt-2 flex items-center gap-4 text-[var(--color-text-secondary)]">
           {/* Commentaire */}
           <button
             onClick={(e) => { e.stopPropagation(); onComment?.(); }}
-            className="flex items-center gap-0.5 group hover:text-cyan-600 transition-colors"
+            className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
             aria-label="Commenter"
           >
-            <div className="group-hover:bg-cyan-50 rounded-full p-1.5 transition-colors">
+            <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-bg-surface-2)]">
               <FaRegComment size={16} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(comments)}</span>
@@ -144,10 +144,10 @@ export default function Post({
           {/* Repost / Reply */}
           <button
             onClick={(e) => { e.stopPropagation(); onReply?.(); }}
-            className="flex items-center gap-0.5 group hover:text-emerald-600 transition-colors"
+            className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
             aria-label="Reposter"
           >
-            <div className="group-hover:bg-emerald-50 rounded-full p-1.5 transition-colors">
+            <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-bg-surface-2)]">
               <FaRetweet size={17} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(replies)}</span>
@@ -159,7 +159,7 @@ export default function Post({
             className={`flex items-center gap-0.5 group transition-colors ${isLiked ? 'text-rose-500' : 'hover:text-rose-500'}`}
             aria-label="Aimer"
           >
-            <div className={`rounded-full p-1.5 transition-colors ${isLiked ? 'bg-rose-50' : 'group-hover:bg-rose-50'}`}>
+            <div className={`rounded-full p-1.5 transition-colors ${isLiked ? 'bg-rose-500/10' : 'group-hover:bg-rose-500/10'}`}>
               {isLiked ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
             </div>
             <span className="text-xs sm:text-sm">{formatCount(likeCount)}</span>
