@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus } from "react-icons/fa";
 import Badge from "@/components/ui/Badge";
 
@@ -15,9 +16,34 @@ const navItems = [
 
 export default function NavbarMobile() {
   const pathname = usePathname();
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const accumulatedDown = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const delta = currentScrollY - lastScrollY.current;
+
+      if (delta > 0) {
+        accumulatedDown.current += delta;
+        if (accumulatedDown.current > 80) {
+          setVisible(false);
+        }
+      } else if (delta < 0) {
+        accumulatedDown.current = 0;
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-[var(--color-bg-surface)] border-t border-[var(--color-border)] h-16 sm:hidden">
+    <nav className={`fixed bottom-4 left-4 right-4 z-50 flex items-center justify-around bg-[var(--color-bg-surface)]/60 backdrop-blur-md border border-[var(--color-border)]/80 h-16 sm:hidden rounded-full shadow-lg shadow-black/20 transition-transform duration-300 ${visible ? "translate-y-0" : "translate-y-32"}`}>
       <button
         aria-label="Créer un post"
         className="flex flex-col items-center justify-center flex-1 h-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] transition-colors"
