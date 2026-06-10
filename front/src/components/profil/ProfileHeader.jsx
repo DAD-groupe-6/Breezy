@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
-import Avatar from './Avatar';
-import Button from './ui/Button';
+import Avatar from '../Avatar';
+import Button from '../ui/Button';
 
 export default function ProfileHeader({
   displayName = 'Utilisateur',
