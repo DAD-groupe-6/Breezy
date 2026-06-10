@@ -3,8 +3,11 @@ const { generateToken } = require("../utils/jwt.util");
 const User = require("../models/user.model");
 
 async function register(email, password) {
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) throw new Error("User already exists");
+    const existingEmail = await User.findOne({ where: { email } });
+    if (existingEmail) throw new Error("Email already exists");
+
+    const existingUsername = await User.findOne({ where: { username } });
+    if (existingUsername) throw new Error("Username already exists");
 
     const passwordHash = await hashPassword(password);
     const newUser = await User.create({ email, passwordHash });
