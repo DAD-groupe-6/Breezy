@@ -34,6 +34,22 @@ export default function Home() {
             likes={234}
             comments={45}
             replies={12}
+            initialComments={[
+              {
+                id: 1,
+                displayName: 'Sophie Laurent',
+                username: 'sophiel',
+                timestamp: '2h',
+                content: "Je suis d'accord, c'est un amour-haine permanent 😄",
+              },
+              {
+                id: 2,
+                displayName: 'Nicolas Perez',
+                username: 'nicolasp',
+                timestamp: '1h',
+                content: 'Mais quand ca marche, quel plaisir.',
+              },
+            ]}
           />
 
           <Post
@@ -45,6 +61,15 @@ export default function Home() {
             likes={1200}
             comments={89}
             replies={34}
+            initialComments={[
+              {
+                id: 3,
+                displayName: 'Camille Rouge',
+                username: 'camrouge',
+                timestamp: '52m',
+                content: 'La photo est incroyable.',
+              },
+            ]}
           />
 
           <Post
@@ -56,6 +81,15 @@ export default function Home() {
             likes={5600}
             comments={340}
             replies={250}
+            initialComments={[
+              {
+                id: 4,
+                displayName: 'Dev Club',
+                username: 'devclub',
+                timestamp: '20m',
+                content: 'Hate de tester ca en prod.',
+              },
+            ]}
           />
         </div>
       </main>

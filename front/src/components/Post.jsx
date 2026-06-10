@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { FaHeart, FaRegHeart, FaRegComment, FaRetweet, FaEllipsisH } from 'react-icons/fa';
 import UserInfo from './UserInfo';
+import CommentSection from './CommentSection';
 
 export default function Post({
   displayName = 'John Doe',
@@ -15,6 +16,7 @@ export default function Post({
   likes = 0,
   comments = 0,
   replies = 0,
+  initialComments = [],
   onLike,
   onComment,
   onReply,
@@ -23,6 +25,9 @@ export default function Post({
 }) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(likes);
+  const [commentCount, setCommentCount] = useState(comments);
+  const [postComments, setPostComments] = useState(initialComments);
+  const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
 
@@ -45,6 +50,25 @@ export default function Post({
   const formatCount = (n) => {
     if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
     return n;
+  };
+
+  const handleCommentClick = (e) => {
+    e.stopPropagation();
+    setShowComments((prev) => !prev);
+    onComment?.();
+  };
+
+  const handleAddComment = (content) => {
+    const nextComment = {
+      id: Date.now(),
+      displayName: 'Vous',
+      username: 'you',
+      timestamp: 'à l\'instant',
+      content,
+    };
+
+    setPostComments((prev) => [nextComment, ...prev]);
+    setCommentCount((prev) => prev + 1);
   };
 
   return (
@@ -131,14 +155,14 @@ export default function Post({
         <div className="mt-2 flex items-center gap-4 text-[var(--color-text-secondary)]">
           {/* Commentaire */}
           <button
-            onClick={(e) => { e.stopPropagation(); onComment?.(); }}
+            onClick={handleCommentClick}
             className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
             aria-label="Commenter"
           >
             <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-bg-surface-2)]">
               <FaRegComment size={16} />
             </div>
-            <span className="text-xs sm:text-sm">{formatCount(comments)}</span>
+            <span className="text-xs sm:text-sm">{formatCount(commentCount)}</span>
           </button>
 
           {/* Repost / Reply */}
@@ -165,6 +189,10 @@ export default function Post({
             <span className="text-xs sm:text-sm">{formatCount(likeCount)}</span>
           </button>
         </div>
+
+        {showComments && (
+          <CommentSection comments={postComments} onAddComment={handleAddComment} />
+        )}
       </div>
     </article>
   );
