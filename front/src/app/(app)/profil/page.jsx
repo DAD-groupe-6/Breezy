@@ -1,4 +1,4 @@
-import ProfileHeader from '@/components/ProfileHeader';
+import ProfileHeader from '@/components/profil/ProfileHeader';
 import Post from '@/components/Post';
 
 const MOCK_USER = {
