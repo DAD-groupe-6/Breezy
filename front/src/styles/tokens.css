@@ -1,28 +1,59 @@
 :root {
-  /* Dark theme */
-  --color-dark-bg-primary: #0A0B14;
-  --color-dark-bg-surface: #12131A;
-  --color-dark-bg-surface-2: #1A1C26;
-  --color-dark-border: #1E1F2E;
-  --color-dark-text-title: #5B5EF4;
-  --color-dark-text-primary: #E8EAF2;
-  --color-dark-text-secondary: #6B7090;
+  /* ==========================================================================
+     THEME: LIGHT (Mode Clair) - PAR DÉFAUT
+     Couleurs extraites de la palette Figma pour l’ambiance claire.
+     ========================================================================== */
+  
+  /* Arrière-plans & Surfaces */
+  --color-light-bg-primary: #F4F5FA;   /* Fond principal de la page */
+  --color-light-bg-surface: #FFFFFF;   /* Surfaces blanches pour détacher les blocs (cartes, menu) */
+  --color-light-bg-surface-2: #F0F2F9; /* Zones de contrastes secondaires ou grisés de fond */
+  
+  /* Bordures */
+  --color-light-border: #E2E4F0;       /* Lignes de séparation et contours subtils */
+  
+  /* Typographie & Contenu */
+  --color-light-text-title: #4346D6;   /* Titres et éléments de marque mis en avant */
+  --color-light-text-primary: #0E101A; /* Texte principal, très contrasté pour la lecture */
+  --color-light-text-secondary: #62667E;/* Textes de soutien, placeholders ou métadonnées */
 
-  /* Light theme */
-  --color-light-bg-primary: #F4F5FA;
-  --color-light-bg-surface: #FFFFFF;
-  --color-light-bg-surface-2: #F0F2F9;
-  --color-light-border: #E2E4F0;
-  --color-light-text-title: #4346D6;
-  --color-light-text-primary: #0E101A;
-  --color-light-text-secondary: #62667E;
 
-  /* Active theme tokens (default: light) */
+  /* ==========================================================================
+     THEME: DARK (Mode Sombre)
+     Couleurs utilisées pour l’alternative sombre de l’application.
+     ========================================================================== */
+  
+  /* Arrière-plans & Surfaces */
+  --color-dark-bg-primary: #0A0B14;    /* Fond principal de l'application */
+  --color-dark-bg-surface: #12131A;    /* Cartes, conteneurs et éléments surélevés (niveau 1) */
+  --color-dark-bg-surface-2: #1A1C26;  /* Éléments imbriqués ou états de survol (niveau 2) */
+  
+  /* Bordures */
+  --color-dark-border: #1E1F2E;        /* Séparateurs, bordures de cartes et d'inputs */
+  
+  /* Typographie & Contenu */
+  --color-dark-text-title: #5B5EF4;    /* Titres principaux, accents ou liens importants */
+  --color-dark-text-primary: #E8EAF2;  /* Texte de corps principal, haute lisibilité */
+  --color-dark-text-secondary: #6B7090;/* Textes secondaires, légendes et indications discrètes */
+
+
+  /* ==========================================================================
+     ACTIVE THEME TOKENS (Tokens Sémantiques)
+     Ces variables pointent vers le thème par défaut : le mode CLAIR (Light).
+     C'est toujours cette section que tu appelles dans ton code d'intégration.
+     ========================================================================== */
+  
+  /* Raccourcis sémantiques pour les fonds */
   --color-bg-primary: var(--color-light-bg-primary);
   --color-bg-surface: var(--color-light-bg-surface);
   --color-bg-surface-2: var(--color-light-bg-surface-2);
+  
+  /* Raccourci sémantique pour les bordures */
   --color-border: var(--color-light-border);
+  
+  /* Raccourcis sémantiques pour le texte */
   --color-text-title: var(--color-light-text-title);
   --color-text-primary: var(--color-light-text-primary);
   --color-text-secondary: var(--color-light-text-secondary);
 }
+  

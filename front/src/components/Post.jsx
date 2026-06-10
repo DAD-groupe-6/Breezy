@@ -48,7 +48,7 @@ export default function Post({
   };
 
   return (
-    <article className="flex w-full cursor-pointer gap-3 border-b border-[var(--color-bg-surface-2)] px-4 py-4 transition-colors hover:bg-[var(--color-bg-surface-2)]">
+    <article className="flex gap-3 border-b border-[var(--color-border)] px-4 py-4 hover:bg-[var(--color-bg-surface-2)] transition-colors cursor-pointer w-full">
       {/* Colonne avatar */}
       <div className="shrink-0">
         <UserInfo
@@ -65,32 +65,32 @@ export default function Post({
         {/* Header : nom + handle + timestamp + menu */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1 min-w-0 flex-wrap">
-            <span className="truncate text-sm font-bold text-[var(--color-text-primary)] sm:text-base">{displayName}</span>
-            <span className="truncate text-xs text-[var(--color-text-secondary)] sm:text-sm">@{username}</span>
-            <span className="text-xs text-[var(--color-text-secondary)] sm:text-sm">·</span>
-            <span className="whitespace-nowrap text-xs text-[var(--color-text-secondary)] sm:text-sm">{timestamp}</span>
+            <span className="font-bold text-[var(--color-text-primary)] text-sm sm:text-base truncate">{displayName}</span>
+            <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm truncate">@{username}</span>
+            <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
+            <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm whitespace-nowrap">{timestamp}</span>
           </div>
 
           {/* Menu 3 points */}
           <div className="relative shrink-0" ref={menuRef}>
             <button
               onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-              className="rounded-full p-2 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-surface-2)] hover:text-[var(--color-text-title)]"
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] hover:bg-[var(--color-bg-surface-2)] rounded-full p-2 transition-colors"
               aria-label="Plus d'options"
             >
               <FaEllipsisH size={14} />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] shadow-lg">
+              <div className="absolute right-0 mt-1 w-44 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-20 overflow-hidden">
                 <button
-                  className="w-full px-4 py-3 text-left text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-bg-surface-2)]"
+                  className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-[var(--color-text-primary)] text-sm font-medium transition-colors"
                   onClick={() => { setShowMenu(false); onViewProfile?.(); }}
                 >
                   Voir le profil
                 </button>
                 <button
-                  className="w-full border-t border-[var(--color-bg-surface-2)] px-4 py-3 text-left text-sm font-medium text-rose-500 transition-colors hover:bg-rose-500/10"
+                  className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-rose-600 text-sm font-medium transition-colors border-t border-[var(--color-border)]"
                   onClick={() => { setShowMenu(false); onReport?.(); }}
                 >
                   Signaler
@@ -102,12 +102,12 @@ export default function Post({
 
         {/* Contenu textuel */}
         {content && (
-          <p className="mb-2 break-words text-sm leading-relaxed text-[var(--color-text-primary)] sm:text-base">{content}</p>
+          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
         )}
 
         {/* Image */}
         {image && (
-          <div className="mb-2 w-full overflow-hidden rounded-2xl border border-[var(--color-bg-surface-2)]">
+          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
             <img
               src={image}
               alt="Contenu du post"
@@ -118,7 +118,7 @@ export default function Post({
 
         {/* Vidéo */}
         {video && (
-          <div className="mb-2 w-full overflow-hidden rounded-2xl border border-[var(--color-bg-surface-2)]">
+          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
             <video
               src={video}
               controls
@@ -128,14 +128,14 @@ export default function Post({
         )}
 
         {/* Barre d'actions */}
-        <div className="mt-2 flex items-center gap-4 text-[var(--color-text-secondary)]">
+        <div className="flex items-center gap-4 text-[var(--color-text-secondary)] mt-2">
           {/* Commentaire */}
           <button
             onClick={(e) => { e.stopPropagation(); onComment?.(); }}
-            className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
+            className="flex items-center gap-0.5 group hover:text-[var(--color-text-title)] transition-colors"
             aria-label="Commenter"
           >
-            <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-bg-surface-2)]">
+            <div className="group-hover:bg-[var(--color-bg-surface-2)] rounded-full p-1.5 transition-colors">
               <FaRegComment size={16} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(comments)}</span>
@@ -144,10 +144,10 @@ export default function Post({
           {/* Repost / Reply */}
           <button
             onClick={(e) => { e.stopPropagation(); onReply?.(); }}
-            className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
+            className="flex items-center gap-0.5 group hover:text-[var(--color-text-title)] transition-colors"
             aria-label="Reposter"
           >
-            <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-bg-surface-2)]">
+            <div className="group-hover:bg-[var(--color-bg-surface-2)] rounded-full p-1.5 transition-colors">
               <FaRetweet size={17} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(replies)}</span>
@@ -159,7 +159,7 @@ export default function Post({
             className={`flex items-center gap-0.5 group transition-colors ${isLiked ? 'text-rose-500' : 'hover:text-rose-500'}`}
             aria-label="Aimer"
           >
-            <div className={`rounded-full p-1.5 transition-colors ${isLiked ? 'bg-rose-500/10' : 'group-hover:bg-rose-500/10'}`}>
+            <div className={`rounded-full p-1.5 transition-colors ${isLiked ? 'bg-rose-100/60' : 'group-hover:bg-rose-100/60'}`}>
               {isLiked ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
             </div>
             <span className="text-xs sm:text-sm">{formatCount(likeCount)}</span>

@@ -2,7 +2,7 @@ import { FaUser } from "react-icons/fa";
 export default function Avatar({ imageUrl, size = 64 }) {
     return (
         <div style={{ width: `${size}px`, height: `${size}px` }}
-            className="w-16 h-16 rounded-full bg-gray-600 overflow-hidden flex items-center justify-center shrink-0">
+            className="w-16 h-16 rounded-full bg-[var(--color-bg-surface-2)] overflow-hidden flex items-center justify-center shrink-0 text-[var(--color-text-secondary)]">
 
             {imageUrl ? (
                 <img

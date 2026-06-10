@@ -19,7 +19,7 @@ body {
   }
   
   [data-profile-page] {
-    background-color: var(--color-light-bg-primary);
+    background-color: var(--color-bg-primary);
   }
 }
 
@@ -36,6 +36,6 @@ body {
   }
   
   [data-profile-page] {
-    background-color: white;
+    background-color: var(--color-bg-surface);
   }
 }

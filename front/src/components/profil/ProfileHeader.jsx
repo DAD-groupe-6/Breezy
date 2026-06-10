@@ -46,7 +46,7 @@ export default function ProfileHeader({
         {/* Ligne avatar + actions */}
         <div className="flex items-start justify-between gap-4 mb-3">
           {/* Avatar */}
-          <div className="ring-4 ring-white rounded-full shrink-0">
+          <div className="ring-4 ring-[var(--color-bg-surface)] rounded-full shrink-0">
             <Avatar imageUrl={imageUrl} size={96} />
           </div>
 

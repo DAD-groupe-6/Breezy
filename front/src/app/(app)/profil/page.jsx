@@ -73,10 +73,7 @@ const MOCK_POSTS = [
 
 export default function ProfilPage() {
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: 'var(--color-bg-primary)' }}
-    >
+    <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <div
         className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
         style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
@@ -86,10 +83,7 @@ export default function ProfilPage() {
 
         {/* Titre section publications */}
         <div className="px-4 py-4">
-          <h2
-            className="text-lg font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
+          <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
             Posts
           </h2>
         </div>
