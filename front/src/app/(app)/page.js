@@ -26,6 +26,8 @@ export default function Home() {
 
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+          
+          {/* POST 1 : Marie Dupont */}
           <Post
             displayName="Marie Dupont"
             username="maried"
@@ -35,8 +37,25 @@ export default function Home() {
             likes={128}
             comments={24}
             replies={8}
+            initialComments={[
+              {
+                id: 1,
+                displayName: 'Sophie Laurent',
+                username: 'sophiel',
+                timestamp: '2h',
+                content: "Je suis d'accord, c'est un amour-haine permanent 😄",
+              },
+              {
+                id: 2,
+                displayName: 'Nicolas Perez',
+                username: 'nicolasp',
+                timestamp: '1h',
+                content: 'Mais quand ca marche, quel plaisir.',
+              },
+            ]}
           />
 
+          {/* POST 2 : Alex Martin */}
           <Post
             displayName="Alex Martin"
             username="alexm"
@@ -47,8 +66,18 @@ export default function Home() {
             likes={342}
             comments={45}
             replies={12}
+            initialComments={[
+              {
+                id: 3,
+                displayName: 'Camille Rouge',
+                username: 'camrouge',
+                timestamp: '52m',
+                content: 'La photo est incroyable.',
+              },
+            ]}
           />
 
+          {/* POST 3 : Tech News */}
           <Post
             displayName="Tech News"
             username="technews"
@@ -59,7 +88,17 @@ export default function Home() {
             likes={1200}
             comments={340}
             replies={96}
+            initialComments={[
+              {
+                id: 4,
+                displayName: 'Dev Club',
+                username: 'devclub',
+                timestamp: '20m',
+                content: 'Hate de tester ca en prod.',
+              },
+            ]}
           />
+          
         </div>
       </section>
     </main>
