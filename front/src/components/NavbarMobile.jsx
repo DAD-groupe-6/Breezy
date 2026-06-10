@@ -17,7 +17,7 @@ export default function NavbarMobile() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white border-t border-gray-100 h-16 md:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around bg-white border-t border-gray-100 h-16 sm:hidden">
       <button
         aria-label="Créer un post"
         className="flex flex-col items-center justify-center flex-1 h-full text-gray-500 hover:text-indigo-600 transition-colors"
@@ -42,7 +42,6 @@ export default function NavbarMobile() {
                 <span className="absolute -top-2 left-3"><Badge count={badge} /></span>
               )}
             </span>
-            <span className="text-xs">{label}</span>
           </Link>
         );
       })}
