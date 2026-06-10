@@ -3,62 +3,104 @@ import Post from '@/components/Post'
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-      <div className="sticky top-0 z-40 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)]/90 backdrop-blur-sm">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-3 md:py-4">
-          <h2 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">Accueil</h2>
-          <div className="flex items-center gap-3">
+    <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+          <h1 className="text-lg font-bold text-[var(--color-text-title)]">Accueil</h1>
+          <div className="flex items-center gap-2">
             <Link
               href="/login"
-              className="rounded-full border border-[var(--color-text-title)] px-5 py-2 text-sm font-semibold text-[var(--color-text-title)] transition-colors duration-200 hover:bg-[var(--color-text-title)] hover:text-white"
+              className="px-4 py-2 rounded-full border border-[var(--color-text-title)] text-[var(--color-text-title)] text-sm font-semibold hover:bg-[var(--color-text-title)] hover:text-[var(--color-bg-surface)] transition-colors duration-200"
             >
               Se connecter
             </Link>
             <Link
               href="/register"
-              className="rounded-full bg-[var(--color-text-title)] px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:brightness-95"
+              className="px-4 py-2 rounded-full bg-[var(--color-text-title)] text-[var(--color-bg-surface)] text-sm font-semibold hover:opacity-90 transition-opacity duration-200"
             >
               S'inscrire
             </Link>
           </div>
         </div>
-      </div>
+      </header>
 
-      <main className="mx-auto w-full max-w-2xl px-0 pb-6 pt-2 sm:px-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-light-bg-surface)] shadow-lg">
+      <section className="mx-auto w-full max-w-3xl px-4 py-4">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+          
+          {/* POST 1 : Marie Dupont */}
           <Post
             displayName="Marie Dupont"
-            username="mariedupont"
-            timestamp="3h"
-            content="Tout le monde s'entend sur le fait que Javascript est à la fois incroyable et horrible 😅"
-            likes={234}
-            comments={45}
-            replies={12}
+            username="maried"
+            imageUrl="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&q=80&auto=format&fit=crop"
+            timestamp="2h"
+            content="Nouvelle maquette terminée pour Breezy. Hâte de vous montrer la prochaine version."
+            likes={128}
+            comments={24}
+            replies={8}
+            initialComments={[
+              {
+                id: 1,
+                displayName: 'Sophie Laurent',
+                username: 'sophiel',
+                timestamp: '2h',
+                content: "Je suis d'accord, c'est un amour-haine permanent 😄",
+              },
+              {
+                id: 2,
+                displayName: 'Nicolas Perez',
+                username: 'nicolasp',
+                timestamp: '1h',
+                content: 'Mais quand ca marche, quel plaisir.',
+              },
+            ]}
           />
 
+          {/* POST 2 : Alex Martin */}
           <Post
             displayName="Alex Martin"
-            username="alexmartin"
-            timestamp="1h"
-            content="Coucher de soleil magnifique aujourd'hui 🌅"
-            image="https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=600&h=400&fit=crop"
-            likes={1200}
-            comments={89}
-            replies={34}
+            username="alexm"
+            imageUrl="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&q=80&auto=format&fit=crop"
+            timestamp="5h"
+            content="Petit café + grosse session de dev. Qui d'autre code mieux le matin ?"
+            image="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80&auto=format&fit=crop"
+            likes={342}
+            comments={45}
+            replies={12}
+            initialComments={[
+              {
+                id: 3,
+                displayName: 'Camille Rouge',
+                username: 'camrouge',
+                timestamp: '52m',
+                content: 'La photo est incroyable.',
+              },
+            ]}
           />
 
+          {/* POST 3 : Tech News */}
           <Post
             displayName="Tech News"
             username="technews"
-            timestamp="30m"
-            content="Découvrez les nouvelles fonctionnalités de React 19 🚀"
-            video="https://videos.pexels.com/video-files/3209754/3209754-hd_1920_1080_24fps.mp4"
-            likes={5600}
+            imageUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=128&q=80&auto=format&fit=crop"
+            timestamp="1j"
+            content="Démo produit du jour : nouvelle interface plus rapide et plus lisible."
+            video="https://videos.pexels.com/video-files/6963744/6963744-sd_640_360_25fps.mp4"
+            likes={1200}
             comments={340}
-            replies={250}
+            replies={96}
+            initialComments={[
+              {
+                id: 4,
+                displayName: 'Dev Club',
+                username: 'devclub',
+                timestamp: '20m',
+                content: 'Hate de tester ca en prod.',
+              },
+            ]}
           />
+          
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }
