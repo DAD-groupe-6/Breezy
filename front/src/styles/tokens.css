@@ -17,12 +17,12 @@
   --color-light-text-primary: #0E101A;
   --color-light-text-secondary: #62667E;
 
-  /* Active theme tokens (default: dark) */
-  --color-bg-primary: var(--color-dark-bg-primary);
-  --color-bg-surface: var(--color-dark-bg-surface);
-  --color-bg-surface-2: var(--color-dark-bg-surface-2);
-  --color-border: var(--color-dark-border);
-  --color-text-title: var(--color-dark-text-title);
-  --color-text-primary: var(--color-dark-text-primary);
-  --color-text-secondary: var(--color-dark-text-secondary);
+  /* Active theme tokens (default: light) */
+  --color-bg-primary: var(--color-light-bg-primary);
+  --color-bg-surface: var(--color-light-bg-surface);
+  --color-bg-surface-2: var(--color-light-bg-surface-2);
+  --color-border: var(--color-light-border);
+  --color-text-title: var(--color-light-text-title);
+  --color-text-primary: var(--color-light-text-primary);
+  --color-text-secondary: var(--color-light-text-secondary);
 }
