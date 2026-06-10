@@ -7,10 +7,10 @@ export default function UserInfo({ displayName, username, imageUrl, avatarSize =
 
             {!avatarOnly && (
                 <div className="flex flex-col">
-                    <span className="font-bold text-gray-900 text-base leading-tight">
+                    <span className="font-bold text-[var(--color-text-primary)] text-base leading-tight">
                         {displayName}
                     </span>
-                    <span className="text-gray-400 text-sm leading-tight">
+                    <span className="text-[var(--color-text-secondary)] text-sm leading-tight">
                         @{username}
                     </span>
                 </div>

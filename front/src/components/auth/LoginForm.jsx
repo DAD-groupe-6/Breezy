@@ -25,8 +25,8 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="mb-2">
-        <h2 className="text-xl font-bold text-slate-900">Connexion</h2>
-        <p className="text-sm text-slate-500">Bon retour sur Breezy</p>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Connexion</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">Bon retour sur Breezy</p>
       </div>
 
       <InputField
@@ -50,9 +50,9 @@ export default function LoginForm() {
 
       <Button type="submit" fullWidth>Se connecter</Button>
 
-      <p className="text-sm text-center text-slate-500">
+      <p className="text-sm text-center text-[var(--color-text-secondary)]">
         Pas encore de compte ?{' '}
-        <Link href="/register" className="text-[#5B5EF4] font-medium hover:underline">
+        <Link href="/register" className="text-[var(--color-text-title)] font-medium hover:underline">
           S'inscrire
         </Link>
       </p>

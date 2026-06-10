@@ -1,8 +1,8 @@
 export default function NotificationsPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-slate-900">Notifications</h1>
-      <p className="mt-2 text-slate-500">Aucune notification pour le moment.</p>
+    <div className="p-6 text-[var(--color-text-primary)]">
+      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Notifications</h1>
+      <p className="mt-2 text-[var(--color-text-secondary)]">Aucune notification pour le moment.</p>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 const variants = {
-  primary: 'bg-[#5B5EF4] hover:bg-[#4B4EE4] text-white focus-visible:ring-[#5B5EF4]',
-  secondary: 'bg-white hover:bg-gray-50 text-slate-700 border border-gray-200 focus-visible:ring-gray-300',
+  primary: 'bg-[var(--color-text-title)] hover:opacity-90 text-[var(--color-bg-surface)] focus-visible:ring-[var(--color-text-title)]',
+  secondary: 'bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-surface-2)] text-[var(--color-text-primary)] border border-[var(--color-border)] focus-visible:ring-[var(--color-border)]',
 }
 
 export default function Button({ children, type = 'button', onClick, disabled = false, variant = 'primary', fullWidth = false }) {

@@ -27,8 +27,8 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="mb-2">
-        <h2 className="text-xl font-bold text-slate-900">Créer un compte</h2>
-        <p className="text-sm text-slate-500">Rejoins Breezy dès maintenant</p>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Créer un compte</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">Rejoins Breezy dès maintenant</p>
       </div>
 
       <InputField label="Nom d'utilisateur" id="username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} placeholder="@tonpseudo" />
@@ -38,9 +38,9 @@ export default function RegisterForm() {
 
       <Button type="submit" fullWidth>Créer mon compte</Button>
 
-      <p className="text-sm text-center text-slate-500">
+      <p className="text-sm text-center text-[var(--color-text-secondary)]">
         Déjà un compte ?{' '}
-        <Link href="/login" className="text-[#5B5EF4] font-medium hover:underline">
+        <Link href="/login" className="text-[var(--color-text-title)] font-medium hover:underline">
           Se connecter
         </Link>
       </p>
