@@ -1,34 +1,67 @@
 import Link from 'next/link'
+import Post from '@/components/Post'
 
 export default function Home() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] p-4">
-      <div className="absolute top-4 right-4 flex items-center gap-3">
-        <Link
-          href="/login"
-          className="px-5 py-2 rounded-full border border-[#5B5EF4] text-[#5B5EF4] text-sm font-semibold hover:bg-[#5B5EF4] hover:text-white transition-colors duration-200"
-        >
-          Se connecter
-        </Link>
-        <Link
-          href="/register"
-          className="px-5 py-2 rounded-full bg-[#5B5EF4] text-white text-sm font-semibold hover:bg-[#4B4EE4] transition-colors duration-200"
-        >
-          S'inscrire
-        </Link>
-      </div>
+    <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+          <h1 className="text-lg font-bold text-[var(--color-text-title)]">Accueil</h1>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="px-4 py-2 rounded-full border border-[var(--color-text-title)] text-[var(--color-text-title)] text-sm font-semibold hover:bg-[var(--color-text-title)] hover:text-[var(--color-bg-surface)] transition-colors duration-200"
+            >
+              Se connecter
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 rounded-full bg-[var(--color-text-title)] text-[var(--color-bg-surface)] text-sm font-semibold hover:opacity-90 transition-opacity duration-200"
+            >
+              S'inscrire
+            </Link>
+          </div>
+        </div>
+      </header>
 
-      <div className="text-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-8 py-10 shadow-lg">
-        <h1 className="mb-4 text-6xl font-extrabold tracking-tight text-[var(--color-text-title)] drop-shadow-sm animate-pulse">
-          Breezy
-        </h1>
-        <span className="mb-6 inline-block rounded-full bg-[var(--color-bg-surface-2)] px-4 py-2 text-sm font-bold text-[var(--color-text-secondary)] shadow-sm">
-          🚧 Site en construction
-        </span>
-        <p className="mx-auto max-w-md text-lg leading-relaxed text-[var(--color-text-secondary)]">
-          Notre équipe configure actuellement les microservices et l'interface.
-        </p>
-      </div>
+      <section className="mx-auto w-full max-w-3xl px-4 py-4">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+          <Post
+            displayName="Marie Dupont"
+            username="maried"
+            imageUrl="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&q=80&auto=format&fit=crop"
+            timestamp="2h"
+            content="Nouvelle maquette terminée pour Breezy. Hâte de vous montrer la prochaine version."
+            likes={128}
+            comments={24}
+            replies={8}
+          />
+
+          <Post
+            displayName="Alex Martin"
+            username="alexm"
+            imageUrl="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&q=80&auto=format&fit=crop"
+            timestamp="5h"
+            content="Petit café + grosse session de dev. Qui d'autre code mieux le matin ?"
+            image="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80&auto=format&fit=crop"
+            likes={342}
+            comments={45}
+            replies={12}
+          />
+
+          <Post
+            displayName="Tech News"
+            username="technews"
+            imageUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=128&q=80&auto=format&fit=crop"
+            timestamp="1j"
+            content="Démo produit du jour : nouvelle interface plus rapide et plus lisible."
+            video="https://videos.pexels.com/video-files/6963744/6963744-sd_640_360_25fps.mp4"
+            likes={1200}
+            comments={340}
+            replies={96}
+          />
+        </div>
+      </section>
     </main>
   );
 }

@@ -39,14 +39,14 @@ export default function ProfileHeader({
   return (
     <div
       className="w-full"
-      style={{ backgroundColor: 'var(--color-light-bg-surface)' }}
+      style={{ backgroundColor: 'var(--color-bg-surface)' }}
     >
       {/* Section profil */}
-      <div className="px-4 pt-4 pb-4" style={{ borderBottom: '1px solid var(--color-light-border)' }}>
+      <div className="px-4 pt-4 pb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
         {/* Ligne avatar + actions */}
         <div className="flex items-start justify-between gap-4 mb-3">
           {/* Avatar */}
-          <div className="ring-4 ring-white rounded-full shrink-0">
+          <div className="ring-4 ring-[var(--color-bg-surface)] rounded-full shrink-0">
             <Avatar imageUrl={imageUrl} size={96} />
           </div>
 
@@ -59,8 +59,8 @@ export default function ProfileHeader({
                   onClick={() => setShowMenu((prev) => !prev)}
                   className="w-9 h-9 flex items-center justify-center rounded-full border transition-colors cursor-pointer"
                   style={{
-                    borderColor: 'var(--color-light-border)',
-                    color: 'var(--color-light-text-secondary)',
+                    borderColor: 'var(--color-border)',
+                    color: 'var(--color-text-secondary)',
                   }}
                   aria-label="Options du profil"
                 >
@@ -71,14 +71,14 @@ export default function ProfileHeader({
                   <div
                     className="absolute right-0 mt-1 w-52 rounded-xl shadow-lg z-20 overflow-hidden"
                     style={{
-                      backgroundColor: 'var(--color-light-bg-surface)',
-                      border: '1px solid var(--color-light-border)',
+                      backgroundColor: 'var(--color-bg-surface)',
+                      border: '1px solid var(--color-border)',
                     }}
                   >
                     <button
                       className="w-full text-left px-4 py-3 text-sm font-medium transition-colors cursor-pointer"
-                      style={{ color: 'var(--color-light-text-primary)' }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-light-bg-surface-2)')}
+                      style={{ color: 'var(--color-text-primary)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-2)')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); onEditProfile?.(); }}
                     >
@@ -87,10 +87,10 @@ export default function ProfileHeader({
                     <button
                       className="w-full text-left px-4 py-3 text-sm font-medium transition-colors cursor-pointer"
                       style={{
-                        color: 'var(--color-light-text-primary)',
-                        borderTop: '1px solid var(--color-light-border)',
+                        color: 'var(--color-text-primary)',
+                        borderTop: '1px solid var(--color-border)',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-light-bg-surface-2)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-2)')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); }}
                     >
@@ -114,13 +114,13 @@ export default function ProfileHeader({
           <div>
             <p
               className="text-lg font-bold leading-tight"
-              style={{ color: 'var(--color-light-text-primary)' }}
+              style={{ color: 'var(--color-text-primary)' }}
             >
               {displayName}
             </p>
             <p
               className="text-sm"
-              style={{ color: 'var(--color-light-text-secondary)' }}
+              style={{ color: 'var(--color-text-secondary)' }}
             >
               @{username}
             </p>
@@ -130,7 +130,7 @@ export default function ProfileHeader({
           {bio && (
             <p
               className="text-sm leading-relaxed"
-              style={{ color: 'var(--color-light-text-primary)' }}
+              style={{ color: 'var(--color-text-primary)' }}
             >
               {bio}
             </p>
@@ -153,13 +153,13 @@ function StatItem({ value, label }) {
     <div className="flex items-baseline gap-1">
       <span
         className="text-sm font-bold"
-        style={{ color: 'var(--color-light-text-primary)' }}
+        style={{ color: 'var(--color-text-primary)' }}
       >
         {value}
       </span>
       <span
         className="text-sm"
-        style={{ color: 'var(--color-light-text-secondary)' }}
+        style={{ color: 'var(--color-text-secondary)' }}
       >
         {label}
       </span>
