@@ -1,12 +1,18 @@
 const { verifyToken } = require("../utils/jwt.util");
 
 function authenticate(req, res, next) {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) {
-        return res.status(401).json({ message: "No token provided" });
+    let token = req.cookies?.token;
+
+    if (!token) {
+        const authHeader = req.headers["authorization"];
+        if (authHeader) {
+            token = authHeader.split(" ")[1];
+        }
     }
 
-    const token = authHeader.split(" ")[1];
+    if (!token) {
+        return res.status(401).json({ message: "No token provided" });
+    }
 
     try {
         const decoded = verifyToken(token);
