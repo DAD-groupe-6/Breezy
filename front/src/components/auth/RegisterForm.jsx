@@ -10,6 +10,7 @@ import axios from "axios";
 
 export default function RegisterForm() {
   const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -27,7 +28,7 @@ export default function RegisterForm() {
     setErrors({})
     setLoading(true);
     try{
-        await axios.post('/api/v1/auth/register', { email, password })
+        await axios.post('/api/v1/auth/register', { email, password, username, displayName })
         router.push('/login')
     }catch(err){
         const message = err.response?.data?.message || 'Erreur réseau, réessayez plus tard'
@@ -49,6 +50,7 @@ export default function RegisterForm() {
           )}
 
           <InputField label="Nom d'utilisateur" id="username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} placeholder="@tonpseudo" />
+          <InputField label="Nom d'affichage" id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} error={errors.displayName} placeholder="Ton nom complet" />
           <InputField label="Email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} placeholder="exemple@email.com" />
           <InputField label="Mot de passe" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} placeholder="Minimum 8 caractères" />
           <InputField label="Confirmer le mot de passe" id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} placeholder="••••••••" />

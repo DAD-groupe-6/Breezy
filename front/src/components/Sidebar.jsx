@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
 import UserInfo from "./UserInfo";
+import CurrentUser from "@/components/CurrentUser";
 
 const NAV_ITEMS = [
   { href: '/',              label: 'Accueil',       Icon: FiHome          },
@@ -40,14 +41,9 @@ export default function Sidebar({ user = null }) {
 
         <div className="mt-auto">
             <div className="p-3 rounded-xl hover:bg-[var(--color-bg-surface-2)] cursor-pointer transition-colors duration-200">
-              <UserInfo
-                  displayName={user?.name || "Lucas Martin"}
-                  username={user?.pseudo || "lucas_m"}
-                  imageUrl={user?.photo || "https://randomuser.me/api/portraits/men/32.jpg"}
-                  avatarSize={40}
-              />
-          </div>
-      </div>
+                <CurrentUser />
+            </div>
+        </div>
 
     </aside>
   )
