@@ -1,33 +1,16 @@
 import Link from 'next/link'
 import Post from '@/components/Post'
-import { FaArrowRightToBracket, FaUserPen } from 'react-icons/fa6'
+import AuthButtons from '@/components/auth/AuthButtons'
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
-        <div className="flex w-full items-center px-4 py-3">
-          <h1 className="text-lg font-bold text-[var(--color-text-title)]">Accueil</h1>
-          <div className="ml-auto flex flex-row items-center gap-2">
-            <Link
-              href="/login"
-              aria-label="Se connecter"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-text-title)] text-[var(--color-text-title)] hover:bg-[var(--color-text-title)] hover:text-[var(--color-bg-surface)] transition-colors duration-200 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm sm:font-semibold"
-            >
-              <FaArrowRightToBracket className="text-sm sm:hidden" aria-hidden="true" />
-              <span className="hidden sm:inline">Se connecter</span>
-            </Link>
-            <Link
-              href="/register"
-              aria-label="S'inscrire"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-text-title)] text-[var(--color-bg-surface)] hover:opacity-90 transition-opacity duration-200 sm:h-auto sm:w-auto sm:px-4 sm:py-2 sm:text-sm sm:font-semibold"
-            >
-              <FaUserPen className="text-sm sm:hidden" aria-hidden="true" />
-              <span className="hidden sm:inline">S'inscrire</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+        <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
+            <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+                <h1 className="text-lg font-bold text-[var(--color-text-title)]">Accueil</h1>
+                <AuthButtons />
+            </div>
+        </header>
 
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
