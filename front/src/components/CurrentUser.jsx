@@ -3,35 +3,37 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
+import axios from 'axios'
 import UserInfo from './UserInfo'
 
 export default function CurrentUser() {
-    const [user, setUser] = useState(null)
+    const [profile, setProfile] = useState(null)
     const router = useRouter()
 
     useEffect(() => {
         const token = localStorage.getItem('token')
-        if (token) setUser(jwtDecode(token))
+        if (!token) return
+
+        const { id } = jwtDecode(token)
+
+        axios.get(`/api/v1/user/${id}`)
+            .then(res => setProfile(res.data))
+            .catch(() => setProfile(null))
     }, [])
 
-    if (!user) {
+    if (!profile) {
         return (
             <button onClick={() => router.push('/login')} className="w-full cursor-pointer text-left">
-                <UserInfo
-                    displayName="Se connecter"
-                    username="connexion"
-                    imageUrl={null}
-                    avatarSize={40}
-                />
+                <UserInfo displayName="Se connecter" username="connexion" imageUrl={null} avatarSize={40} />
             </button>
         )
     }
 
     return (
         <UserInfo
-            displayName={user.displayName}
-            username={user.username}
-            imageUrl={null}
+            displayName={profile.pseudo}
+            username={profile.pseudo_uniq}
+            imageUrl={profile.img_profile}
             avatarSize={40}
         />
     )

@@ -14,7 +14,7 @@ async function createUser(id_user, pseudo_uniq, pseudo) {
 }
 
 async function getUser(id_user){
-    const user = await User.findById(id_user);
+    const user = await User.findByPk(id_user);
     if(!user) throw new Error("User not found");
     return user;
 }
