@@ -1,5 +1,4 @@
-import {User} from "../models/user.model";
-
+const { User } = require("../models/user.model");
 
 async function createUser(id_user, pseudo_uniq, pseudo) {
     const existing = await User.findByPk(id_user);
