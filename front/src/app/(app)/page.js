@@ -1,5 +1,3 @@
-'use client'
-
 import Link from 'next/link'
 import Post from '@/components/Post'
 import AuthButtons from '@/components/auth/AuthButtons'
@@ -10,8 +8,8 @@ export default function Home() {
   const { t } = useTranslation()
   return (
     <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-        <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
-            <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 py-3">
+    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
+      <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
                 <h1 className="text-lg font-bold text-[var(--color-text-title)]">{t('pages.home.title')}</h1>
                 <div className="flex items-center gap-3">
                   <Link
