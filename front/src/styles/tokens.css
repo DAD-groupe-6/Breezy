@@ -56,4 +56,38 @@
   --color-text-primary: var(--color-light-text-primary);
   --color-text-secondary: var(--color-light-text-secondary);
 }
+
+/* ==========================================================================
+    TYPOGRAPHIE
+    ========================================================================== */
+:root {
+   /* Familles de polices */
+   --font-family-base: 'Inter', sans-serif;
+
+   /* Tailles de police */
+   --font-size-xs:   11px;
+   --font-size-sm:   13px;
+   --font-size-md:   15px;
+   --font-size-lg:   18px;
+   --font-size-xl:   22px;
+   --font-size-2xl:  28px;
+   --font-size-3xl:  36px;
+
+   /* Graisses */
+   --font-weight-regular:   400;
+   --font-weight-medium:    500;
+   --font-weight-semibold:  600;
+   --font-weight-bold:      700;
+
+   /* Hauteurs de ligne */
+   --line-height-auto:    normal;
+   --line-height-tight:   1.2;
+   --line-height-normal:  1.5;
+   --line-height-relaxed: 1.75;
+
+   /* Espacement des lettres */
+   --letter-spacing-normal:  0%;
+   --letter-spacing-wide:    0.05em;
+   --letter-spacing-wider:   0.1em;
+}
   
