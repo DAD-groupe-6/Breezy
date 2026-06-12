@@ -52,8 +52,6 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=password
       - DB_NAME=auth_db
-      - JWT_SECRET=oeL0xvKleZvALGWVwMWadS00Us47Rh3GH8EC6dfbW5w=
-      - JWT_EXPIRES_IN=1h
       - SALT_ROUNDS=12
     depends_on:
       - db-auth

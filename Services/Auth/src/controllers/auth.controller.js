@@ -15,13 +15,8 @@ async function login(req, res) {
         const { email, password } = req.body;
         const result = await AuthService.login(email, password);
 
-        res.cookie("token", result.token, {
-            httpOnly: true,
-            sameSite: "Strict",
-            path: "/",
-            maxAge: 60 * 60 * 1000, // 1h
-        });
-
+        // Le frontend va créer le cookie breezy-auth
+        // On retourne juste le token en JSON
         res.status(200).json(result);
     } catch (err) {
         res.status(401).json({ message: err.message });
@@ -29,7 +24,7 @@ async function login(req, res) {
 }
 
 function logout(req, res) {
-    res.clearCookie("token", { path: "/" });
+    // Le cookie breezy-auth est géré côté frontend avec clearToken()
     res.status(200).json({ message: "Logged out" });
 }
 
