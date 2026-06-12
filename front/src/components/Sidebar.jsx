@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
@@ -35,9 +36,13 @@ export default function Sidebar({ user = null }) {
         ))}
       </nav>
 
-        <button className="mt-4 w-full py-2.5 bg-[var(--color-text-title)] hover:opacity-90 text-[var(--color-bg-surface)] text-sm font-semibold rounded-full cursor-pointer transition-opacity duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-2">        <FiEdit size={16} className="shrink-0" />
+      <Link
+        href="/nouvelle-publication"
+        className="mt-4 w-full py-2.5 bg-[var(--color-text-title)] hover:opacity-90 text-[var(--color-bg-surface)] text-sm font-semibold rounded-full cursor-pointer transition-opacity duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-2"
+      >
+        <FiEdit size={16} className="shrink-0" />
         <span>Nouvelle publication</span>
-      </button>
+      </Link>
 
         <div className="mt-auto">
             <div className="p-3 rounded-xl hover:bg-[var(--color-bg-surface-2)] cursor-pointer transition-colors duration-200">

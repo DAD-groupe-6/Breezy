@@ -44,13 +44,6 @@ export default function NavbarMobile() {
 
   return (
     <nav className={`fixed bottom-4 left-4 right-4 z-50 flex items-center justify-around bg-[var(--color-bg-surface)]/60 backdrop-blur-md border border-[var(--color-border)]/80 h-16 sm:hidden rounded-full shadow-lg shadow-black/20 transition-transform duration-300 ${visible ? "translate-y-0" : "translate-y-32"}`}>
-      <button
-        aria-label="Créer un post"
-        className="flex flex-col items-center justify-center flex-1 h-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] transition-colors"
-      >
-        <FaPlus size={24} />
-      </button>
-
       {navItems.map(({ href, icon: Icon, label, badge }) => {
         const isActive = pathname === href;
         return (
@@ -71,6 +64,14 @@ export default function NavbarMobile() {
           </Link>
         );
       })}
+
+      <Link
+        href="/nouvelle-publication"
+        aria-label="Créer un post"
+        className="flex flex-col items-center justify-center flex-1 h-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] transition-colors"
+      >
+        <FaPlus size={24} />
+      </Link>
     </nav>
   );
 }
