@@ -1,5 +1,8 @@
+'use client'
+
 import ProfileHeader from '@/components/profil/ProfileHeader';
 import Post from '@/components/Post';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const MOCK_USER = {
   displayName: 'Lucas Martin',
@@ -72,6 +75,7 @@ const MOCK_POSTS = [
 ];
 
 export default function ProfilPage() {
+  const { t } = useTranslation()
   return (
     <div className="min-h-screen bg-[var(--color-bg-primary)]">
       <div
@@ -84,7 +88,7 @@ export default function ProfilPage() {
         {/* Titre section publications */}
         <div className="px-4 py-4">
           <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
-            Posts
+            {t('pages.profil.postsSection')}
           </h2>
         </div>
 

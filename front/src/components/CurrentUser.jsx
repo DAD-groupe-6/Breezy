@@ -4,13 +4,16 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import UserInfo from './UserInfo'
+import { useTranslation } from '@/hooks/useTranslation'
+import { getToken } from '@/utils/cookie'
 
 export default function CurrentUser() {
     const [user, setUser] = useState(null)
     const router = useRouter()
+    const { t } = useTranslation()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = getToken()
         if (token) setUser(jwtDecode(token))
     }, [])
 
@@ -18,8 +21,8 @@ export default function CurrentUser() {
         return (
             <button onClick={() => router.push('/login')} className="w-full cursor-pointer text-left">
                 <UserInfo
-                    displayName="Se connecter"
-                    username="connexion"
+                    displayName={t('auth.currentUser.signIn')}
+                    username={t('auth.currentUser.signInUsername')}
                     imageUrl={null}
                     avatarSize={40}
                 />

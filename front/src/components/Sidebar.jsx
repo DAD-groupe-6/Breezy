@@ -1,21 +1,24 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit } from 'react-icons/fi'
+import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit, FiSettings } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
-import UserInfo from "./UserInfo";
-import CurrentUser from "@/components/CurrentUser";
-
-const NAV_ITEMS = [
-  { href: '/',              label: 'Accueil',       Icon: FiHome          },
-  { href: '/explorer',      label: 'Explorer',      Icon: FiCompass       },
-  { href: '/notifications', label: 'Notifications', Icon: FiBell,          badge: 3 },
-  { href: '/messages',      label: 'Messages',      Icon: FiMessageSquare, badge: 2 },
-  { href: '/profil',        label: 'Profil',        Icon: FiUser          },
-]
+import UserInfo from './UserInfo'
+import CurrentUser from '@/components/CurrentUser'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function Sidebar({ user = null }) {
   const pathname = usePathname()
+  const { t } = useTranslation()
+
+  const NAV_ITEMS = [
+    { href: '/',              label: t('nav.home'),          Icon: FiHome          },
+    { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
+    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell,          badge: 3 },
+    { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: 2 },
+    { href: '/profil',        label: t('nav.profil'),        Icon: FiUser          },
+    { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
+  ]
 
   return (
     <aside className="hidden sm:flex flex-col sticky top-0 h-screen w-56 bg-[var(--color-bg-surface)] border-r border-[var(--color-border)] px-3 py-6 shrink-0 overflow-y-auto">
@@ -36,7 +39,7 @@ export default function Sidebar({ user = null }) {
       </nav>
 
         <button className="mt-4 w-full py-2.5 bg-[var(--color-text-title)] hover:opacity-90 text-[var(--color-bg-surface)] text-sm font-semibold rounded-full cursor-pointer transition-opacity duration-200 flex items-center justify-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-2">        <FiEdit size={16} className="shrink-0" />
-        <span>Nouvelle publication</span>
+        <span>{t('nav.newPost')}</span>
       </button>
 
         <div className="mt-auto">
