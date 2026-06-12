@@ -5,20 +5,22 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus } from "react-icons/fa";
 import Badge from "@/components/ui/Badge";
-
-const navItems = [
-  { href: "/", icon: FaHome, label: "Accueil" },
-  { href: "/explorer", icon: FaCompass, label: "Explorer" },
-  { href: "/notifications", icon: FaBell, label: "Notifications", badge: 3 },
-  { href: "/messages", icon: FaEnvelope, label: "Messages", badge: 2 },
-  { href: "/profil", icon: FaUser, label: "Profil" },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function NavbarMobile() {
   const pathname = usePathname();
+  const { t } = useTranslation();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const accumulatedDown = useRef(0);
+
+  const navItems = [
+    { href: "/", icon: FaHome, labelKey: "nav.home" },
+    { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer" },
+    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: 3 },
+    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: 2 },
+    { href: "/profil", icon: FaUser, labelKey: "nav.profil" },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,13 +46,13 @@ export default function NavbarMobile() {
 
   return (
     <nav className={`fixed bottom-4 left-4 right-4 z-50 flex items-center justify-around bg-[var(--color-bg-surface)]/60 backdrop-blur-md border border-[var(--color-border)]/80 h-16 sm:hidden rounded-full shadow-lg shadow-black/20 transition-transform duration-300 ${visible ? "translate-y-0" : "translate-y-32"}`}>
-      {navItems.map(({ href, icon: Icon, label, badge }) => {
+      {navItems.map(({ href, icon: Icon, labelKey, badge }) => {
         const isActive = pathname === href;
         return (
           <Link
             key={href}
             href={href}
-            aria-label={label}
+            aria-label={t(labelKey)}
             className={`relative flex flex-col items-center justify-center flex-1 h-full gap-1 transition-colors ${
               isActive ? "text-[var(--color-text-title)]" : "text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
             }`}
@@ -67,7 +69,7 @@ export default function NavbarMobile() {
 
       <Link
         href="/nouvelle-publication"
-        aria-label="Créer un post"
+        aria-label={t('nav.createPost')}
         className="flex flex-col items-center justify-center flex-1 h-full text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] transition-colors"
       >
         <FaPlus size={24} />

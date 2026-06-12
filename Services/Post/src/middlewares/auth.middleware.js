@@ -1,24 +1,12 @@
 const { verifyToken } = require("../utils/jwt.util");
 
 function authenticate(req, res, next) {
-    let token = null;
-
-    // 1. Chercher le token dans le cookie 'token'
-    if (req.cookies?.token) {
-        token = req.cookies.token;
-    }
-
-    // 2. Sinon, chercher dans le header Authorization
-    if (!token) {
-        const authHeader = req.headers["authorization"];
-        if (authHeader) {
-            token = authHeader.split(" ")[1];
-        }
-    }
-
-    if (!token) {
+    const authHeader = req.headers["authorization"];
+    if (!authHeader) {
         return res.status(401).json({ message: "No token provided" });
     }
+
+    const token = authHeader.split(" ")[1];
 
     try {
         const decoded = verifyToken(token);

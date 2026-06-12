@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import axios from 'axios'
 import UserInfo from './UserInfo'
+import { useTranslation } from '@/hooks/useTranslation'
+import { getToken } from '@/utils/cookie'
 
 export default function CurrentUser() {
     const [profile, setProfile] = useState(null)
     const router = useRouter()
+    const { t } = useTranslation()
 
     useEffect(() => {
-        const token = localStorage.getItem('token')
+        const token = getToken()
         if (!token) return
 
         const { id } = jwtDecode(token)
@@ -24,7 +27,12 @@ export default function CurrentUser() {
     if (!profile) {
         return (
             <button onClick={() => router.push('/login')} className="w-full cursor-pointer text-left">
-                <UserInfo displayName="Se connecter" username="connexion" imageUrl={null} avatarSize={40} />
+                <UserInfo
+                    displayName={t('auth.currentUser.signIn')}
+                    username={t('auth.currentUser.signInUsername')}
+                    imageUrl={null}
+                    avatarSize={40}
+                />
             </button>
         )
     }

@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslation } from '@/hooks/useTranslation'
+import { getToken } from '@/utils/cookie'
 
 export default function AuthButtons() {
     const [isLogged, setIsLogged] = useState(false)
+    const { t } = useTranslation()
 
     useEffect(() => {
-        setIsLogged(!!localStorage.getItem('token'))
+        setIsLogged(!!getToken())
     }, [])
 
     if (isLogged) return null
@@ -18,13 +21,13 @@ export default function AuthButtons() {
                 href="/login"
                 className="px-4 py-2 rounded-full border border-[var(--color-text-title)] text-[var(--color-text-title)] text-sm font-semibold hover:bg-[var(--color-text-title)] hover:text-[var(--color-bg-surface)] transition-colors duration-200"
             >
-                Se connecter
+                {t('auth.buttons.login')}
             </Link>
             <Link
                 href="/register"
                 className="px-4 py-2 rounded-full bg-[var(--color-text-title)] text-[var(--color-bg-surface)] text-sm font-semibold hover:opacity-90 transition-opacity duration-200"
             >
-                S'inscrire
+                {t('auth.buttons.register')}
             </Link>
         </div>
     )

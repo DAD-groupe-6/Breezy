@@ -7,6 +7,8 @@ import Button from '@/components/ui/Button'
 import { validateLogin } from '@/utils/validation'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import { useTranslation } from '@/hooks/useTranslation'
+import { setToken } from '@/utils/cookie'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -14,10 +16,11 @@ export default function LoginForm() {
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { t } = useTranslation()
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const newErrors = validateLogin(email, password)
+    const newErrors = validateLogin(email, password, t)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -27,10 +30,10 @@ export default function LoginForm() {
     setLoading(true);
     try{
         const { data } = await axios.post('/api/v1/auth/login', { email, password })
-        localStorage.setItem('token', data.token)
+        setToken(data.token)
         router.push('/')
     }catch(err){
-        const message = err.response?.data?.message || 'Erreur réseau, réessaie plus tard'
+        const message = err.response?.data?.message || t('errors.network.login')
         setErrors({ general: message })
     } finally {
         setLoading(false)
@@ -40,40 +43,40 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="mb-2">
-        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">Connexion</h2>
-        <p className="text-sm text-[var(--color-text-secondary)]">Bon retour sur Breezy</p>
+        <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{t('auth.login.title')}</h2>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t('auth.login.subtitle')}</p>
       </div>
 
         {errors.general && (
             <p className="text-sm text-red-500 text-center">{errors.general}</p>
         )}
       <InputField
-        label="Email"
+        label={t('auth.login.emailLabel')}
         id="email"
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         error={errors.email}
-        placeholder="exemple@email.com"
+        placeholder={t('auth.login.emailPlaceholder')}
       />
       <InputField
-        label="Mot de passe"
+        label={t('auth.login.passwordLabel')}
         id="password"
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={errors.password}
-        placeholder="••••••••"
+        placeholder={t('auth.login.passwordPlaceholder')}
       />
 
         <Button type="submit" fullWidth disabled={loading}>
-            {loading ? 'Connexion...' : 'Se connecter'}
+            {loading ? t('auth.login.submitLoading') : t('auth.login.submit')}
         </Button>
 
       <p className="text-sm text-center text-[var(--color-text-secondary)]">
-        Pas encore de compte ?{' '}
+        {t('auth.login.noAccount')}{' '}
         <Link href="/register" className="text-[var(--color-text-title)] font-medium hover:underline">
-          S'inscrire
+          {t('auth.login.register')}
         </Link>
       </p>
     </form>

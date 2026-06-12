@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
 import Avatar from '../Avatar';
 import Button from '../ui/Button';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ProfileHeader({
   displayName = 'Utilisateur',
@@ -19,6 +20,7 @@ export default function ProfileHeader({
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -62,7 +64,7 @@ export default function ProfileHeader({
                     borderColor: 'var(--color-border)',
                     color: 'var(--color-text-secondary)',
                   }}
-                  aria-label="Options du profil"
+                  aria-label={t('profile.optionsAriaLabel')}
                 >
                   <FaEllipsisH size={15} />
                 </button>
@@ -82,7 +84,7 @@ export default function ProfileHeader({
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); onEditProfile?.(); }}
                     >
-                      Modifier le profil
+                      {t('profile.editProfile')}
                     </button>
                     <button
                       className="w-full text-left px-4 py-3 text-sm font-medium transition-colors cursor-pointer"
@@ -94,7 +96,7 @@ export default function ProfileHeader({
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); }}
                     >
-                      Changer la photo de profil
+                      {t('profile.changePhoto')}
                     </button>
                   </div>
                 )}
@@ -102,7 +104,7 @@ export default function ProfileHeader({
             ) : (
               /* Bouton Suivre pour le visiteur */
               <Button variant="primary" onClick={onFollow}>
-                Suivre
+                {t('profile.follow')}
               </Button>
             )}
           </div>
@@ -138,9 +140,9 @@ export default function ProfileHeader({
 
           {/* Stats */}
           <div className="flex items-center gap-5 pt-1">
-            <StatItem value={formatCount(postsCount)} label="Posts" />
-            <StatItem value={formatCount(followingCount)} label="Suivis" />
-            <StatItem value={formatCount(followersCount)} label="Followers" />
+            <StatItem value={formatCount(postsCount)} label={t('profile.statPosts')} />
+            <StatItem value={formatCount(followingCount)} label={t('profile.statFollowing')} />
+            <StatItem value={formatCount(followersCount)} label={t('profile.statFollowers')} />
           </div>
         </div>
       </div>

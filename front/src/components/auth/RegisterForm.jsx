@@ -5,8 +5,9 @@ import Link from 'next/link'
 import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
 import { validateRegister } from '@/utils/validation'
-import {useRouter} from "next/navigation";
-import axios from "axios";
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function RegisterForm() {
   const [username, setUsername] = useState('');
@@ -17,10 +18,11 @@ export default function RegisterForm() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation();
 
   async function handleSubmit(e) {
     e.preventDefault()
-    const newErrors = validateRegister(username, email, password, confirm)
+    const newErrors = validateRegister(username, email, password, confirm, t)
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors)
       return
@@ -36,7 +38,7 @@ export default function RegisterForm() {
         })
         router.push('/login')
     }catch(err){
-        const message = err.response?.data?.message || 'Erreur réseau, réessayez plus tard'
+        const message = err.response?.data?.message || t('errors.network.register')
         setErrors({ general: message })
     } finally {
         setLoading(false)
@@ -46,28 +48,28 @@ export default function RegisterForm() {
   return (
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="mb-2">
-              <h2 className="text-xl font-bold text-slate-900">Créer un compte</h2>
-              <p className="text-sm text-slate-500">Rejoins Breezy dès maintenant</p>
+              <h2 className="text-xl font-bold text-[var(--color-text-primary)]">{t('auth.register.title')}</h2>
+              <p className="text-sm text-[var(--color-text-secondary)]">{t('auth.register.subtitle')}</p>
           </div>
 
           {errors.general && (
               <p className="text-sm text-red-500 text-center">{errors.general}</p>
           )}
 
-          <InputField label="Nom d'utilisateur" id="username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} placeholder="@tonpseudo" />
-          <InputField label="Nom d'affichage" id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} error={errors.displayName} placeholder="Ton nom complet" />
-          <InputField label="Email" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} placeholder="exemple@email.com" />
-          <InputField label="Mot de passe" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} placeholder="Minimum 8 caractères" />
-          <InputField label="Confirmer le mot de passe" id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} placeholder="••••••••" />
+          <InputField label={t('auth.register.usernameLabel')} id="username" value={username} onChange={(e) => setUsername(e.target.value)} error={errors.username} placeholder={t('auth.register.usernamePlaceholder')} />
+          <InputField label={t('auth.register.displayNameLabel')} id="displayName" value={displayName} onChange={(e) => setDisplayName(e.target.value)} error={errors.displayName} placeholder={t('auth.register.displayNamePlaceholder')} />
+          <InputField label={t('auth.register.emailLabel')} id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} error={errors.email} placeholder={t('auth.register.emailPlaceholder')} />
+          <InputField label={t('auth.register.passwordLabel')} id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} error={errors.password} placeholder={t('auth.register.passwordPlaceholder')} />
+          <InputField label={t('auth.register.confirmLabel')} id="confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors.confirm} placeholder={t('auth.register.confirmPlaceholder')} />
 
           <Button type="submit" fullWidth disabled={loading}>
-              {loading ? 'Création...' : 'Créer mon compte'}
+              {loading ? t('auth.register.submitLoading') : t('auth.register.submit')}
           </Button>
 
-          <p className="text-sm text-center text-slate-500">
-              Déjà un compte ?{' '}
-              <Link href="/login" className="text-[#5B5EF4] font-medium hover:underline">
-                  Se connecter
+          <p className="text-sm text-center text-[var(--color-text-secondary)]">
+              {t('auth.register.alreadyAccount')}{' '}
+              <Link href="/login" className="text-[var(--color-text-title)] font-medium hover:underline">
+                  {t('auth.register.login')}
               </Link>
           </p>
       </form>
