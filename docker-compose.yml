@@ -73,7 +73,9 @@ services:
     build:
       context: ./Services/Post
     environment:
+      - API_PORT=3000
       - MONGO_URI=mongodb://db-post:27017/post_db
+      - JWT_SECRET=oeL0xvKleZvALGWVwMWadS00Us47Rh3GH8EC6dfbW5w=
     depends_on:
       - db-post
 
