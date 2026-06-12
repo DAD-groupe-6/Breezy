@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Post from '@/components/Post'
 import AuthButtons from '@/components/auth/AuthButtons'
