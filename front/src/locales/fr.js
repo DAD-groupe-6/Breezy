@@ -44,6 +44,7 @@ const fr = {
     buttons: {
       login: 'Se connecter',
       register: "S'inscrire",
+      logout: 'Déconnexion',
     },
     currentUser: {
       signIn: 'Se connecter',
