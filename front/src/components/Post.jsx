@@ -1,19 +1,24 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import api from '@/utils/api';
 import { FaHeart, FaRegHeart, FaRegComment, FaRetweet, FaEllipsisH } from 'react-icons/fa';
 import UserInfo from './UserInfo';
 import CommentSection from './CommentSection';
+import { getToken } from '@/utils/cookie';
 
 export default function Post({
-  displayName = 'John Doe',
-  username = 'johndoe',
+  postId,
+  displayName,
+  username,
   imageUrl = null,
-  timestamp = '2h',
+  timestamp,
   content = '',
   image = null,
   video = null,
   likes = 0,
+  liked = false,
   comments = 0,
   replies = 0,
   initialComments = [],
@@ -23,8 +28,10 @@ export default function Post({
   onViewProfile,
   onReport,
 }) {
-  const [isLiked, setIsLiked] = useState(false);
+  const router = useRouter();
+  const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
+  const [likeLoading, setLikeLoading] = useState(false);
   const [commentCount, setCommentCount] = useState(comments);
   const [postComments, setPostComments] = useState(initialComments);
   const [showComments, setShowComments] = useState(false);
@@ -41,10 +48,27 @@ export default function Post({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    setLikeCount((prev) => (isLiked ? prev - 1 : prev + 1));
-    onLike?.();
+  const handleLike = async () => {
+    const token = getToken();
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    if (likeLoading) return;
+
+    setLikeLoading(true);
+    try {
+      const { data } = isLiked
+        ? await api.delete(`/post/${postId}/like`)
+        : await api.post(`/post/${postId}/like`);
+
+      setIsLiked(data.likedByMe);
+      setLikeCount(data.likesCount);
+      onLike?.();
+    } catch {
+    } finally {
+      setLikeLoading(false);
+    }
   };
 
   const formatCount = (n) => {
