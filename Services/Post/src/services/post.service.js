@@ -12,6 +12,7 @@ function toView(post, viewerId) {
         content: post.content,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
+        commentsCount: post.comments.length,
         ...likeStats(post.likes, viewerId),
     };
 }
@@ -94,6 +95,35 @@ async function unlikePost(id, userId) {
     return toView(post, userId);
 }
 
+async function addComment(postId, authorId, content) {
+    if (!content || !content.trim()) {
+        throw new Error("Content is required");
+    }
+    const post = await getPostById(postId);
+    post.comments.push({ authorId, content: content.trim() });
+    await post.save();
+    return post.comments[post.comments.length - 1];
+}
+
+async function listComments(postId) {
+    const post = await getPostById(postId);
+    return [...post.comments].sort((a, b) => b.createdAt - a.createdAt);
+}
+
+async function deleteComment(postId, commentId, userId) {
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new Error("Comment not found");
+    }
+    const post = await getPostById(postId);
+    const comment = post.comments.id(commentId);
+    if (!comment) throw new Error("Comment not found");
+    if (comment.authorId !== userId) throw new Error("Forbidden");
+
+    post.comments.pull(commentId);
+    await post.save();
+    return { message: "Comment deleted" };
+}
+
 module.exports = {
     createPost,
     getFeed,
@@ -103,4 +133,7 @@ module.exports = {
     deletePost,
     likePost,
     unlikePost,
+    addComment,
+    listComments,
+    deleteComment,
 };

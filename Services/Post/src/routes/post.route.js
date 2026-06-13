@@ -13,4 +13,8 @@ router.delete("/:id", authenticate, PostController.deletePost);
 router.post("/:id/like", authenticate, PostController.likePost);
 router.delete("/:id/like", authenticate, PostController.unlikePost);
 
+router.post("/:id/comments", authenticate, PostController.addComment);
+router.get("/:id/comments", authenticate, PostController.listComments);
+router.delete("/:id/comments/:commentId", authenticate, PostController.deleteComment);
+
 module.exports = router;
