@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit, FiSettings } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
-import UserInfo from "./UserInfo";
 import CurrentUser from "@/components/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
 

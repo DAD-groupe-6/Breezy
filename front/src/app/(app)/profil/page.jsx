@@ -1,20 +1,13 @@
 'use client'
 
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { jwtDecode } from 'jwt-decode'
+import axios from 'axios'
 import ProfileHeader from '@/components/profil/ProfileHeader';
 import Post from '@/components/Post';
 import { useTranslation } from '@/hooks/useTranslation';
-
-const MOCK_USER = {
-  displayName: 'Lucas Martin',
-  username: 'lucas_m',
-  bio: 'Développeur passionné ☁️ | Amoureux du café et des bons commits | En train de construire des trucs cool chez @Breezy',
-  imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-  postsCount: 248,
-  followersCount: 1340,
-  followingCount: 312,
-  location: 'Paris, France',
-  joinedDate: 'janvier 2023',
-};
+import { getToken } from '@/utils/cookie';
 
 const MOCK_POSTS = [
   {
@@ -76,30 +69,68 @@ const MOCK_POSTS = [
 
 export default function ProfilPage() {
   const { t } = useTranslation()
-  return (
-    <div className="min-h-screen bg-[var(--color-bg-primary)]">
-      <div
-        className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
-        style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-      >
-        {/* Header de profil */}
-        <ProfileHeader {...MOCK_USER} isOwnProfile={true} />
+  const router = useRouter()
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-        {/* Titre section publications */}
-        <div className="px-4 py-4">
-          <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
-            {t('pages.profil.postsSection')}
-          </h2>
+  useEffect(() => {
+    const token = getToken()
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    const { id } = jwtDecode(token)
+
+    axios.get(`/api/v1/user/${id}`)
+        .then(res => setUser(res.data))
+        .catch(() => setUser(null))
+        .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+        <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+          <p className="text-[var(--color-text-secondary)]">Chargement...</p>
         </div>
+    )
+  }
 
-        {/* Feed de posts */}
-        <div>
-          {MOCK_POSTS.map((post) => (
-            <Post key={post.id} {...post} />
-          ))}
+  if (!user) {
+    return (
+        <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+          <p className="text-[var(--color-text-secondary)]">Profil introuvable</p>
+        </div>
+    )
+  }
+
+  return (
+      <div className="min-h-screen bg-[var(--color-bg-primary)]">
+        <div
+            className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
+            style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
+        >
+          <ProfileHeader
+              displayName={user.pseudo}
+              username={user.pseudo_uniq}
+              bio={user.bio}
+              imageUrl={user.img_profile}
+              followersCount={user.nb_followers}
+              isOwnProfile={true}
+          />
+
+          <div className="px-4 py-4">
+            <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
+              {t('pages.profil.postsSection')}
+            </h2>
+          </div>
+
+          <div>
+            {MOCK_POSTS.map((post) => (
+                <Post key={post.id} {...post} />
+            ))}
+          </div>
         </div>
       </div>
-    </div>
   );
 }
-

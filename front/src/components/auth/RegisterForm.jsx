@@ -30,7 +30,12 @@ export default function RegisterForm() {
     setErrors({})
     setLoading(true);
     try{
-        await axios.post('/api/v1/auth/register', { email, password, username, displayName })
+        await axios.post('/api/v1/auth/register', {
+            email,
+            password,
+            pseudo_uniq: username,
+            pseudo: displayName
+        })
         router.push('/login')
     }catch(err){
         const message = err.response?.data?.message || t('errors.network.register')
