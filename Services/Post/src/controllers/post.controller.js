@@ -1,6 +1,5 @@
 const PostService = require("../services/post.service");
 
-// Traduit un message d'erreur métier en code HTTP.
 function statusFor(message) {
     switch (message) {
         case "Post not found":
@@ -25,7 +24,11 @@ async function createPost(req, res) {
 async function getFeed(req, res) {
     try {
         const { limit, before } = req.query;
-        const result = await PostService.getFeed({ limit, before });
+        const result = await PostService.getFeed({
+            limit,
+            before,
+            viewerId: req.user.id,
+        });
         res.status(200).json(result);
     } catch (err) {
         res.status(400).json({ message: err.message });
@@ -34,7 +37,7 @@ async function getFeed(req, res) {
 
 async function getPost(req, res) {
     try {
-        const post = await PostService.getPostById(req.params.id);
+        const post = await PostService.getPostView(req.params.id, req.user.id);
         res.status(200).json(post);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -64,4 +67,30 @@ async function deletePost(req, res) {
     }
 }
 
-module.exports = { createPost, getFeed, getPost, updatePost, deletePost };
+async function likePost(req, res) {
+    try {
+        const post = await PostService.likePost(req.params.id, req.user.id);
+        res.status(200).json(post);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function unlikePost(req, res) {
+    try {
+        const post = await PostService.unlikePost(req.params.id, req.user.id);
+        res.status(200).json(post);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+module.exports = {
+    createPost,
+    getFeed,
+    getPost,
+    updatePost,
+    deletePost,
+    likePost,
+    unlikePost,
+};
