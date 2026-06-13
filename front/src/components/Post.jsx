@@ -13,6 +13,7 @@ import { timeAgo } from '@/utils/time';
 
 export default function Post({
   postId,
+  authorId,
   displayName,
   username,
   imageUrl = null,
@@ -29,6 +30,7 @@ export default function Post({
   onReply,
   onViewProfile,
   onReport,
+  onDelete,
 }) {
   const router = useRouter();
   const [isLiked, setIsLiked] = useState(liked);
@@ -45,6 +47,18 @@ export default function Post({
     const token = getToken();
     return token ? jwtDecode(token).id : null;
   }, []);
+
+  const isMine = authorId === currentUserId;
+
+  const handleDeletePost = async () => {
+    setShowMenu(false);
+    try {
+      await api.delete(`/post/${postId}`);
+      onDelete?.(postId);
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -213,6 +227,14 @@ export default function Post({
                 >
                   Signaler
                 </button>
+                {isMine && (
+                  <button
+                    className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-rose-600 text-sm font-medium transition-colors border-t border-[var(--color-border)]"
+                    onClick={handleDeletePost}
+                  >
+                    Supprimer
+                  </button>
+                )}
               </div>
             )}
           </div>
