@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
+import api from '@/utils/api'
 import { FiArrowLeft, FiImage, FiMapPin, FiSmile, FiVideo } from 'react-icons/fi'
 import { getToken } from '@/utils/cookie'
 
@@ -34,11 +34,7 @@ export default function NewPublicationPage() {
     setError(null)
     setLoading(true)
     try {
-      await axios.post(
-        '/api/v1/post',
-        { content },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+      await api.post('/post', { content })
       router.push('/')
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur réseau, réessaie plus tard')

@@ -6,7 +6,7 @@ import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
 import { validateRegister } from '@/utils/validation'
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
+import api from '@/utils/api';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function RegisterForm() {
@@ -30,7 +30,7 @@ export default function RegisterForm() {
     setErrors({})
     setLoading(true);
     try{
-        await axios.post('/api/v1/auth/register', {
+        await api.post('/auth/register', {
             email,
             password,
             pseudo_uniq: username,

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
-import axios from 'axios'
+import api from '@/utils/api'
 import ProfileHeader from '@/components/profil/ProfileHeader';
 import Post from '@/components/Post';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -82,7 +82,7 @@ export default function ProfilPage() {
 
     const { id } = jwtDecode(token)
 
-    axios.get(`/api/v1/user/${id}`)
+    api.get(`/user/${id}`)
         .then(res => setUser(res.data))
         .catch(() => setUser(null))
         .finally(() => setLoading(false))
