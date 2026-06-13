@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { FiTrash2 } from 'react-icons/fi';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function CommentSection({
   comments = [],
   onAddComment,
+  onDelete,
 }) {
   const [draft, setDraft] = useState('');
   const { t } = useTranslation();
@@ -50,10 +52,22 @@ export default function CommentSection({
             key={comment.id}
             className="rounded-lg border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] px-3 py-2"
           >
-            <div className="mb-1 flex items-center gap-2 text-xs">
-              <span className="font-semibold text-[var(--color-text-primary)]">{comment.displayName}</span>
-              <span className="text-[var(--color-text-secondary)]">@{comment.username}</span>
-              <span className="text-[var(--color-text-secondary)]">{comment.timestamp}</span>
+            <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[var(--color-text-primary)]">{comment.displayName}</span>
+                <span className="text-[var(--color-text-secondary)]">@{comment.username}</span>
+                <span className="text-[var(--color-text-secondary)]">{comment.timestamp}</span>
+              </div>
+              {comment.canDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete?.(comment.id)}
+                  className="shrink-0 text-[var(--color-text-secondary)] transition-colors hover:text-rose-500"
+                  aria-label="Supprimer le commentaire"
+                >
+                  <FiTrash2 size={13} />
+                </button>
+              )}
             </div>
             <p className="text-sm text-[var(--color-text-primary)]">{comment.content}</p>
           </div>
