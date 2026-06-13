@@ -38,11 +38,13 @@ export default function CurrentUser() {
     }
 
     return (
-        <UserInfo
-            displayName={profile.pseudo}
-            username={profile.pseudo_uniq}
-            imageUrl={profile.img_profile}
-            avatarSize={40}
-        />
+        <button onClick={() => router.push('/profil')} className="w-full cursor-pointer text-left">
+            <UserInfo
+                displayName={profile.pseudo}
+                username={profile.pseudo_uniq}
+                imageUrl={profile.img_profile}
+                avatarSize={40}
+            />
+        </button>
     )
 }
