@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import axios from 'axios'
+import api from '@/utils/api'
 import Post from '@/components/Post'
 import AuthButtons from '@/components/auth/AuthButtons'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -15,13 +15,12 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Mémoïse les profils auteurs pour éviter les appels redondants au user-service.
   const authorsCache = useRef({})
 
   const resolveAuthor = useCallback(async (authorId) => {
     if (authorsCache.current[authorId]) return authorsCache.current[authorId]
     try {
-      const { data } = await axios.get(`/api/v1/user/${authorId}`)
+      const { data } = await api.get(`/user/${authorId}`)
       authorsCache.current[authorId] = data
       return data
     } catch {
@@ -29,12 +28,11 @@ export default function Home() {
     }
   }, [])
 
-  // Récupère les posts récents et y associe le profil de chaque auteur.
   const loadPosts = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const { data } = await axios.get('/api/v1/post')
+      const { data } = await api.get('/post')
       const enriched = await Promise.all(
         data.posts.map(async (post) => ({
           ...post,
@@ -49,7 +47,6 @@ export default function Home() {
     }
   }, [resolveAuthor])
 
-  // Chargement du feed au montage de la page.
   useEffect(() => {
     loadPosts()
   }, [loadPosts])
@@ -77,11 +74,14 @@ export default function Home() {
           {posts.map((post) => (
             <Post
               key={post._id}
+              postId={post._id}
               displayName={post.author?.pseudo || 'Utilisateur inconnu'}
               username={post.author?.pseudo_uniq || 'inconnu'}
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt)}
               content={post.content}
+              likes={post.likesCount}
+              liked={post.likedByMe}
             />
           ))}
 
