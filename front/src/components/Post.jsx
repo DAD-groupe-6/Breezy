@@ -93,6 +93,8 @@ export default function Post({
       timestamp: timeAgo(c.createdAt),
       content: c.content,
       canDelete: c.authorId === currentUserId,
+      likesCount: c.likesCount,
+      liked: c.likedByMe,
     };
   };
 
@@ -135,6 +137,29 @@ export default function Post({
       await api.delete(`/post/${postId}/comments/${commentId}`);
       setCommentList((prev) => prev.filter((c) => c.id !== commentId));
       setCommentCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleLikeComment = async (commentId) => {
+    if (!getToken()) {
+      router.push('/login');
+      return;
+    }
+    const target = commentList.find((c) => c.id === commentId);
+    if (!target) return;
+    try {
+      const { data } = target.liked
+        ? await api.delete(`/post/${postId}/comments/${commentId}/like`)
+        : await api.post(`/post/${postId}/comments/${commentId}/like`);
+      setCommentList((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? { ...c, liked: data.likedByMe, likesCount: data.likesCount }
+            : c
+        )
+      );
     } catch {
       // ignore
     }
@@ -264,6 +289,7 @@ export default function Post({
             comments={commentList}
             onAddComment={handleAddComment}
             onDelete={handleDeleteComment}
+            onLike={handleLikeComment}
           />
         )}
       </div>
