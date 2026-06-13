@@ -1,108 +1,107 @@
 'use client'
 
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import axios from 'axios'
 import Post from '@/components/Post'
 import AuthButtons from '@/components/auth/AuthButtons'
 import { useTranslation } from '@/hooks/useTranslation'
+import { timeAgo } from '@/utils/time'
 import { FiSettings } from 'react-icons/fi'
 
 export default function Home() {
   const { t } = useTranslation()
+  const [posts, setPosts] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  // Mémoïse les profils auteurs pour éviter les appels redondants au user-service.
+  const authorsCache = useRef({})
+
+  const resolveAuthor = useCallback(async (authorId) => {
+    if (authorsCache.current[authorId]) return authorsCache.current[authorId]
+    try {
+      const { data } = await axios.get(`/api/v1/user/${authorId}`)
+      authorsCache.current[authorId] = data
+      return data
+    } catch {
+      return null
+    }
+  }, [])
+
+  // Récupère les posts récents et y associe le profil de chaque auteur.
+  const loadPosts = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const { data } = await axios.get('/api/v1/post')
+      const enriched = await Promise.all(
+        data.posts.map(async (post) => ({
+          ...post,
+          author: await resolveAuthor(post.authorId),
+        }))
+      )
+      setPosts(enriched)
+    } catch (err) {
+      setError(err.response?.data?.message || 'Impossible de charger le feed')
+    } finally {
+      setLoading(false)
+    }
+  }, [resolveAuthor])
+
+  // Chargement du feed au montage de la page.
+  useEffect(() => {
+    loadPosts()
+  }, [loadPosts])
+
   return (
     <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
-      <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
-                <h1 className="text-lg font-bold text-[var(--color-text-title)]">{t('pages.home.title')}</h1>
-                <div className="flex items-center gap-3">
-                  <Link
-                    href="/settings"
-                    aria-label={t('nav.settings')}
-                    className="p-2 rounded-full hover:bg-[var(--color-bg-surface)] transition-colors text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]"
-                  >
-                    <FiSettings size={20} />
-                  </Link>
-                  <AuthButtons />
-                </div>
-            </div>
-        </header>
+      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
+        <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
+          <h1 className="text-lg font-bold text-[var(--color-text-title)]">{t('pages.home.title')}</h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/settings"
+              aria-label={t('nav.settings')}
+              className="p-2 rounded-full hover:bg-[var(--color-bg-surface)] transition-colors text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]"
+            >
+              <FiSettings size={20} />
+            </Link>
+            <AuthButtons />
+          </div>
+        </div>
+      </header>
 
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
-          
-          {/* POST 1 : Marie Dupont */}
-          <Post
-            displayName="Marie Dupont"
-            username="maried"
-            imageUrl="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=128&q=80&auto=format&fit=crop"
-            timestamp="2h"
-            content="Nouvelle maquette terminée pour Breezy. Hâte de vous montrer la prochaine version."
-            likes={128}
-            comments={24}
-            replies={8}
-            initialComments={[
-              {
-                id: 1,
-                displayName: 'Sophie Laurent',
-                username: 'sophiel',
-                timestamp: '2h',
-                content: "Je suis d'accord, c'est un amour-haine permanent 😄",
-              },
-              {
-                id: 2,
-                displayName: 'Nicolas Perez',
-                username: 'nicolasp',
-                timestamp: '1h',
-                content: 'Mais quand ca marche, quel plaisir.',
-              },
-            ]}
-          />
+          {posts.map((post) => (
+            <Post
+              key={post._id}
+              displayName={post.author?.pseudo || 'Utilisateur inconnu'}
+              username={post.author?.pseudo_uniq || 'inconnu'}
+              imageUrl={post.author?.img_profile || null}
+              timestamp={timeAgo(post.createdAt)}
+              content={post.content}
+            />
+          ))}
 
-          {/* POST 2 : Alex Martin */}
-          <Post
-            displayName="Alex Martin"
-            username="alexm"
-            imageUrl="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=128&q=80&auto=format&fit=crop"
-            timestamp="5h"
-            content="Petit café + grosse session de dev. Qui d'autre code mieux le matin ?"
-            image="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80&auto=format&fit=crop"
-            likes={342}
-            comments={45}
-            replies={12}
-            initialComments={[
-              {
-                id: 3,
-                displayName: 'Camille Rouge',
-                username: 'camrouge',
-                timestamp: '52m',
-                content: 'La photo est incroyable.',
-              },
-            ]}
-          />
+          {loading && (
+            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+              Chargement…
+            </p>
+          )}
 
-          {/* POST 3 : Tech News */}
-          <Post
-            displayName="Tech News"
-            username="technews"
-            imageUrl="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=128&q=80&auto=format&fit=crop"
-            timestamp="1j"
-            content="Démo produit du jour : nouvelle interface plus rapide et plus lisible."
-            video="https://videos.pexels.com/video-files/6963744/6963744-sd_640_360_25fps.mp4"
-            likes={1200}
-            comments={340}
-            replies={96}
-            initialComments={[
-              {
-                id: 4,
-                displayName: 'Dev Club',
-                username: 'devclub',
-                timestamp: '20m',
-                content: 'Hate de tester ca en prod.',
-              },
-            ]}
-          />
-          
+          {!loading && error && (
+            <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
+          )}
+
+          {!loading && !error && posts.length === 0 && (
+            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+              Aucun post pour le moment. Soyez le premier à publier !
+            </p>
+          )}
         </div>
       </section>
     </main>
-  );
+  )
 }

@@ -44,6 +44,7 @@ const en = {
     buttons: {
       login: 'Sign in',
       register: 'Sign up',
+      logout: 'Log out',
     },
     currentUser: {
       signIn: 'Sign in',

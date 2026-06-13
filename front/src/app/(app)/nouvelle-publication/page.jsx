@@ -2,16 +2,50 @@
 
 import { useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import axios from 'axios'
 import { FiArrowLeft, FiImage, FiMapPin, FiSmile, FiVideo } from 'react-icons/fi'
+import { getToken } from '@/utils/cookie'
+
+const MAX_LENGTH = 300
 
 export default function NewPublicationPage() {
+  const router = useRouter()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const imageInputRef = useRef(null)
   const videoInputRef = useRef(null)
 
-  const canPublish = useMemo(() => content.trim().length > 0, [content])
+  const canPublish = useMemo(
+    () => content.trim().length > 0 && content.length <= MAX_LENGTH,
+    [content]
+  )
+
+  async function handlePublish() {
+    const token = getToken()
+    if (!token) {
+      router.push('/login')
+      return
+    }
+
+    setError(null)
+    setLoading(true)
+    try {
+      await axios.post(
+        '/api/v1/post',
+        { content },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      router.push('/')
+    } catch (err) {
+      setError(err.response?.data?.message || 'Erreur réseau, réessaie plus tard')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleDrop = (event) => {
     event.preventDefault()
@@ -62,12 +96,19 @@ export default function NewPublicationPage() {
 
           <button
             type="button"
-            disabled={!canPublish}
+            onClick={handlePublish}
+            disabled={!canPublish || loading}
             className="rounded-full bg-[var(--color-text-title)] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Publier
+            {loading ? 'Publication...' : 'Publier'}
           </button>
         </header>
+
+        {error && (
+          <p className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-500">
+            {error}
+          </p>
+        )}
 
         <section className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4 shadow-sm md:p-6">
           <div className="flex items-start gap-3">
@@ -161,7 +202,7 @@ export default function NewPublicationPage() {
               </button>
             </div>
 
-            <p className="text-xs text-[var(--color-text-secondary)]">{content.length}/280</p>
+            <p className={`text-xs ${content.length > MAX_LENGTH ? 'text-rose-500' : 'text-[var(--color-text-secondary)]'}`}>{content.length}/{MAX_LENGTH}</p>
           </div>
         </section>
       </div>
