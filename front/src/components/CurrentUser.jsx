@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
-import axios from 'axios'
+import api from '@/utils/api'
 import UserInfo from './UserInfo'
 import { useTranslation } from '@/hooks/useTranslation'
 import { getToken } from '@/utils/cookie'
@@ -19,7 +19,7 @@ export default function CurrentUser() {
 
         const { id } = jwtDecode(token)
 
-        axios.get(`/api/v1/user/${id}`)
+        api.get(`/user/${id}`)
             .then(res => setProfile(res.data))
             .catch(() => setProfile(null))
     }, [])

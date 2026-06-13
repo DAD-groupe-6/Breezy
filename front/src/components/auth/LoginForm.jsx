@@ -6,7 +6,7 @@ import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
 import { validateLogin } from '@/utils/validation'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
+import api from '@/utils/api'
 import { useTranslation } from '@/hooks/useTranslation'
 import { setToken } from '@/utils/cookie'
 
@@ -29,7 +29,7 @@ export default function LoginForm() {
 
     setLoading(true);
     try{
-        const { data } = await axios.post('/api/v1/auth/login', { email, password })
+        const { data } = await api.post('/auth/login', { email, password })
         setToken(data.token)
         router.push('/')
     }catch(err){
