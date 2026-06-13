@@ -17,4 +17,7 @@ router.post("/:id/comments", authenticate, PostController.addComment);
 router.get("/:id/comments", authenticate, PostController.listComments);
 router.delete("/:id/comments/:commentId", authenticate, PostController.deleteComment);
 
+router.post("/:id/comments/:commentId/like", authenticate, PostController.likeComment);
+router.delete("/:id/comments/:commentId/like", authenticate, PostController.unlikeComment);
+
 module.exports = router;

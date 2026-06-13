@@ -103,7 +103,7 @@ async function addComment(req, res) {
 
 async function listComments(req, res) {
     try {
-        const comments = await PostService.listComments(req.params.id);
+        const comments = await PostService.listComments(req.params.id, req.user.id);
         res.status(200).json(comments);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -123,6 +123,32 @@ async function deleteComment(req, res) {
     }
 }
 
+async function likeComment(req, res) {
+    try {
+        const comment = await PostService.likeComment(
+            req.params.id,
+            req.params.commentId,
+            req.user.id
+        );
+        res.status(200).json(comment);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function unlikeComment(req, res) {
+    try {
+        const comment = await PostService.unlikeComment(
+            req.params.id,
+            req.params.commentId,
+            req.user.id
+        );
+        res.status(200).json(comment);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
 module.exports = {
     createPost,
     getFeed,
@@ -134,4 +160,6 @@ module.exports = {
     addComment,
     listComments,
     deleteComment,
+    likeComment,
+    unlikeComment,
 };
