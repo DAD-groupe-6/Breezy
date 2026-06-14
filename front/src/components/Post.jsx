@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 import api from '@/utils/api';
 import { FaHeart, FaRegHeart, FaRegComment, FaRetweet, FaEllipsisH } from 'react-icons/fa';
 import UserInfo from './UserInfo';
 import CommentSection from './CommentSection';
 import { getToken } from '@/utils/cookie';
+import { resolveAuthor } from '@/utils/authors';
+import { timeAgo } from '@/utils/time';
 
 export default function Post({
   postId,
@@ -21,7 +24,6 @@ export default function Post({
   liked = false,
   comments = 0,
   replies = 0,
-  initialComments = [],
   onLike,
   onComment,
   onReply,
@@ -33,10 +35,16 @@ export default function Post({
   const [likeCount, setLikeCount] = useState(likes);
   const [likeLoading, setLikeLoading] = useState(false);
   const [commentCount, setCommentCount] = useState(comments);
-  const [postComments, setPostComments] = useState(initialComments);
+  const [commentList, setCommentList] = useState([]);
+  const [commentsLoaded, setCommentsLoaded] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
+
+  const currentUserId = useMemo(() => {
+    const token = getToken();
+    return token ? jwtDecode(token).id : null;
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -76,23 +84,85 @@ export default function Post({
     return n;
   };
 
+  const mapComment = async (c) => {
+    const author = await resolveAuthor(c.authorId);
+    return {
+      id: c._id,
+      displayName: author?.pseudo || 'Utilisateur inconnu',
+      username: author?.pseudo_uniq || 'inconnu',
+      timestamp: timeAgo(c.createdAt),
+      content: c.content,
+      canDelete: c.authorId === currentUserId,
+      likesCount: c.likesCount,
+      liked: c.likedByMe,
+    };
+  };
+
+  const loadComments = async () => {
+    try {
+      const { data } = await api.get(`/post/${postId}/comments`);
+      const mapped = await Promise.all(data.map(mapComment));
+      setCommentList(mapped);
+      setCommentsLoaded(true);
+    } catch {
+      // ignore
+    }
+  };
+
   const handleCommentClick = (e) => {
-    e.stopPropagation(); // Évite de propager le clic à la carte parente
-    setShowComments((prev) => !prev);
+    e.stopPropagation();
+    const next = !showComments;
+    setShowComments(next);
+    if (next && !commentsLoaded) loadComments();
     onComment?.();
   };
 
-  const handleAddComment = (content) => {
-    const nextComment = {
-      id: Date.now(),
-      displayName: 'Vous',
-      username: 'you',
-      timestamp: "à l'instant",
-      content,
-    };
+  const handleAddComment = async (value) => {
+    if (!getToken()) {
+      router.push('/login');
+      return;
+    }
+    try {
+      const { data } = await api.post(`/post/${postId}/comments`, { content: value });
+      const mapped = await mapComment(data);
+      setCommentList((prev) => [mapped, ...prev]);
+      setCommentCount((prev) => prev + 1);
+    } catch {
+      // ignore
+    }
+  };
 
-    setPostComments((prev) => [nextComment, ...prev]);
-    setCommentCount((prev) => prev + 1);
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await api.delete(`/post/${postId}/comments/${commentId}`);
+      setCommentList((prev) => prev.filter((c) => c.id !== commentId));
+      setCommentCount((prev) => Math.max(0, prev - 1));
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleLikeComment = async (commentId) => {
+    if (!getToken()) {
+      router.push('/login');
+      return;
+    }
+    const target = commentList.find((c) => c.id === commentId);
+    if (!target) return;
+    try {
+      const { data } = target.liked
+        ? await api.delete(`/post/${postId}/comments/${commentId}/like`)
+        : await api.post(`/post/${postId}/comments/${commentId}/like`);
+      setCommentList((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? { ...c, liked: data.likedByMe, likesCount: data.likesCount }
+            : c
+        )
+      );
+    } catch {
+      // ignore
+    }
   };
 
   return (
@@ -215,7 +285,12 @@ export default function Post({
         </div>
 
         {showComments && (
-          <CommentSection comments={postComments} onAddComment={handleAddComment} />
+          <CommentSection
+            comments={commentList}
+            onAddComment={handleAddComment}
+            onDelete={handleDeleteComment}
+            onLike={handleLikeComment}
+          />
         )}
       </div>
     </article>

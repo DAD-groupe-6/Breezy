@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import api from '@/utils/api'
 import Post from '@/components/Post'
 import AuthButtons from '@/components/auth/AuthButtons'
 import { useTranslation } from '@/hooks/useTranslation'
 import { timeAgo } from '@/utils/time'
+import { resolveAuthor } from '@/utils/authors'
 import { FiSettings } from 'react-icons/fi'
 
 export default function Home() {
@@ -14,19 +15,6 @@ export default function Home() {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-
-  const authorsCache = useRef({})
-
-  const resolveAuthor = useCallback(async (authorId) => {
-    if (authorsCache.current[authorId]) return authorsCache.current[authorId]
-    try {
-      const { data } = await api.get(`/user/${authorId}`)
-      authorsCache.current[authorId] = data
-      return data
-    } catch {
-      return null
-    }
-  }, [])
 
   const loadPosts = useCallback(async () => {
     setLoading(true)
@@ -45,7 +33,7 @@ export default function Home() {
     } finally {
       setLoading(false)
     }
-  }, [resolveAuthor])
+  }, [])
 
   useEffect(() => {
     loadPosts()
@@ -82,6 +70,7 @@ export default function Home() {
               content={post.content}
               likes={post.likesCount}
               liked={post.likedByMe}
+              comments={post.commentsCount}
             />
           ))}
 

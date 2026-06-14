@@ -12,7 +12,18 @@ function toView(post, viewerId) {
         content: post.content,
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
+        commentsCount: post.comments.length,
         ...likeStats(post.likes, viewerId),
+    };
+}
+
+function toCommentView(comment, viewerId) {
+    return {
+        _id: comment._id,
+        authorId: comment.authorId,
+        content: comment.content,
+        createdAt: comment.createdAt,
+        ...likeStats(comment.likes, viewerId),
     };
 }
 
@@ -94,6 +105,62 @@ async function unlikePost(id, userId) {
     return toView(post, userId);
 }
 
+async function addComment(postId, authorId, content) {
+    if (!content || !content.trim()) {
+        throw new Error("Content is required");
+    }
+    const post = await getPostById(postId);
+    post.comments.push({ authorId, content: content.trim() });
+    await post.save();
+    const created = post.comments[post.comments.length - 1];
+    return toCommentView(created, authorId);
+}
+
+async function listComments(postId, viewerId) {
+    const post = await getPostById(postId);
+    return [...post.comments]
+        .sort((a, b) => b.createdAt - a.createdAt)
+        .map((comment) => toCommentView(comment, viewerId));
+}
+
+async function deleteComment(postId, commentId, userId) {
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new Error("Comment not found");
+    }
+    const post = await getPostById(postId);
+    const comment = post.comments.id(commentId);
+    if (!comment) throw new Error("Comment not found");
+    if (comment.authorId !== userId) throw new Error("Forbidden");
+
+    post.comments.pull(commentId);
+    await post.save();
+    return { message: "Comment deleted" };
+}
+
+async function getCommentOrThrow(postId, commentId) {
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new Error("Comment not found");
+    }
+    const post = await getPostById(postId);
+    const comment = post.comments.id(commentId);
+    if (!comment) throw new Error("Comment not found");
+    return { post, comment };
+}
+
+async function likeComment(postId, commentId, userId) {
+    const { post, comment } = await getCommentOrThrow(postId, commentId);
+    if (!comment.likes.includes(userId)) comment.likes.push(userId);
+    await post.save();
+    return toCommentView(comment, userId);
+}
+
+async function unlikeComment(postId, commentId, userId) {
+    const { post, comment } = await getCommentOrThrow(postId, commentId);
+    comment.likes.pull(userId);
+    await post.save();
+    return toCommentView(comment, userId);
+}
+
 module.exports = {
     createPost,
     getFeed,
@@ -103,4 +170,9 @@ module.exports = {
     deletePost,
     likePost,
     unlikePost,
+    addComment,
+    listComments,
+    deleteComment,
+    likeComment,
+    unlikeComment,
 };

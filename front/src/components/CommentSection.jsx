@@ -1,11 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import { FiTrash2 } from 'react-icons/fi';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function CommentSection({
   comments = [],
   onAddComment,
+  onDelete,
+  onLike,
 }) {
   const [draft, setDraft] = useState('');
   const { t } = useTranslation();
@@ -50,12 +54,33 @@ export default function CommentSection({
             key={comment.id}
             className="rounded-lg border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] px-3 py-2"
           >
-            <div className="mb-1 flex items-center gap-2 text-xs">
-              <span className="font-semibold text-[var(--color-text-primary)]">{comment.displayName}</span>
-              <span className="text-[var(--color-text-secondary)]">@{comment.username}</span>
-              <span className="text-[var(--color-text-secondary)]">{comment.timestamp}</span>
+            <div className="mb-1 flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-[var(--color-text-primary)]">{comment.displayName}</span>
+                <span className="text-[var(--color-text-secondary)]">@{comment.username}</span>
+                <span className="text-[var(--color-text-secondary)]">{comment.timestamp}</span>
+              </div>
+              {comment.canDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete?.(comment.id)}
+                  className="shrink-0 text-[var(--color-text-secondary)] transition-colors hover:text-rose-500"
+                  aria-label="Supprimer le commentaire"
+                >
+                  <FiTrash2 size={13} />
+                </button>
+              )}
             </div>
             <p className="text-sm text-[var(--color-text-primary)]">{comment.content}</p>
+            <button
+              type="button"
+              onClick={() => onLike?.(comment.id)}
+              className={`mt-1.5 flex items-center gap-1 text-xs transition-colors ${comment.liked ? 'text-rose-500' : 'text-[var(--color-text-secondary)] hover:text-rose-500'}`}
+              aria-label="Aimer le commentaire"
+            >
+              {comment.liked ? <FaHeart size={12} /> : <FaRegHeart size={12} />}
+              {comment.likesCount > 0 && <span>{comment.likesCount}</span>}
+            </button>
           </div>
         ))}
       </div>
