@@ -1,10 +1,13 @@
 const PostService = require("../services/post.service");
+const MediaService = require("../services/media.service");
 
 function statusFor(message) {
     switch (message) {
         case "Post not found":
             return 404;
         case "Comment not found":
+            return 404;
+        case "Media not found":
             return 404;
         case "Forbidden":
             return 403;
@@ -16,7 +19,7 @@ function statusFor(message) {
 async function createPost(req, res) {
     try {
         const { content } = req.body;
-        const post = await PostService.createPost(req.user.id, content);
+        const post = await PostService.createPost(req.user.id, content, req.file);
         res.status(201).json(post);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -149,6 +152,17 @@ async function unlikeComment(req, res) {
     }
 }
 
+async function getMedia(req, res) {
+    try {
+        const { stream, contentType } = await MediaService.getImage(req.params.id);
+        res.setHeader("Content-Type", contentType);
+        stream.on("error", () => res.sendStatus(404));
+        stream.pipe(res);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
 module.exports = {
     createPost,
     getFeed,
@@ -162,4 +176,5 @@ module.exports = {
     deleteComment,
     likeComment,
     unlikeComment,
+    getMedia,
 };

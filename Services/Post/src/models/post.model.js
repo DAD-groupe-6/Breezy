@@ -42,6 +42,10 @@ const postSchema = new mongoose.Schema(
             type: [commentSchema],
             default: [],
         },
+        mediaId: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+        },
     },
     {
         timestamps: true,

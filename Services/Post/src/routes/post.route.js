@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
+const { uploadImage } = require("../middlewares/upload.middleware");
 
 router.get("/", authenticate, PostController.getFeed);
+router.get("/media/:id", PostController.getMedia);
 router.get("/:id", authenticate, PostController.getPost);
 
-router.post("/", authenticate, PostController.createPost);
+router.post("/", authenticate, uploadImage, PostController.createPost);
 router.put("/:id", authenticate, PostController.updatePost);
 router.delete("/:id", authenticate, PostController.deletePost);
 

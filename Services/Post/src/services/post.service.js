@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Post = require("../models/post.model");
 const { likeStats } = require("../utils/likes.util");
+const { uploadImage } = require("./media.service");
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -13,6 +14,7 @@ function toView(post, viewerId) {
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         commentsCount: post.comments.length,
+        mediaUrl: post.mediaId ? `/api/v1/post/media/${post.mediaId}` : null,
         ...likeStats(post.likes, viewerId),
     };
 }
@@ -27,11 +29,15 @@ function toCommentView(comment, viewerId) {
     };
 }
 
-async function createPost(authorId, content) {
+async function createPost(authorId, content, file) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
-    const post = await Post.create({ authorId, content: content.trim() });
+    const data = { authorId, content: content.trim() };
+    if (file) {
+        data.mediaId = await uploadImage(file);
+    }
+    const post = await Post.create(data);
     return toView(post, authorId);
 }
 
