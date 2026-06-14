@@ -69,6 +69,7 @@ export default function Home() {
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt)}
               content={post.content}
+              image={post.mediaUrl}
               likes={post.likesCount}
               liked={post.likedByMe}
               comments={post.commentsCount}

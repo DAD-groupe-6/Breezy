@@ -34,7 +34,12 @@ export default function NewPublicationPage() {
     setError(null)
     setLoading(true)
     try {
-      await api.post('/post', { content })
+      const formData = new FormData()
+      formData.append('content', content)
+      if (mediaType === 'photo' && selectedFile) {
+        formData.append('image', selectedFile)
+      }
+      await api.post('/post', formData)
       router.push('/')
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur réseau, réessaie plus tard')
