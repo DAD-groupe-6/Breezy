@@ -17,8 +17,8 @@ export default function NavbarMobile() {
   const navItems = [
     { href: "/", icon: FaHome, labelKey: "nav.home" },
     { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer" },
-    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: 3 },
-    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: 2 },
+    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications"},
+    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages"},
     { href: "/profil", icon: FaUser, labelKey: "nav.profil" },
   ];
 
