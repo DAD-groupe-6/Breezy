@@ -60,12 +60,13 @@ const fr = {
       title: 'Explorer',
       subtitle: 'Recherchez des posts par mot-clé, #tag ou @pseudo.',
       searchLabel: 'Rechercher un contenu',
-      searchPlaceholder: 'Ex: design, #react, @maried',
+      searchPlaceholder: 'Ex: mot-clé, #tag',
       searchNote: 'Cette recherche sera reliée au back plus tard pour filtrer les posts par tags et mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'Aucun message pour le moment.',
+      searchPlaceholder: 'Rechercher...',
     },
     notifications: {
       title: 'Notifications',

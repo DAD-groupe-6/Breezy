@@ -16,11 +16,21 @@ export default function MyProfilPage() {
       router.push('/login')
       return
     }
-    const { id } = jwtDecode(token)
-    setMyId(id)
-  }, [])
+    try {
+      const { id } = jwtDecode(token)
+      setMyId(id)
+    } catch {
+      router.push('/login')
+    }
+  }, [router])
 
-  if (!myId) return null
+  if (!myId) {
+    return (
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
+        <p className="text-[var(--color-text-secondary)]">Chargement...</p>
+      </div>
+    )
+  }
 
-  return <ProfileView userId={myId} isOwnProfile={true} />
+  return <ProfileView userId={myId} isOwnProfile />
 }

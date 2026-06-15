@@ -6,7 +6,7 @@ export default function SettingsPage() {
   const { t, locale, setLocale } = useTranslation()
 
   return (
-    <div className="p-6 text-[var(--color-text-primary)]">
+    <div className="min-h-full bg-transparent p-6 text-[var(--color-text-primary)]">
       <h1 className="text-2xl font-bold text-[var(--color-text-title)] mb-6">
         {t('pages.settings.title')}
       </h1>
