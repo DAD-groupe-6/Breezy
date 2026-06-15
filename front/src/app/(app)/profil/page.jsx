@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
 import ProfileHeader from '@/components/profil/ProfileHeader';
-import Post from '@/components/Post';
+import Post from '@/components/post/Post';
 import { useTranslation } from '@/hooks/useTranslation';
 import { getToken } from '@/utils/cookie';
 
