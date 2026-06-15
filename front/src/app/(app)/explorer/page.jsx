@@ -20,7 +20,7 @@ export default function ExplorerPage() {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder={t('pages.explorer.searchPlaceholder')}
-        className="mt-8"
+        className="mx-auto mt-8 w-full max-w-2xl"
       />
     </div>
   )
