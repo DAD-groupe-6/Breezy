@@ -12,15 +12,15 @@ export default function UserInfo({
     usernameClassName = '',
 }) {
     return (
-        <div className={`flex min-w-0 items-center gap-3 ${className}`}>
+        <div className={`flex min-w-0 items-center gap-[var(--space-sm)] ${className}`}>
             <Avatar imageUrl={imageUrl} size={avatarSize} />
 
             {!avatarOnly && (
                 <div className={`flex min-w-0 flex-col ${textContainerClassName}`}>
-                    <span className={`truncate text-base font-bold leading-tight text-[var(--color-text-primary)] ${displayNameClassName}`}>
+                    <span className={`truncate text-base leading-tight text-[var(--color-text-primary)] [font-weight:var(--font-weight-title)] [letter-spacing:var(--tracking-title)] ${displayNameClassName}`}>
                         {displayName}
                     </span>
-                    <span className={`truncate text-sm leading-tight text-[var(--color-text-secondary)] ${usernameClassName}`}>
+                    <span className={`truncate text-sm leading-tight text-[var(--color-text-secondary)] [font-weight:var(--font-weight-regular)] ${usernameClassName}`}>
                         @{username}
                     </span>
                 </div>
