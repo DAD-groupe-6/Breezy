@@ -60,12 +60,13 @@ const en = {
       title: 'Explore',
       subtitle: 'Search posts by keyword, #tag, or @handle.',
       searchLabel: 'Search content',
-      searchPlaceholder: 'e.g. design, #react, @maried',
+      searchPlaceholder: 'Ex: keyword, #tag',
       searchNote: 'This search will be connected to the backend to filter posts by tags and mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'No messages yet.',
+      searchPlaceholder: 'Search...',
     },
     notifications: {
       title: 'Notifications',
