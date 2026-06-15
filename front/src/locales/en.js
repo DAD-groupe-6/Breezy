@@ -80,6 +80,10 @@ const en = {
       languageDescription: 'Choose the interface language.',
       langFr: 'Français',
       langEn: 'English',
+      accountSection: 'Account',
+      accountDescription: 'Manage your account',
+      logout: 'Log out',
+      deleteAccount: 'Delete my account',
     },
   },
 
