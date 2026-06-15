@@ -79,7 +79,7 @@ export default function CommentSection({
               aria-label="Aimer le commentaire"
             >
               {comment.liked ? <FaHeart size={12} /> : <FaRegHeart size={12} />}
-              {comment.likesCount > 0 && <span>{comment.likesCount}</span>}
+              {comment.nb_like > 0 && <span>{comment.nb_like}</span>}
             </button>
           </div>
         ))}
