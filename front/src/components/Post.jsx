@@ -216,8 +216,8 @@ export default function Post({
             {showMenu && (
               <div className="absolute right-0 mt-1 w-44 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-20 overflow-hidden">
                 <button
-                  className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-[var(--color-text-primary)] text-sm font-medium transition-colors"
-                  onClick={() => { setShowMenu(false); onViewProfile?.(); }}
+                    className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-[var(--color-text-primary)] text-sm font-medium transition-colors"
+                    onClick={() => { setShowMenu(false); router.push(`/profil/${authorId}`); }}
                 >
                   Voir le profil
                 </button>
