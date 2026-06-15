@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema(
     {
-        authorId: {
-            type: Number,
+        id_user: {
+            type: String,
             required: true,
         },
         content: {
@@ -13,7 +13,7 @@ const commentSchema = new mongoose.Schema(
             maxlength: 300,
         },
         likes: {
-            type: [Number],
+            type: [String],
             default: [],
         },
     },
@@ -24,18 +24,39 @@ const commentSchema = new mongoose.Schema(
 
 const postSchema = new mongoose.Schema(
     {
-        authorId: {
-            type: Number,
+        id_user: {
+            type: String,
             required: true,
         },
         content: {
             type: String,
-            required: true,
             trim: true,
             maxlength: 300,
         },
+        image: {
+            type: String,
+            default: null,
+        },
         likes: {
-            type: [Number],
+            type: [String],
+            default: [],
+        },
+        nb_signalement: {
+            type: Number,
+            default: 0,
+        },
+        type: {
+            type: String,
+            enum: ["post", "retweet", "response"],
+            default: "post",
+        },
+        parent_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Post",
+            default: null,
+        },
+        list_tags: {
+            type: [String],
             default: [],
         },
         comments: {
