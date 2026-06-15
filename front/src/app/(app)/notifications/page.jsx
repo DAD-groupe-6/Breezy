@@ -48,7 +48,7 @@ const notifications = [
 
 function NotificationRow({ name, action, time, unread, avatar, tone }) {
   return (
-          <li className="relative border-b border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-4 last:border-b-0 sm:px-4 sm:py-3">
+    <li className="relative border-b border-[var(--color-border)] px-3 py-4 last:border-b-0 sm:px-4 sm:py-3">
       <div className="flex items-start gap-3 sm:gap-4">
         <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${tone} text-lg shadow-sm ring-1 ring-[var(--color-border)] sm:h-10 sm:w-10`}>
           <span aria-hidden="true">{avatar}</span>
@@ -72,7 +72,7 @@ function NotificationRow({ name, action, time, unread, avatar, tone }) {
 
 export default function NotificationsPage() {
   return (
-    <main className="min-h-full bg-transparent text-[var(--color-text-primary)]">
+    <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <div className="mx-auto flex w-full max-w-5xl flex-col px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
         <h1 className="mb-3 text-xl font-bold tracking-tight text-[var(--color-text-title)] sm:mb-4 sm:text-2xl">Notifications</h1>
 
