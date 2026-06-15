@@ -24,7 +24,7 @@ export default function Home() {
       const enriched = await Promise.all(
         data.posts.map(async (post) => ({
           ...post,
-          author: await resolveAuthor(post.authorId),
+          author: await resolveAuthor(post.id_user),
         }))
       )
       setPosts(enriched)
@@ -63,13 +63,13 @@ export default function Home() {
             <Post
               key={post._id}
               postId={post._id}
-              authorId={post.authorId}
+              authorId={post.id_user}
               displayName={post.author?.pseudo || 'Utilisateur inconnu'}
               username={post.author?.pseudo_uniq || 'inconnu'}
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt)}
               content={post.content}
-              likes={post.likesCount}
+              likes={post.nb_like}
               liked={post.likedByMe}
               comments={post.commentsCount}
               onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
