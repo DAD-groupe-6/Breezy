@@ -56,7 +56,7 @@ export default function Post({
       await api.delete(`/post/${postId}`);
       onDelete?.(postId);
     } catch {
-      // ignore
+      alert('Impossible de supprimer ce post. Réessaie.');
     }
   };
 
