@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { FiTrash2 } from 'react-icons/fi';
-import { FaHeart, FaRegHeart } from 'react-icons/fa';
 import { useTranslation } from '@/hooks/useTranslation';
+import LikeButton from './LikeButton';
 
 export default function CommentSection({
   comments = [],
@@ -72,15 +72,16 @@ export default function CommentSection({
               )}
             </div>
             <p className="text-sm text-[var(--color-text-primary)]">{comment.content}</p>
-            <button
-              type="button"
-              onClick={() => onLike?.(comment.id)}
-              className={`mt-1.5 flex items-center gap-1 text-xs transition-colors ${comment.liked ? 'text-rose-500' : 'text-[var(--color-text-secondary)] hover:text-rose-500'}`}
-              aria-label="Aimer le commentaire"
-            >
-              {comment.liked ? <FaHeart size={12} /> : <FaRegHeart size={12} />}
-              {comment.likesCount > 0 && <span>{comment.likesCount}</span>}
-            </button>
+            <div className="mt-1.5">
+              <LikeButton
+                liked={comment.liked}
+                count={comment.likesCount}
+                onClick={() => onLike?.(comment.id)}
+                size={12}
+                hideZero
+                label="Aimer le commentaire"
+              />
+            </div>
           </div>
         ))}
       </div>
