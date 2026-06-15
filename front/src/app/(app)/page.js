@@ -63,6 +63,7 @@ export default function Home() {
             <Post
               key={post._id}
               postId={post._id}
+              authorId={post.authorId}
               displayName={post.author?.pseudo || 'Utilisateur inconnu'}
               username={post.author?.pseudo_uniq || 'inconnu'}
               imageUrl={post.author?.img_profile || null}
@@ -71,6 +72,7 @@ export default function Home() {
               likes={post.likesCount}
               liked={post.likedByMe}
               comments={post.commentsCount}
+              onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
             />
           ))}
 
