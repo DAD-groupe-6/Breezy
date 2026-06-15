@@ -25,7 +25,7 @@ export default function CommentSection({
 
   return (
     <section
-      className="mt-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-3"
+      className="mt-3 rounded-xl border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-primary)]/35 p-3"
       onClick={(e) => e.stopPropagation()}
     >
       <form onSubmit={handleSubmit} className="mb-3 flex gap-2">
@@ -34,7 +34,7 @@ export default function CommentSection({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={t('comments.placeholder')}
-          className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
+          className="w-full rounded-lg border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
         />
         <button
           type="submit"
@@ -52,7 +52,7 @@ export default function CommentSection({
         {comments.map((comment) => (
           <div
             key={comment.id}
-            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-2"
+            className="rounded-lg border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-surface)] px-3 py-2"
           >
             <div className="mb-1 flex items-center justify-between gap-2 text-xs">
               <div className="flex items-center gap-2">
