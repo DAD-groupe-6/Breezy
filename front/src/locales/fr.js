@@ -80,6 +80,10 @@ const fr = {
       languageDescription: "Choisissez la langue de l'interface.",
       langFr: 'Français',
       langEn: 'English',
+      accountSection: 'Compte',
+      accountDescription: 'Gérez votre compte',
+      logout: 'Se déconnecter',
+      deleteAccount: 'Supprimer mon compte',
     },
   },
 
