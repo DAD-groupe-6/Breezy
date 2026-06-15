@@ -58,7 +58,7 @@ export default function Home() {
       </header>
 
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
           {posts.map((post) => (
             <Post
               key={post._id}
