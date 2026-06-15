@@ -5,8 +5,7 @@
      ========================================================================== */
   
   /* Arrière-plans & Surfaces */
-   --color-light-primary: #F4F5FA;     /* Fond principal des pages */
-   --color-light-bg-primary: var(--color-light-primary);   /* Fond principal de la page */
+  --color-light-bg-primary: #F4F5FA;   /* Fond principal de la page */
   --color-light-bg-surface: #FFFFFF;   /* Surfaces blanches pour détacher les blocs (cartes, menu) */
   --color-light-bg-surface-2: #F0F2F9; /* Zones de contrastes secondaires ou grisés de fond */
   
