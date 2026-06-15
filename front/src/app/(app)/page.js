@@ -17,10 +17,10 @@ export default function Home() {
     try {
       const { data } = await api.get('/post')
       const enriched = await Promise.all(
-          data.posts.map(async (post) => ({
-            ...post,
-            author: await resolveAuthor(post.authorId),
-          }))
+        data.posts.map(async (post) => ({
+          ...post,
+          author: await resolveAuthor(post.id_user),
+        }))
       )
       setPosts(enriched)
     } catch (err) {
@@ -37,19 +37,21 @@ export default function Home() {
   return (
     <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
           {posts.map((post) => (
             <Post
               key={post._id}
               postId={post._id}
+              authorId={post.id_user}
               displayName={post.author?.pseudo || 'Utilisateur inconnu'}
               username={post.author?.pseudo_uniq || 'inconnu'}
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt)}
               content={post.content}
-              likes={post.likesCount}
+              likes={post.nb_like}
               liked={post.likedByMe}
               comments={post.commentsCount}
+              onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
             />
           ))}
 

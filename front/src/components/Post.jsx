@@ -48,7 +48,7 @@ export default function Post({
     return token ? jwtDecode(token).id : null;
   }, []);
 
-  const isMine = authorId === currentUserId;
+  const isMine = String(authorId) === String(currentUserId);
 
   const handleDeletePost = async () => {
     setShowMenu(false);
@@ -85,7 +85,7 @@ export default function Post({
         : await api.post(`/post/${postId}/like`);
 
       setIsLiked(data.likedByMe);
-      setLikeCount(data.likesCount);
+      setLikeCount(data.nb_like);
       onLike?.();
     } catch {
     } finally {
@@ -99,15 +99,15 @@ export default function Post({
   };
 
   const mapComment = async (c) => {
-    const author = await resolveAuthor(c.authorId);
+    const author = await resolveAuthor(c.id_user);
     return {
       id: c._id,
       displayName: author?.pseudo || 'Utilisateur inconnu',
       username: author?.pseudo_uniq || 'inconnu',
       timestamp: timeAgo(c.createdAt),
       content: c.content,
-      canDelete: c.authorId === currentUserId,
-      likesCount: c.likesCount,
+      canDelete: String(c.id_user) === String(currentUserId),
+      nb_like: c.nb_like,
       liked: c.likedByMe,
     };
   };
@@ -170,7 +170,7 @@ export default function Post({
       setCommentList((prev) =>
         prev.map((c) =>
           c.id === commentId
-            ? { ...c, liked: data.likedByMe, likesCount: data.likesCount }
+            ? { ...c, liked: data.likedByMe, nb_like: data.nb_like }
             : c
         )
       );
