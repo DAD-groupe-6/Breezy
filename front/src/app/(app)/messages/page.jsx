@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from 'react'
-import { FiChevronLeft, FiSearch, FiPhone, FiVideo, FiPaperclip, FiSend } from 'react-icons/fi'
+import { FiChevronLeft, FiPhone, FiVideo, FiPaperclip, FiSend } from 'react-icons/fi'
+import { useTranslation } from '@/hooks/useTranslation'
+import Searchbar from '../../../components/Searchbar'
 
 const conversations = [
   {
@@ -107,6 +109,8 @@ function ChatBubble({ from, text, time }) {
 
 export default function MessagesPage() {
   const [selectedId, setSelectedId] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const { t } = useTranslation()
 
   const selectedConversation = conversations.find((conversation) => conversation.id === selectedId) ?? null
 
@@ -125,10 +129,14 @@ export default function MessagesPage() {
           <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
               <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
-              <label className="mt-4 flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-                <FiSearch className="shrink-0" />
-                <span>Rechercher...</span>
-              </label>
+              <Searchbar
+                id="messages-search-desktop"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder={t('pages.messages.searchPlaceholder')}
+                rounded="rounded-full"
+                className="mt-4"
+              />
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -204,10 +212,14 @@ export default function MessagesPage() {
             <section className="border-x border-[var(--color-border)] bg-[var(--color-bg-surface)]">
               <div className="border-b border-[var(--color-border)] px-4 py-4">
                 <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
-                <label className="mt-4 flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-                  <FiSearch className="shrink-0" />
-                  <span>Rechercher...</span>
-                </label>
+                <Searchbar
+                  id="messages-search-mobile"
+                  value={searchQuery}
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder={t('pages.messages.searchPlaceholder')}
+                  rounded="rounded-full"
+                  className="mt-4"
+                />
               </div>
 
               <div>
