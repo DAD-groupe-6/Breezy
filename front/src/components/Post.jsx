@@ -180,7 +180,7 @@ export default function Post({
   };
 
   return (
-    <article className="flex gap-3 border-b border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-4 transition-colors cursor-pointer w-full hover:brightness-[0.985]">
+    <article className="flex w-full cursor-pointer gap-[var(--space-sm)] rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-md)] py-[var(--space-md)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-[var(--color-bg-surface-2)] hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]">
       {/* Colonne avatar */}
       <div className="shrink-0">
         <UserInfo
@@ -207,29 +207,29 @@ export default function Post({
           <div className="relative shrink-0" ref={menuRef}>
             <button
               onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)] hover:bg-[var(--color-bg-surface-2)] rounded-full p-2 transition-colors"
+              className="rounded-[var(--radius-pill)] p-[var(--space-xs)] text-[var(--color-text-secondary)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
               aria-label="Plus d'options"
             >
               <FaEllipsisH size={14} />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-1 w-44 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-20 overflow-hidden">
+              <div className="absolute right-0 z-20 mt-[var(--space-2xs)] w-44 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-md)]">
                 <button
-                    className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-[var(--color-text-primary)] text-sm font-medium transition-colors"
+                    className="w-full px-[var(--space-md)] py-[12px] text-left text-sm font-medium text-[var(--color-text-primary)] transition-[background-color,color] duration-200 hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
                     onClick={() => { setShowMenu(false); router.push(`/profil/${authorId}`); }}
                 >
                   Voir le profil
                 </button>
                 <button
-                  className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-rose-600 text-sm font-medium transition-colors border-t border-[var(--color-border)]"
+                  className="w-full border-t border-[var(--color-border)] px-[var(--space-md)] py-[12px] text-left text-sm font-medium text-rose-600 transition-[background-color,color] duration-200 hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
                   onClick={() => { setShowMenu(false); onReport?.(); }}
                 >
                   Signaler
                 </button>
                 {isMine && (
                   <button
-                    className="w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-rose-600 text-sm font-medium transition-colors border-t border-[var(--color-border)]"
+                    className="w-full border-t border-[var(--color-border)] px-[var(--space-md)] py-[12px] text-left text-sm font-medium text-rose-600 transition-[background-color,color] duration-200 hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
                     onClick={handleDeletePost}
                   >
                     Supprimer
@@ -247,7 +247,7 @@ export default function Post({
 
         {/* Image */}
         {image && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
+          <div className="mb-[var(--space-xs)] w-full overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)]">
             <img
               src={image}
               alt="Contenu du post"
@@ -258,7 +258,7 @@ export default function Post({
 
         {/* Vidéo */}
         {video && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
+          <div className="mb-[var(--space-xs)] w-full overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)]">
             <video
               src={video}
               controls
@@ -268,14 +268,14 @@ export default function Post({
         )}
 
         {/* Barre d'actions */}
-        <div className="flex items-center gap-4 text-[var(--color-text-secondary)] mt-2">
+        <div className="mt-[var(--space-xs)] flex items-center gap-[var(--space-md)] text-[var(--color-text-secondary)]">
           {/* Commentaire */}
           <button
             onClick={handleCommentClick}
-            className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
+            className="group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
             aria-label="Commenter"
           >
-            <div className="group-hover:bg-[var(--color-bg-surface-2)] rounded-full p-1.5 transition-colors">
+            <div className="rounded-[var(--radius-pill)] p-[6px] transition-colors group-hover:bg-[var(--color-bg-surface)]">
               <FaRegComment size={16} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(commentCount)}</span>
@@ -284,10 +284,10 @@ export default function Post({
           {/* Repost / Reply */}
           <button
             onClick={(e) => { e.stopPropagation(); onReply?.(); }}
-            className="flex items-center gap-0.5 group hover:text-[var(--color-text-title)] transition-colors"
+            className="group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
             aria-label="Reposter"
           >
-            <div className="group-hover:bg-[var(--color-bg-surface-2)] rounded-full p-1.5 transition-colors">
+            <div className="rounded-[var(--radius-pill)] p-[6px] transition-colors group-hover:bg-[var(--color-bg-surface)]">
               <FaRetweet size={17} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(replies)}</span>
@@ -296,10 +296,10 @@ export default function Post({
           {/* Like */}
           <button
             onClick={(e) => { e.stopPropagation(); handleLike(); }}
-            className={`flex items-center gap-0.5 group transition-colors ${isLiked ? 'text-rose-500' : 'hover:text-rose-500'}`}
+            className={`group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] ${isLiked ? 'bg-rose-50 text-rose-500' : 'hover:bg-rose-50 hover:text-rose-500'}`}
             aria-label="Aimer"
           >
-            <div className={`rounded-full p-1.5 transition-colors ${isLiked ? 'bg-rose-100/60' : 'group-hover:bg-rose-100/60'}`}>
+            <div className={`rounded-[var(--radius-pill)] p-[6px] transition-colors ${isLiked ? 'bg-rose-100/60' : 'group-hover:bg-rose-100/60'}`}>
               {isLiked ? <FaHeart size={16} /> : <FaRegHeart size={16} />}
             </div>
             <span className="text-xs sm:text-sm">{formatCount(likeCount)}</span>

@@ -2,7 +2,7 @@ import UserInfo from './UserInfo'
 
 export default function SidebarUser({ user }) {
   return (
-    <div className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-[var(--color-bg-surface-2)] cursor-pointer transition-colors duration-200">
+    <div className="flex cursor-pointer items-center gap-[var(--space-xs)] rounded-[var(--radius-lg)] px-[var(--space-xs)] py-[var(--space-xs)] transition-[background-color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:shadow-[var(--shadow-sm)]">
       {user && (
         <UserInfo
           displayName={user.displayName}

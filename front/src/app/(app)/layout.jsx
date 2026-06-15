@@ -4,7 +4,7 @@ import AppTopNavbar from "@/components/TopNavbar";
 
 export default function AppLayout({ children }) {
   return (
-    <div className="min-h-screen flex text-[var(--color-text-primary)] bg-[var(--color-light-primary)]">
+    <div className="flex min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <Sidebar />
       <main className="flex flex-1 flex-col bg-[var(--color-bg-surface)] pb-16 md:pb-0">
         <AppTopNavbar />

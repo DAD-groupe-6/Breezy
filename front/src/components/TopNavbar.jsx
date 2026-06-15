@@ -23,14 +23,14 @@ export default function AppTopNavbar() {
   const titleKey = ROUTE_TITLE_KEYS[pathname] || 'nav.home'
 
   return (
-    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] backdrop-blur">
-      <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
-        <h1 className="text-lg font-bold text-[var(--color-text-title)]">{t(titleKey)}</h1>
-        <div className="flex items-center gap-3">
+    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg-surface)_86%,transparent)] shadow-[var(--shadow-sm)] backdrop-blur-xl">
+      <div className="flex w-full items-center justify-between px-[var(--space-md)] py-[var(--space-sm)] md:px-[var(--space-lg)]">
+        <h1 className="text-lg text-[var(--color-text-title)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-display)]">{t(titleKey)}</h1>
+        <div className="flex items-center gap-[var(--space-sm)]">
           <Link
             href="/settings"
             aria-label={t('nav.settings')}
-            className="rounded-full p-2 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-title)]"
+            className="rounded-[var(--radius-pill)] p-[var(--space-xs)] text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
           >
             <FiSettings size={20} />
           </Link>
