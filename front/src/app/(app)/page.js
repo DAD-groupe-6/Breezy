@@ -17,10 +17,10 @@ export default function Home() {
     try {
       const { data } = await api.get('/post')
       const enriched = await Promise.all(
-        data.posts.map(async (post) => ({
-          ...post,
-          author: await resolveAuthor(post.authorId),
-        }))
+          data.posts.map(async (post) => ({
+            ...post,
+            author: await resolveAuthor(post.authorId),
+          }))
       )
       setPosts(enriched)
     } catch (err) {
@@ -53,15 +53,15 @@ export default function Home() {
             />
           ))}
 
-          {loading && (
-            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
-              Chargement…
-            </p>
-          )}
+            {loading && (
+                <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                  Chargement…
+                </p>
+            )}
 
-          {!loading && error && (
-            <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
-          )}
+            {!loading && error && (
+                <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
+            )}
 
           {!loading && !error && posts.length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">

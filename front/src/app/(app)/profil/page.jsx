@@ -3,75 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
-import api from '@/utils/api'
-import ProfileHeader from '@/components/profil/ProfileHeader';
-import Post from '@/components/Post';
-import { useTranslation } from '@/hooks/useTranslation';
-import { getToken } from '@/utils/cookie';
+import { getToken } from '@/utils/cookie'
+import ProfileView from '@/components/profil/ProfileView'
 
-const MOCK_POSTS = [
-  {
-    id: 1,
-    displayName: 'Lucas Martin',
-    username: 'lucas_m',
-    imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    timestamp: '2h',
-    content: "Je viens de déployer ma première app Next.js en prod 🚀 C'est une fierté incroyable. Merci à toute l'équipe !",
-    likes: 87,
-    comments: 14,
-    replies: 5,
-  },
-  {
-    id: 2,
-    displayName: 'Lucas Martin',
-    username: 'lucas_m',
-    imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    timestamp: '1j',
-    content: "Le CSS c'est de l'art. Vous ne me convaincrez jamais du contraire. 🎨\n\n(dit celui qui passe 3h à centrer une div)",
-    likes: 204,
-    comments: 32,
-    replies: 18,
-  },
-  {
-    id: 3,
-    displayName: 'Lucas Martin',
-    username: 'lucas_m',
-    imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    timestamp: '3j',
-    content: "Hot take : les microservices c'est fantastique jusqu'au moment où vous devez les déboguer à 2h du matin.",
-    likes: 511,
-    comments: 67,
-    replies: 43,
-  },
-  {
-    id: 4,
-    displayName: 'Lucas Martin',
-    username: 'lucas_m',
-    imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    timestamp: '1 sem',
-    content: 'Petite question : vous préférez travailler en remote complet, hybride ou full présentiel ? (je collecte des données non-représentatives)',
-    likes: 138,
-    comments: 89,
-    replies: 12,
-  },
-  {
-    id: 5,
-    displayName: 'Lucas Martin',
-    username: 'lucas_m',
-    imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-    timestamp: '2 sem',
-    content: 'Premier commit de 2026 ✅\nDernier commit de 2026 : probablement "fix typo" à 23h58.',
-    likes: 760,
-    comments: 45,
-    replies: 30,
-  },
-];
-
-export default function ProfilPage() {
-  const { t } = useTranslation()
+export default function MyProfilPage() {
   const router = useRouter()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [myId, setMyId] = useState(null)
 
   useEffect(() => {
     const token = getToken()
@@ -79,13 +16,8 @@ export default function ProfilPage() {
       router.push('/login')
       return
     }
-
     const { id } = jwtDecode(token)
-
-    api.get(`/user/${id}`)
-        .then(res => setUser(res.data))
-        .catch(() => setUser(null))
-        .finally(() => setLoading(false))
+    setMyId(id)
   }, [])
 
   if (loading) {
