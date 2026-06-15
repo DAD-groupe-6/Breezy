@@ -90,7 +90,7 @@ export default function ProfilPage() {
 
   if (loading) {
     return (
-        <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+        <div className="min-h-screen bg-transparent flex items-center justify-center">
           <p className="text-[var(--color-text-secondary)]">Chargement...</p>
         </div>
     )
@@ -98,14 +98,14 @@ export default function ProfilPage() {
 
   if (!user) {
     return (
-        <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
+        <div className="min-h-screen bg-transparent flex items-center justify-center">
           <p className="text-[var(--color-text-secondary)]">Profil introuvable</p>
         </div>
     )
   }
 
   return (
-      <div className="min-h-screen bg-[var(--color-bg-primary)]">
+      <div className="min-h-screen bg-transparent">
         <div
             className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
             style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}

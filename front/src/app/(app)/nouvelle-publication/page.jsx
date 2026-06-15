@@ -76,7 +76,7 @@ export default function NewPublicationPage() {
   }
 
   return (
-    <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+    <main className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6">
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -122,12 +122,12 @@ export default function NewPublicationPage() {
                 onChange={(event) => setContent(event.target.value)}
                 placeholder="Quoi de neuf ?"
                 rows={8}
-                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
+                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
               />
 
               {mediaType && (
                 <div
-                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-6 text-center"
+                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-6 text-center"
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={handleDrop}
                 >

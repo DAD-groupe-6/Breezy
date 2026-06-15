@@ -119,9 +119,9 @@ export default function MessagesPage() {
   }
 
   return (
-    <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+    <main className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <div className="flex min-h-full w-full flex-col">
-        <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-[var(--color-bg-primary)] sm:flex">
+        <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-transparent sm:flex">
           <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
               <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
@@ -143,7 +143,7 @@ export default function MessagesPage() {
             </div>
           </aside>
 
-          <section className="flex flex-1 flex-col bg-[var(--color-bg-primary)]">
+          <section className="flex flex-1 flex-col bg-transparent">
             {selectedConversation ? (
               <>
                 <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 sm:px-5">
@@ -194,7 +194,7 @@ export default function MessagesPage() {
                 </div>
               </>
             ) : (
-              <div className="flex flex-1 items-center justify-center bg-[var(--color-bg-primary)]" />
+              <div className="flex flex-1 items-center justify-center bg-transparent" />
             )}
           </section>
         </div>
@@ -222,7 +222,7 @@ export default function MessagesPage() {
               </div>
             </section>
           ) : (
-            <section className="flex min-h-[calc(100vh-5rem)] flex-col border-x border-[var(--color-border)] bg-[var(--color-bg-primary)]">
+            <section className="flex min-h-[calc(100vh-5rem)] flex-col border-x border-[var(--color-border)] bg-transparent">
               <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3">
                 <div className="flex items-center gap-3">
                   <button

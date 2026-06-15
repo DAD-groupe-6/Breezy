@@ -35,9 +35,9 @@ export default function Home() {
   }, [loadPosts])
 
   return (
-    <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+    <section className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)]">
           {posts.map((post) => (
             <Post
               key={post._id}
