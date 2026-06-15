@@ -9,8 +9,6 @@ const conversations = [
     name: 'Amara Diallo',
     preview: 'On se retrouve à 18h ?',
     time: 'maintenant',
-    unread: 2,
-    online: true,
     accent: 'bg-[var(--color-text-title)]',
     messages: [
       { id: 1, from: 'them', text: 'Salut ! Tu vas bien ?', time: '10:02' },
@@ -25,8 +23,6 @@ const conversations = [
     name: 'Lucas Martin',
     preview: 'Merci pour le partage !',
     time: '5 min',
-    unread: 0,
-    online: false,
     accent: 'bg-[var(--color-bg-surface-2)]',
     messages: [
       { id: 1, from: 'them', text: 'Merci pour le partage !', time: '09:20' },
@@ -37,8 +33,6 @@ const conversations = [
     name: 'Yuki Tanaka',
     preview: 'Super photo 😍',
     time: '1 h',
-    unread: 1,
-    online: true,
     accent: 'bg-[var(--color-text-title)]',
     messages: [
       { id: 1, from: 'them', text: 'Super photo 😍', time: '09:40' },
@@ -49,8 +43,6 @@ const conversations = [
     name: 'Omar Benali',
     preview: 'Tu viens ce weekend ?',
     time: 'hier',
-    unread: 0,
-    online: true,
     accent: 'bg-[var(--color-bg-surface-2)]',
     messages: [
       { id: 1, from: 'them', text: 'Tu viens ce weekend ?', time: '17:12' },
@@ -61,8 +53,6 @@ const conversations = [
     name: 'Sofia Reyes',
     preview: 'Bonne idée !',
     time: 'lun',
-    unread: 0,
-    online: false,
     accent: 'bg-[var(--color-bg-surface-2)]',
     messages: [
       { id: 1, from: 'them', text: 'Bonne idée !', time: '08:51' },
@@ -85,7 +75,6 @@ function ConversationItem({ conversation, active, onSelect }) {
           .map((part) => part[0])
           .slice(0, 2)
           .join('')}
-        {conversation.online && <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-[var(--color-bg-surface)] bg-emerald-400" />}
       </div>
 
       <div className="min-w-0 flex-1">
@@ -95,12 +84,6 @@ function ConversationItem({ conversation, active, onSelect }) {
         </div>
         <p className="mt-0.5 truncate text-sm text-[var(--color-text-secondary)]">{conversation.preview}</p>
       </div>
-
-      {conversation.unread > 0 && (
-        <span className="ml-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-text-title)] px-1.5 text-[11px] font-semibold text-white">
-          {conversation.unread}
-        </span>
-      )}
     </button>
   )
 }
@@ -175,7 +158,6 @@ export default function MessagesPage() {
 
                     <div>
                       <p className="font-semibold text-[var(--color-text-primary)]">{selectedConversation.name}</p>
-                      <p className="text-xs text-emerald-500">En ligne</p>
                     </div>
                   </div>
 
@@ -262,7 +244,6 @@ export default function MessagesPage() {
 
                   <div>
                     <p className="font-semibold text-[var(--color-text-primary)]">{selectedConversation.name}</p>
-                    <p className="text-xs text-emerald-500">En ligne</p>
                   </div>
                 </div>
               </div>
