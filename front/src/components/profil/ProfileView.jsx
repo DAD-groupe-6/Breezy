@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import api from '@/utils/api'
 import ProfileHeader from '@/components/profil/ProfileHeader'
-import Post from '@/components/post/Post'
+import Post from '@/components/Post'
 import { useTranslation } from '@/hooks/useTranslation'
 
 const MOCK_POSTS = [
@@ -95,7 +95,8 @@ export default function ProfileView({ userId, isOwnProfile }) {
     return (
         <div className="min-h-screen bg-[var(--color-bg-primary)]">
             <div
-                className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
+                className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
+                style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
             >
                 <ProfileHeader
                     displayName={user.pseudo}
@@ -106,8 +107,8 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     isOwnProfile={isOwnProfile}
                 />
 
-                <div className="px-[var(--space-md)] py-[var(--space-md)] md:px-[var(--space-lg)]">
-                    <h2 className="text-lg text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-title)]">
+                <div className="px-4 py-4">
+                    <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
                         {t('pages.profil.postsSection')}
                     </h2>
                 </div>

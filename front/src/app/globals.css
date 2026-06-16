@@ -4,7 +4,7 @@
 body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
-  font-family: var(--font-family-base);
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Profile responsive styles for medium screens */
@@ -12,11 +12,10 @@ body {
   [data-profile-card] {
     max-width: 42rem;
     margin: 0 auto;
-    margin-top: var(--space-md);
-    margin-bottom: var(--space-md);
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-md);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   
   [data-profile-page] {
@@ -37,6 +36,6 @@ body {
   }
   
   [data-profile-page] {
-    background-color: var(--color-bg-primary);
+    background-color: var(--color-bg-surface);
   }
 }

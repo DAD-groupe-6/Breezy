@@ -39,39 +39,61 @@ export default function ProfileHeader({
   };
 
   return (
-    <div className="w-full bg-[var(--color-bg-surface)]">
+    <div
+      className="w-full"
+      style={{ backgroundColor: 'var(--color-bg-surface)' }}
+    >
       {/* Section profil */}
-      <div className="border-b border-[var(--color-border)] px-[var(--space-md)] pb-[var(--space-md)] pt-[var(--space-md)] md:px-[var(--space-lg)]">
+      <div className="px-4 pt-4 pb-4" style={{ borderBottom: '1px solid var(--color-border)' }}>
         {/* Ligne avatar + actions */}
-        <div className="mb-[var(--space-sm)] flex items-start justify-between gap-[var(--space-md)]">
+        <div className="flex items-start justify-between gap-4 mb-3">
           {/* Avatar */}
-          <div className="shrink-0 rounded-[var(--radius-pill)] ring-4 ring-[var(--color-bg-surface)] shadow-[var(--shadow-sm)]">
+          <div className="ring-4 ring-[var(--color-bg-surface)] rounded-full shrink-0">
             <Avatar imageUrl={imageUrl} size={96} />
           </div>
 
           {/* Zone actions */}
-          <div className="flex items-center gap-[var(--space-xs)]">
+          <div className="flex items-center gap-2">
             {isOwnProfile ? (
               /* Menu 3 points pour le propriétaire */
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setShowMenu((prev) => !prev)}
-                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-border)] text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
+                  className="w-9 h-9 flex items-center justify-center rounded-full border transition-colors cursor-pointer"
+                  style={{
+                    borderColor: 'var(--color-border)',
+                    color: 'var(--color-text-secondary)',
+                  }}
                   aria-label={t('profile.optionsAriaLabel')}
                 >
                   <FaEllipsisH size={15} />
                 </button>
 
                 {showMenu && (
-                  <div className="absolute right-0 z-20 mt-[var(--space-2xs)] w-52 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-md)]">
+                  <div
+                    className="absolute right-0 mt-1 w-52 rounded-xl shadow-lg z-20 overflow-hidden"
+                    style={{
+                      backgroundColor: 'var(--color-bg-surface)',
+                      border: '1px solid var(--color-border)',
+                    }}
+                  >
                     <button
-                      className="w-full cursor-pointer px-[var(--space-md)] py-[12px] text-left text-sm text-[var(--color-text-primary)] transition-[background-color,color] duration-200 [font-weight:var(--font-weight-label)] hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
+                      className="w-full text-left px-4 py-3 text-sm font-medium transition-colors cursor-pointer"
+                      style={{ color: 'var(--color-text-primary)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); onEditProfile?.(); }}
                     >
                       {t('profile.editProfile')}
                     </button>
                     <button
-                      className="w-full cursor-pointer border-t border-[var(--color-border)] px-[var(--space-md)] py-[12px] text-left text-sm text-[var(--color-text-primary)] transition-[background-color,color] duration-200 [font-weight:var(--font-weight-label)] hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
+                      className="w-full text-left px-4 py-3 text-sm font-medium transition-colors cursor-pointer"
+                      style={{
+                        color: 'var(--color-text-primary)',
+                        borderTop: '1px solid var(--color-border)',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--color-bg-surface-2)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                       onClick={() => { setShowMenu(false); }}
                     >
                       {t('profile.changePhoto')}
@@ -89,26 +111,35 @@ export default function ProfileHeader({
         </div>
 
         {/* Infos textuelles */}
-        <div className="mt-[var(--space-sm)] space-y-[var(--space-xs)]">
+        <div className="mt-3 space-y-2">
           {/* Nom + username */}
           <div>
-            <p className="text-lg leading-tight text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-title)]">
+            <p
+              className="text-lg font-bold leading-tight"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               {displayName}
             </p>
-            <p className="text-sm text-[var(--color-text-secondary)] [font-weight:var(--font-weight-regular)]">
+            <p
+              className="text-sm"
+              style={{ color: 'var(--color-text-secondary)' }}
+            >
               @{username}
             </p>
           </div>
 
           {/* Bio */}
           {bio && (
-            <p className="text-sm leading-relaxed text-[var(--color-text-primary)]">
+            <p
+              className="text-sm leading-relaxed"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
               {bio}
             </p>
           )}
 
           {/* Stats */}
-          <div className="flex flex-wrap items-center gap-x-[20px] gap-y-[var(--space-xs)] pt-[var(--space-2xs)]">
+          <div className="flex items-center gap-5 pt-1">
             <StatItem value={formatCount(postsCount)} label={t('profile.statPosts')} />
             <StatItem value={formatCount(followingCount)} label={t('profile.statFollowing')} />
             <StatItem value={formatCount(followersCount)} label={t('profile.statFollowers')} />
@@ -121,11 +152,17 @@ export default function ProfileHeader({
 
 function StatItem({ value, label }) {
   return (
-    <div className="flex items-baseline gap-[4px] rounded-[var(--radius-pill)] bg-[var(--color-bg-surface-2)] px-[10px] py-[4px]">
-      <span className="text-sm text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)]">
+    <div className="flex items-baseline gap-1">
+      <span
+        className="text-sm font-bold"
+        style={{ color: 'var(--color-text-primary)' }}
+      >
         {value}
       </span>
-      <span className="text-sm text-[var(--color-text-secondary)] [font-weight:var(--font-weight-regular)]">
+      <span
+        className="text-sm"
+        style={{ color: 'var(--color-text-secondary)' }}
+      >
         {label}
       </span>
     </div>

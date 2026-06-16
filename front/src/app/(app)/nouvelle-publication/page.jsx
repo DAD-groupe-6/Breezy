@@ -87,6 +87,7 @@ export default function NewPublicationPage() {
             >
               <FiArrowLeft />
             </Link>
+            <h1 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">Nouvelle publication</h1>
           </div>
 
           <button
