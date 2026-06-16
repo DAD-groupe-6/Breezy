@@ -55,20 +55,18 @@ const en = {
   pages: {
     home: {
       title: 'Home',
-      loading: 'Loading…',
-      empty: 'No posts yet. Be the first to publish!',
-      loadError: 'Unable to load the feed',
     },
     explorer: {
       title: 'Explore',
       subtitle: 'Search posts by keyword, #tag, or @handle.',
       searchLabel: 'Search content',
-      searchPlaceholder: 'e.g. keyword, #tag, @username',
+      searchPlaceholder: 'Ex: keyword, #tag',
       searchNote: 'This search will be connected to the backend to filter posts by tags and mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'No messages yet.',
+      searchPlaceholder: 'Search...',
     },
     notifications: {
       title: 'Notifications',
@@ -76,8 +74,6 @@ const en = {
     },
     profil: {
       postsSection: 'Posts',
-      loading: 'Loading...',
-      notFound: 'Profile not found',
     },
     settings: {
       title: 'Settings',
@@ -85,28 +81,6 @@ const en = {
       languageDescription: 'Choose the interface language.',
       langFr: 'Français',
       langEn: 'English',
-      accountSection: 'Account',
-      accountDescription: 'Manage your account',
-      logout: 'Log out',
-      deleteAccount: 'Delete my account',
-      deleteConfirm: 'Do you really want to delete your account? This action is irreversible.',
-    },
-    newPost: {
-      back: 'Back to home',
-      publish: 'Publish',
-      publishing: 'Publishing...',
-      contentLabel: 'Post content',
-      contentPlaceholder: "What's new?",
-      dropPhoto: 'Drop your photo here',
-      dropVideo: 'Drop your video here',
-      dropHintPhoto: 'or click the Photo button to select a file',
-      dropHintVideo: 'or click the Video button to select a file',
-      selectedFile: 'Selected file:',
-      photo: 'Photo',
-      video: 'Video',
-      emoji: 'Emoji',
-      location: 'Location',
-      networkError: 'Network error, please try again',
     },
   },
 
@@ -124,36 +98,6 @@ const en = {
     placeholder: 'Add a comment...',
     submit: 'Post',
     empty: 'No comments yet.',
-    deleteAria: 'Delete comment',
-    likeAria: 'Like comment',
-  },
-
-  post: {
-    optionsAria: 'More options',
-    viewProfile: 'View profile',
-    report: 'Report',
-    delete: 'Delete',
-    deleteError: 'Unable to delete this post. Please try again.',
-    imageAlt: 'Post content',
-    commentAria: 'Comment',
-    repostAria: 'Repost',
-    likeAria: 'Like',
-  },
-
-  avatar: {
-    alt: 'Profile picture',
-  },
-
-  time: {
-    justNow: 'just now',
-    minute: 'min',
-    hour: 'h',
-    day: 'd',
-  },
-
-  common: {
-    unknownUser: 'Unknown user',
-    unknownHandle: 'unknown',
   },
 
   errors: {

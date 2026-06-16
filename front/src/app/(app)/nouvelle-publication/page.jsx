@@ -6,13 +6,11 @@ import { useRouter } from 'next/navigation'
 import api from '@/utils/api'
 import { FiArrowLeft, FiImage, FiMapPin, FiSmile, FiVideo } from 'react-icons/fi'
 import { getToken } from '@/utils/cookie'
-import { useTranslation } from '@/hooks/useTranslation'
 
 const MAX_LENGTH = 300
 
 export default function NewPublicationPage() {
   const router = useRouter()
-  const { t } = useTranslation()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
@@ -39,7 +37,7 @@ export default function NewPublicationPage() {
       await api.post('/post', { content })
       router.push('/')
     } catch (err) {
-      setError(err.response?.data?.message || t('pages.newPost.networkError'))
+      setError(err.response?.data?.message || 'Erreur réseau, réessaie plus tard')
     } finally {
       setLoading(false)
     }
@@ -78,18 +76,17 @@ export default function NewPublicationPage() {
   }
 
   return (
-    <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+    <main className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <div className="mx-auto w-full max-w-3xl px-4 py-6 md:px-6">
         <header className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]"
-              aria-label={t('pages.newPost.back')}
+              aria-label="Retour à l'accueil"
             >
               <FiArrowLeft />
             </Link>
-            <h1 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">{t('nav.newPost')}</h1>
           </div>
 
           <button
@@ -98,7 +95,7 @@ export default function NewPublicationPage() {
             disabled={!canPublish || loading}
             className="rounded-full bg-[var(--color-text-title)] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? t('pages.newPost.publishing') : t('pages.newPost.publish')}
+            {loading ? 'Publication...' : 'Publier'}
           </button>
         </header>
 
@@ -116,32 +113,32 @@ export default function NewPublicationPage() {
 
             <div className="w-full">
               <label htmlFor="post-content" className="sr-only">
-                {t('pages.newPost.contentLabel')}
+                Contenu de la publication
               </label>
               <textarea
                 id="post-content"
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
-                placeholder={t('pages.newPost.contentPlaceholder')}
+                placeholder="Quoi de neuf ?"
                 rows={8}
-                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
+                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
               />
 
               {mediaType && (
                 <div
-                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-6 text-center"
+                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-6 text-center"
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={handleDrop}
                 >
                   <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {mediaType === 'photo' ? t('pages.newPost.dropPhoto') : t('pages.newPost.dropVideo')}
+                    {mediaType === 'photo' ? 'Deposez votre photo ici' : 'Deposez votre video ici'}
                   </p>
                   <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    {mediaType === 'photo' ? t('pages.newPost.dropHintPhoto') : t('pages.newPost.dropHintVideo')}
+                    ou cliquez sur le bouton {mediaType === 'photo' ? 'Photo' : 'Video'} pour selectionner un fichier
                   </p>
                   {selectedFile && (
                     <p className="mt-3 text-xs font-medium text-[var(--color-text-title)]">
-                      {t('pages.newPost.selectedFile')} {selectedFile.name}
+                      Fichier selectionne: {selectedFile.name}
                     </p>
                   )}
                 </div>
@@ -176,7 +173,7 @@ export default function NewPublicationPage() {
                 }`}
               >
                 <FiImage />
-                {t('pages.newPost.photo')}
+                Photo
               </button>
               <button
                 type="button"
@@ -188,15 +185,15 @@ export default function NewPublicationPage() {
                 }`}
               >
                 <FiVideo />
-                {t('pages.newPost.video')}
+                Video
               </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-bg-surface-2)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]">
                 <FiSmile />
-                {t('pages.newPost.emoji')}
+                Emoji
               </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-bg-surface-2)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]">
                 <FiMapPin />
-                {t('pages.newPost.location')}
+                Lieu
               </button>
             </div>
 
