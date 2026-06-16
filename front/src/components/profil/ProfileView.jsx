@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import api from '@/utils/api'
 import ProfileHeader from '@/components/profil/ProfileHeader'
-import Post from '@/components/Post'
+import Post from '@/components/post/Post'
 import { useTranslation } from '@/hooks/useTranslation'
 
 const MOCK_POSTS = [

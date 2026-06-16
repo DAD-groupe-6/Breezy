@@ -124,22 +124,11 @@ export default function MessagesPage() {
         <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-[var(--color-bg-primary)] sm:flex">
           <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
-<<<<<<< HEAD
-              <Searchbar
-                id="messages-search-desktop"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder={t('pages.messages.searchPlaceholder')}
-                rounded="rounded-full"
-                className="mt-4"
-              />
-=======
               <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
               <label className="mt-4 flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
                 <FiSearch className="shrink-0" />
                 <span>Rechercher...</span>
               </label>
->>>>>>> origin/dev
             </div>
 
             <div className="flex-1 overflow-y-auto">
@@ -214,22 +203,11 @@ export default function MessagesPage() {
           {!selectedConversation ? (
             <section className="border-x border-[var(--color-border)] bg-[var(--color-bg-surface)]">
               <div className="border-b border-[var(--color-border)] px-4 py-4">
-<<<<<<< HEAD
-                <Searchbar
-                  id="messages-search-mobile"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder={t('pages.messages.searchPlaceholder')}
-                  rounded="rounded-full"
-                  className="mt-4"
-                />
-=======
                 <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
                 <label className="mt-4 flex items-center gap-3 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
                   <FiSearch className="shrink-0" />
                   <span>Rechercher...</span>
                 </label>
->>>>>>> origin/dev
               </div>
 
               <div>
