@@ -85,9 +85,7 @@ async function getFollowing(user_id) {
     });
 
     return {
-        user_id,
-        following_count: following.length,
-        following_list: following.map(followedUser => followedUser.id_user)
+        following: following.map(followedUser => followedUser.id_user)
     };
 }
 

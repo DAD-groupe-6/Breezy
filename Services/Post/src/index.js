@@ -5,6 +5,7 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const connectDB = require("./config/database.config");
 const postRoutes = require("./routes/post.route");
+const recommendationRoutes = require("./routes/recommendation.route");
 const logger = require("./logger");
 
 const app = express();
@@ -35,6 +36,7 @@ app.get("/api/v1/post/health", (req, res) => {
     res.status(200).json({ status: "UP" });
 });
 app.use("/api/v1/post", postRoutes);
+app.use("/api/v1/post/recommendations", recommendationRoutes);
 
 async function startServer() {
     try {
