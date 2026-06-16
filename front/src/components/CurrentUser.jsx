@@ -26,7 +26,7 @@ export default function CurrentUser() {
 
     if (!profile) {
         return (
-            <button onClick={() => router.push('/login')} className="w-full cursor-pointer rounded-[var(--radius-lg)] text-left focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]">
+            <button onClick={() => router.push('/login')} className="w-full cursor-pointer text-left">
                 <UserInfo
                     displayName={t('auth.currentUser.signIn')}
                     username={t('auth.currentUser.signInUsername')}
@@ -38,7 +38,7 @@ export default function CurrentUser() {
     }
 
     return (
-        <button onClick={() => router.push('/profil')} className="w-full cursor-pointer rounded-[var(--radius-lg)] text-left focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]">
+        <button onClick={() => router.push('/profil')} className="w-full cursor-pointer text-left">
             <UserInfo
                 displayName={profile.pseudo}
                 username={profile.pseudo_uniq}

@@ -1,18 +1,24 @@
-import UserInfo from './UserInfo'
+import Image from 'next/image'
 
 export default function SidebarUser({ user }) {
   return (
-    <div className="flex cursor-pointer items-center gap-[var(--space-xs)] rounded-[var(--radius-lg)] px-[var(--space-xs)] py-[var(--space-xs)] transition-[background-color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:shadow-[var(--shadow-sm)]">
+    <div className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-[var(--color-bg-surface-2)] cursor-pointer transition-colors duration-200">
+      <div className="w-8 h-8 rounded-full bg-[var(--color-bg-surface-2)] shrink-0 overflow-hidden">
+        {user?.avatarUrl && (
+          <Image
+            src={user.avatarUrl}
+            alt={user.displayName}
+            width={32}
+            height={32}
+            className="w-full h-full object-cover"
+          />
+        )}
+      </div>
       {user && (
-        <UserInfo
-          displayName={user.displayName}
-          username={user.username?.startsWith('@') ? user.username.slice(1) : user.username}
-          imageUrl={user.avatarUrl}
-          avatarSize={32}
-          className="gap-2"
-          displayNameClassName="text-sm font-semibold"
-          usernameClassName="text-xs"
-        />
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">{user.displayName}</p>
+          <p className="text-xs text-[var(--color-text-secondary)] truncate">{user.username}</p>
+        </div>
       )}
     </div>
   )

@@ -47,7 +47,7 @@ const postSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ["post", "response"],
+            enum: ["post", "retweet", "response"],
             default: "post",
         },
         parent_id: {
