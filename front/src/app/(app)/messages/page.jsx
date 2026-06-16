@@ -128,7 +128,6 @@ export default function MessagesPage() {
         <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-transparent sm:flex">
           <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
-              <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
               <Searchbar
                 id="messages-search-desktop"
                 value={searchQuery}
@@ -211,7 +210,6 @@ export default function MessagesPage() {
           {!selectedConversation ? (
             <section className="border-x border-[var(--color-border)] bg-[var(--color-bg-surface)]">
               <div className="border-b border-[var(--color-border)] px-4 py-4">
-                <h1 className="text-xl font-bold text-[var(--color-text-title)]">Messages</h1>
                 <Searchbar
                   id="messages-search-mobile"
                   value={searchQuery}

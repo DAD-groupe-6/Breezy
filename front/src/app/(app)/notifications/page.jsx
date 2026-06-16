@@ -74,8 +74,6 @@ export default function NotificationsPage() {
   return (
     <main className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <div className="mx-auto flex w-full max-w-5xl flex-col px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
-        <h1 className="mb-3 text-xl font-bold tracking-tight text-[var(--color-text-title)] sm:mb-4 sm:text-2xl">Notifications</h1>
-
         <section className="w-full max-w-[480px] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-sm sm:max-w-[500px] lg:max-w-[780px]">
           <ul className="divide-y divide-[var(--color-border)]">
             {notifications.map((notification) => (

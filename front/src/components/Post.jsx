@@ -180,7 +180,7 @@ export default function Post({
   };
 
   return (
-    <article className="flex w-full cursor-pointer gap-[var(--space-sm)] rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-md)] py-[var(--space-md)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-200 hover:bg-[var(--color-bg-surface-2)] hover:shadow-[var(--shadow-md)] hover:-translate-y-[1px]">
+    <article className="flex w-full cursor-pointer gap-[var(--space-sm)] border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-md)] py-[var(--space-md)] transition-[background-color] duration-200 hover:bg-[var(--color-bg-surface-2)]">
       {/* Colonne avatar */}
       <div className="shrink-0">
         <UserInfo

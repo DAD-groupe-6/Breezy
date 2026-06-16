@@ -7,10 +7,6 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-full bg-transparent p-6 text-[var(--color-text-primary)]">
-      <h1 className="text-2xl font-bold text-[var(--color-text-title)] mb-6">
-        {t('pages.settings.title')}
-      </h1>
-
       <div
         className="max-w-lg rounded-2xl border p-6"
         style={{
