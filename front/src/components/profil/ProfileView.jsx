@@ -79,7 +79,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     if (loading) {
         return (
             <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
-                <p className="text-[var(--color-text-secondary)]">Chargement...</p>
+                <p className="text-[var(--color-text-secondary)]">{t('pages.profil.loading')}</p>
             </div>
         )
     }
@@ -87,7 +87,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     if (!user) {
         return (
             <div className="min-h-screen bg-[var(--color-bg-primary)] flex items-center justify-center">
-                <p className="text-[var(--color-text-secondary)]">Profil introuvable</p>
+                <p className="text-[var(--color-text-secondary)]">{t('pages.profil.notFound')}</p>
             </div>
         )
     }

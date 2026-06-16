@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation'
 import api from '@/utils/api'
 import { FiArrowLeft, FiImage, FiMapPin, FiSmile, FiVideo } from 'react-icons/fi'
 import { getToken } from '@/utils/cookie'
+import { useTranslation } from '@/hooks/useTranslation'
 
 const MAX_LENGTH = 300
 
 export default function NewPublicationPage() {
   const router = useRouter()
+  const { t } = useTranslation()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
@@ -37,7 +39,7 @@ export default function NewPublicationPage() {
       await api.post('/post', { content })
       router.push('/')
     } catch (err) {
-      setError(err.response?.data?.message || 'Erreur réseau, réessaie plus tard')
+      setError(err.response?.data?.message || t('pages.newPost.networkError'))
     } finally {
       setLoading(false)
     }
@@ -83,11 +85,11 @@ export default function NewPublicationPage() {
             <Link
               href="/"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]"
-              aria-label="Retour à l'accueil"
+              aria-label={t('pages.newPost.back')}
             >
               <FiArrowLeft />
             </Link>
-            <h1 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">Nouvelle publication</h1>
+            <h1 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">{t('nav.newPost')}</h1>
           </div>
 
           <button
@@ -96,7 +98,7 @@ export default function NewPublicationPage() {
             disabled={!canPublish || loading}
             className="rounded-full bg-[var(--color-text-title)] px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {loading ? 'Publication...' : 'Publier'}
+            {loading ? t('pages.newPost.publishing') : t('pages.newPost.publish')}
           </button>
         </header>
 
@@ -114,13 +116,13 @@ export default function NewPublicationPage() {
 
             <div className="w-full">
               <label htmlFor="post-content" className="sr-only">
-                Contenu de la publication
+                {t('pages.newPost.contentLabel')}
               </label>
               <textarea
                 id="post-content"
                 value={content}
                 onChange={(event) => setContent(event.target.value)}
-                placeholder="Quoi de neuf ?"
+                placeholder={t('pages.newPost.contentPlaceholder')}
                 rows={8}
                 className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
               />
@@ -132,14 +134,14 @@ export default function NewPublicationPage() {
                   onDrop={handleDrop}
                 >
                   <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {mediaType === 'photo' ? 'Deposez votre photo ici' : 'Deposez votre video ici'}
+                    {mediaType === 'photo' ? t('pages.newPost.dropPhoto') : t('pages.newPost.dropVideo')}
                   </p>
                   <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    ou cliquez sur le bouton {mediaType === 'photo' ? 'Photo' : 'Video'} pour selectionner un fichier
+                    {mediaType === 'photo' ? t('pages.newPost.dropHintPhoto') : t('pages.newPost.dropHintVideo')}
                   </p>
                   {selectedFile && (
                     <p className="mt-3 text-xs font-medium text-[var(--color-text-title)]">
-                      Fichier selectionne: {selectedFile.name}
+                      {t('pages.newPost.selectedFile')} {selectedFile.name}
                     </p>
                   )}
                 </div>
@@ -174,7 +176,7 @@ export default function NewPublicationPage() {
                 }`}
               >
                 <FiImage />
-                Photo
+                {t('pages.newPost.photo')}
               </button>
               <button
                 type="button"
@@ -186,15 +188,15 @@ export default function NewPublicationPage() {
                 }`}
               >
                 <FiVideo />
-                Video
+                {t('pages.newPost.video')}
               </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-bg-surface-2)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]">
                 <FiSmile />
-                Emoji
+                {t('pages.newPost.emoji')}
               </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-bg-surface-2)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]">
                 <FiMapPin />
-                Lieu
+                {t('pages.newPost.location')}
               </button>
             </div>
 

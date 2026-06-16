@@ -15,9 +15,9 @@ export default function AccountActions() {
 
     const handleDelete = async () => {
         // À brancher plus tard sur l'API de suppression
-        if (confirm('Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.')) {
+        if (confirm(t('pages.settings.deleteConfirm'))) {
             // await api.delete('/user/me') etc.
-            removeToken()
+            clearToken()
             router.push('/register')
         }
     }
@@ -33,14 +33,14 @@ export default function AccountActions() {
                     color: 'var(--color-text-primary)',
                 }}
             >
-                {t('pages.settings.logout') || 'Se déconnecter'}
+                {t('pages.settings.logout')}
             </button>
             <button
                 onClick={handleDelete}
                 className="w-full py-2.5 rounded-xl border text-sm font-semibold transition-colors cursor-pointer text-rose-600"
                 style={{ borderColor: 'var(--color-border)', backgroundColor: 'transparent' }}
             >
-                {t('pages.settings.deleteAccount') || 'Supprimer mon compte'}
+                {t('pages.settings.deleteAccount')}
             </button>
         </div>
     )

@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { FiSearch } from 'react-icons/fi'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function ExplorerPage() {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
 
   return (
@@ -15,7 +17,7 @@ export default function ExplorerPage() {
 
       <div className="mt-8 rounded-[24px] border border-[var(--color-border)] bg-[var(--color-bg-primary)] p-4 md:p-5">
         <label htmlFor="explorer-search" className="mb-3 block text-sm font-semibold text-[var(--color-text-primary)]">
-          Rechercher un contenu
+          {t('pages.explorer.searchLabel')}
         </label>
 
         <div className="flex items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-4 py-3 transition-colors focus-within:border-[var(--color-text-title)] focus-within:ring-2 focus-within:ring-[var(--color-text-title)]/20">
@@ -25,7 +27,7 @@ export default function ExplorerPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ex: mot clé, #tag, @username"
+            placeholder={t('pages.explorer.searchPlaceholder')}
             className="w-full bg-transparent text-sm text-[var(--color-text-primary)] outline-none placeholder:text-[var(--color-text-secondary)]"
           />
         </div>

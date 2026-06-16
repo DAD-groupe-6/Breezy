@@ -55,12 +55,15 @@ const fr = {
   pages: {
     home: {
       title: 'Accueil',
+      loading: 'Chargement…',
+      empty: 'Aucun post pour le moment. Soyez le premier à publier !',
+      loadError: 'Impossible de charger le feed',
     },
     explorer: {
       title: 'Explorer',
       subtitle: 'Recherchez des posts par mot-clé, #tag ou @pseudo.',
       searchLabel: 'Rechercher un contenu',
-      searchPlaceholder: 'Ex: design, #react, @maried',
+      searchPlaceholder: 'Ex: mot clé, #tag, @username',
       searchNote: 'Cette recherche sera reliée au back plus tard pour filtrer les posts par tags et mentions.',
     },
     messages: {
@@ -73,6 +76,8 @@ const fr = {
     },
     profil: {
       postsSection: 'Posts',
+      loading: 'Chargement...',
+      notFound: 'Profil introuvable',
     },
     settings: {
       title: 'Paramètres',
@@ -84,6 +89,24 @@ const fr = {
       accountDescription: 'Gérez votre compte',
       logout: 'Se déconnecter',
       deleteAccount: 'Supprimer mon compte',
+      deleteConfirm: 'Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.',
+    },
+    newPost: {
+      back: "Retour à l'accueil",
+      publish: 'Publier',
+      publishing: 'Publication...',
+      contentLabel: 'Contenu de la publication',
+      contentPlaceholder: 'Quoi de neuf ?',
+      dropPhoto: 'Deposez votre photo ici',
+      dropVideo: 'Deposez votre video ici',
+      dropHintPhoto: 'ou cliquez sur le bouton Photo pour selectionner un fichier',
+      dropHintVideo: 'ou cliquez sur le bouton Video pour selectionner un fichier',
+      selectedFile: 'Fichier selectionne:',
+      photo: 'Photo',
+      video: 'Video',
+      emoji: 'Emoji',
+      location: 'Lieu',
+      networkError: 'Erreur réseau, réessaie plus tard',
     },
   },
 
@@ -101,6 +124,36 @@ const fr = {
     placeholder: 'Ajouter un commentaire...',
     submit: 'Publier',
     empty: 'Aucun commentaire pour le moment.',
+    deleteAria: 'Supprimer le commentaire',
+    likeAria: 'Aimer le commentaire',
+  },
+
+  post: {
+    optionsAria: "Plus d'options",
+    viewProfile: 'Voir le profil',
+    report: 'Signaler',
+    delete: 'Supprimer',
+    deleteError: 'Impossible de supprimer ce post. Réessaie.',
+    imageAlt: 'Contenu du post',
+    commentAria: 'Commenter',
+    repostAria: 'Reposter',
+    likeAria: 'Aimer',
+  },
+
+  avatar: {
+    alt: 'Photo de profil',
+  },
+
+  time: {
+    justNow: "à l'instant",
+    minute: 'min',
+    hour: 'h',
+    day: 'j',
+  },
+
+  common: {
+    unknownUser: 'Utilisateur inconnu',
+    unknownHandle: 'inconnu',
   },
 
   errors: {
