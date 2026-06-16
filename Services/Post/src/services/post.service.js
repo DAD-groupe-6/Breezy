@@ -40,22 +40,6 @@ async function createPost(userId, content) {
     return toView(post, userId);
 }
 
-async function getFeed({ limit, before, viewerId } = {}) {
-    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
-
-    const query = {};
-    if (before && mongoose.Types.ObjectId.isValid(before)) {
-        query._id = { $lt: before };
-    }
-
-    const posts = await Post.find(query).sort({ _id: -1 }).limit(safeLimit);
-
-    const nextCursor =
-        posts.length === safeLimit ? posts[posts.length - 1]._id : null;
-
-    return { posts: posts.map((post) => toView(post, viewerId)), nextCursor };
-}
-
 async function getPostById(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new Error("Post not found");
@@ -168,7 +152,6 @@ async function unlikeComment(postId, commentId, userId) {
 
 module.exports = {
     createPost,
-    getFeed,
     getPostById,
     getPostView,
     updatePost,
