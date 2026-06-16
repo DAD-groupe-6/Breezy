@@ -6,18 +6,22 @@ import Post from '@/components/post/Post'
 import { timeAgo } from '@/utils/time'
 import { resolveAuthor } from '@/utils/authors'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function Home() {
   const { t, locale } = useTranslation()
+  const { user, loading } = useAuth()
   const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [feedLoading, setFeedLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const loadPosts = useCallback(async () => {
-    setLoading(true)
+    if (!user?.id) return
+
+    setFeedLoading(true)
     setError(null)
     try {
-      const { data } = await api.get('/post')
+      const { data } = await api.get(`/post/recommendations/${user.id}`)
       const enriched = await Promise.all(
         data.posts.map(async (post) => ({
           ...post,
@@ -28,13 +32,23 @@ export default function Home() {
     } catch (err) {
       setError(err.response?.data?.message || t('pages.home.loadError'))
     } finally {
-      setLoading(false)
+      setFeedLoading(false)
     }
-  }, [t])
+  }, [user?.id, t])
 
   useEffect(() => {
     loadPosts()
   }, [loadPosts])
+
+  if (loading) {
+    return (
+      <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+        <section className="mx-auto w-full max-w-3xl px-4 py-4">
+          <div className="text-center">{t('common.loading')}</div>
+        </section>
+      </section>
+    )
+  }
 
   return (
     <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
