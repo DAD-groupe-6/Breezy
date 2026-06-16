@@ -3,14 +3,14 @@ import Badge from '@/components/ui/Badge'
 
 export default function SidebarNavItem({ href, label, Icon, badge, isActive }) {
   const linkClass = isActive
-    ? 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-title)] font-semibold'
-    : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface-2)] hover:text-[var(--color-text-primary)]'
+    ? 'border-[var(--color-border)] bg-[var(--color-accent-soft)] text-[var(--color-text-title)] font-semibold shadow-[var(--shadow-sm)]'
+    : 'border-transparent text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)] hover:shadow-[var(--shadow-sm)]'
 
   return (
     <Link
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-inset ${linkClass}`}
+      className={`flex items-center gap-[var(--space-sm)] rounded-[var(--radius-lg)] border px-[var(--space-sm)] py-[10px] text-sm transition-[background-color,color,box-shadow,border-color,transform] duration-200 cursor-pointer focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] ${linkClass}`}
     >
       <Icon size={20} className="shrink-0" />
       <span>{label}</span>
