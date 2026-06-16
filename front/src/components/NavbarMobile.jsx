@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus } from "react-icons/fa";
+import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus, FaCog } from "react-icons/fa";
 import Badge from "@/components/ui/Badge";
 import { useTranslation } from "@/hooks/useTranslation";
 
@@ -73,6 +73,14 @@ export default function NavbarMobile() {
         className="flex h-full flex-1 flex-col items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-text-secondary)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
       >
         <FaPlus size={24} />
+      </Link>
+
+      <Link
+        href="/settings"
+        aria-label={t('nav.settings')}
+        className="flex h-full flex-1 flex-col items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-text-secondary)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
+      >
+        <FaCog size={22} />
       </Link>
     </nav>
   );
