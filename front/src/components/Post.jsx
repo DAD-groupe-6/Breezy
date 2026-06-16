@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import api from '@/utils/api';
-import { FaHeart, FaRegHeart, FaRegComment, FaRetweet, FaEllipsisH } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaRegComment, FaEllipsisH } from 'react-icons/fa';
 import UserInfo from './UserInfo';
 import CommentSection from './CommentSection';
 import { getToken } from '@/utils/cookie';
@@ -24,12 +24,8 @@ export default function Post({
   likes = 0,
   liked = false,
   comments = 0,
-  replies = 0,
-  retweeted = false,
   onLike,
   onComment,
-  onReply,
-  onRetweet,
   onViewProfile,
   onReport,
   onDelete,
@@ -38,9 +34,6 @@ export default function Post({
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
   const [likeLoading, setLikeLoading] = useState(false);
-  const [isRetweeted, setIsRetweeted] = useState(retweeted);
-  const [replyCount, setReplyCount] = useState(replies);
-  const [retweetLoading, setRetweetLoading] = useState(false);
   const [commentCount, setCommentCount] = useState(comments);
   const [commentList, setCommentList] = useState([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
@@ -95,40 +88,6 @@ export default function Post({
     } catch {
     } finally {
       setLikeLoading(false);
-    }
-  };
-
-  const handleRetweet = async (e) => {
-    e.stopPropagation();
-    if (!getToken()) {
-      router.push('/login');
-      return;
-    }
-    if (retweetLoading) return;
-
-    const nextRetweeted = !isRetweeted;
-    const nextCount = Math.max(0, replyCount + (nextRetweeted ? 1 : -1));
-
-    setRetweetLoading(true);
-    setIsRetweeted(nextRetweeted);
-    setReplyCount(nextCount);
-
-    try {
-      const result = await onRetweet?.({ postId, retweeted: nextRetweeted });
-      if (result && typeof result === 'object') {
-        if (typeof result.retweeted === 'boolean') {
-          setIsRetweeted(result.retweeted);
-        }
-        if (typeof result.count === 'number') {
-          setReplyCount(Math.max(0, result.count));
-        }
-      }
-      onReply?.();
-    } catch {
-      setIsRetweeted(!nextRetweeted);
-      setReplyCount(replyCount);
-    } finally {
-      setRetweetLoading(false);
     }
   };
 
@@ -318,18 +277,6 @@ export default function Post({
               <FaRegComment size={16} />
             </div>
             <span className="text-xs sm:text-sm">{formatCount(commentCount)}</span>
-          </button>
-
-          {/* Repost / Reply */}
-          <button
-            onClick={handleRetweet}
-            className={`group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] ${isRetweeted ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)]'}`}
-            aria-label="Reposter"
-          >
-            <div className={`rounded-[var(--radius-pill)] p-[6px] transition-colors ${isRetweeted ? 'bg-emerald-100/70' : 'group-hover:bg-[var(--color-bg-surface)]'}`}>
-              <FaRetweet size={17} />
-            </div>
-            <span className="text-xs sm:text-sm">{formatCount(replyCount)}</span>
           </button>
 
           {/* Like */}
