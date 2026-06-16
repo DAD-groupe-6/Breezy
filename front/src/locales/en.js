@@ -115,6 +115,7 @@ const en = {
     statFollowing: 'Following',
     statFollowers: 'Followers',
     follow: 'Follow',
+    following: 'Following',
     editProfile: 'Edit profile',
     changePhoto: 'Change profile picture',
     optionsAriaLabel: 'Profile options',
