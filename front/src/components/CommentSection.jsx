@@ -34,7 +34,7 @@ export default function CommentSection({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={t('comments.placeholder')}
-          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-sm)] py-[10px] text-sm text-[var(--color-text-primary)] outline-none shadow-[var(--shadow-sm)] transition-[background-color,border-color,box-shadow,color] duration-200 placeholder:text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface-2)] hover:border-[var(--color-text-secondary)] focus:border-[var(--color-text-title)] focus:shadow-[var(--shadow-focus)]"
+          className="w-full rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-[var(--space-sm)] py-[10px] text-sm text-[var(--color-text-primary)] outline-none shadow-[var(--shadow-sm)] transition-[background-color,border-color,box-shadow,color] duration-200 placeholder:text-[var(--color-text-secondary)] hover:border-[var(--color-text-secondary)] focus:border-[var(--color-text-title)] focus:shadow-[var(--shadow-focus)]"
         />
         <button
           type="submit"

@@ -25,9 +25,11 @@ export default function Post({
   liked = false,
   comments = 0,
   replies = 0,
+  retweeted = false,
   onLike,
   onComment,
   onReply,
+  onRetweet,
   onViewProfile,
   onReport,
   onDelete,
@@ -36,6 +38,9 @@ export default function Post({
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [isRetweeted, setIsRetweeted] = useState(retweeted);
+  const [replyCount, setReplyCount] = useState(replies);
+  const [retweetLoading, setRetweetLoading] = useState(false);
   const [commentCount, setCommentCount] = useState(comments);
   const [commentList, setCommentList] = useState([]);
   const [commentsLoaded, setCommentsLoaded] = useState(false);
@@ -90,6 +95,40 @@ export default function Post({
     } catch {
     } finally {
       setLikeLoading(false);
+    }
+  };
+
+  const handleRetweet = async (e) => {
+    e.stopPropagation();
+    if (!getToken()) {
+      router.push('/login');
+      return;
+    }
+    if (retweetLoading) return;
+
+    const nextRetweeted = !isRetweeted;
+    const nextCount = Math.max(0, replyCount + (nextRetweeted ? 1 : -1));
+
+    setRetweetLoading(true);
+    setIsRetweeted(nextRetweeted);
+    setReplyCount(nextCount);
+
+    try {
+      const result = await onRetweet?.({ postId, retweeted: nextRetweeted });
+      if (result && typeof result === 'object') {
+        if (typeof result.retweeted === 'boolean') {
+          setIsRetweeted(result.retweeted);
+        }
+        if (typeof result.count === 'number') {
+          setReplyCount(Math.max(0, result.count));
+        }
+      }
+      onReply?.();
+    } catch {
+      setIsRetweeted(!nextRetweeted);
+      setReplyCount(replyCount);
+    } finally {
+      setRetweetLoading(false);
     }
   };
 
@@ -283,14 +322,14 @@ export default function Post({
 
           {/* Repost / Reply */}
           <button
-            onClick={(e) => { e.stopPropagation(); onReply?.(); }}
-            className="group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
+            onClick={handleRetweet}
+            className={`group flex items-center gap-[4px] rounded-[var(--radius-pill)] px-[6px] py-[4px] transition-[background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] ${isRetweeted ? 'bg-emerald-50 text-emerald-600' : 'hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)]'}`}
             aria-label="Reposter"
           >
-            <div className="rounded-[var(--radius-pill)] p-[6px] transition-colors group-hover:bg-[var(--color-bg-surface)]">
+            <div className={`rounded-[var(--radius-pill)] p-[6px] transition-colors ${isRetweeted ? 'bg-emerald-100/70' : 'group-hover:bg-[var(--color-bg-surface)]'}`}>
               <FaRetweet size={17} />
             </div>
-            <span className="text-xs sm:text-sm">{formatCount(replies)}</span>
+            <span className="text-xs sm:text-sm">{formatCount(replyCount)}</span>
           </button>
 
           {/* Like */}
