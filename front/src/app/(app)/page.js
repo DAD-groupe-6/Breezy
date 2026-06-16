@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import api from '@/utils/api'
-import Post from '@/components/Post'
+import Post from '@/components/post/Post'
 import { timeAgo } from '@/utils/time'
 import { resolveAuthor } from '@/utils/authors'
 
@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <section className="min-h-full bg-transparent text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)]">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)]">
           {posts.map((post) => (
             <Post
               key={post._id}

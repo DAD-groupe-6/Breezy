@@ -1,10 +1,10 @@
 "use client"
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import api from '@/utils/api'
-import { FiArrowLeft, FiImage, FiMapPin, FiSmile, FiVideo } from 'react-icons/fi'
+import { FiArrowLeft, FiMapPin, FiSmile } from 'react-icons/fi'
 import { getToken } from '@/utils/cookie'
 
 const MAX_LENGTH = 300
@@ -12,12 +12,8 @@ const MAX_LENGTH = 300
 export default function NewPublicationPage() {
   const router = useRouter()
   const [content, setContent] = useState('')
-  const [mediaType, setMediaType] = useState(null)
-  const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const imageInputRef = useRef(null)
-  const videoInputRef = useRef(null)
 
   const canPublish = useMemo(
     () => content.trim().length > 0 && content.length <= MAX_LENGTH,
@@ -41,38 +37,6 @@ export default function NewPublicationPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleDrop = (event) => {
-    event.preventDefault()
-    const file = event.dataTransfer.files?.[0]
-    if (!file) return
-
-    if (mediaType === 'photo' && file.type.startsWith('image/')) {
-      setSelectedFile(file)
-    }
-
-    if (mediaType === 'video' && file.type.startsWith('video/')) {
-      setSelectedFile(file)
-    }
-  }
-
-  const handleFileSelection = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    setSelectedFile(file)
-  }
-
-  const activatePhoto = () => {
-    setMediaType('photo')
-    setSelectedFile(null)
-    imageInputRef.current?.click()
-  }
-
-  const activateVideo = () => {
-    setMediaType('video')
-    setSelectedFile(null)
-    videoInputRef.current?.click()
   }
 
   return (
@@ -124,70 +88,11 @@ export default function NewPublicationPage() {
                 rows={8}
                 className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
               />
-
-              {mediaType && (
-                <div
-                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-6 text-center"
-                  onDragOver={(event) => event.preventDefault()}
-                  onDrop={handleDrop}
-                >
-                  <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                    {mediaType === 'photo' ? 'Deposez votre photo ici' : 'Deposez votre video ici'}
-                  </p>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    ou cliquez sur le bouton {mediaType === 'photo' ? 'Photo' : 'Video'} pour selectionner un fichier
-                  </p>
-                  {selectedFile && (
-                    <p className="mt-3 text-xs font-medium text-[var(--color-text-title)]">
-                      Fichier selectionne: {selectedFile.name}
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-4">
             <div className="flex items-center gap-2">
-              <input
-                ref={imageInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelection}
-              />
-              <input
-                ref={videoInputRef}
-                type="file"
-                accept="video/*"
-                className="hidden"
-                onChange={handleFileSelection}
-              />
-
-              <button
-                type="button"
-                onClick={activatePhoto}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
-                  mediaType === 'photo'
-                    ? 'bg-[var(--color-text-title)] text-white'
-                    : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
-                }`}
-              >
-                <FiImage />
-                Photo
-              </button>
-              <button
-                type="button"
-                onClick={activateVideo}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
-                  mediaType === 'video'
-                    ? 'bg-[var(--color-text-title)] text-white'
-                    : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
-                }`}
-              >
-                <FiVideo />
-                Video
-              </button>
               <button type="button" className="inline-flex items-center gap-2 rounded-full bg-[var(--color-bg-surface-2)] px-3 py-2 text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]">
                 <FiSmile />
                 Emoji

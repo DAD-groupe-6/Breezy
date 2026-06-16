@@ -6,6 +6,8 @@ function statusFor(message) {
             return 404;
         case "Comment not found":
             return 404;
+        case "Media not found":
+            return 404;
         case "Forbidden":
             return 403;
         default:
