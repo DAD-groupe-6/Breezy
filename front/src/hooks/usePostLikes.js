@@ -22,7 +22,7 @@ export function usePostLikes(postId, initialLiked, initialCount) {
         ? await api.delete(`/post/${postId}/like`)
         : await api.post(`/post/${postId}/like`)
       setLiked(data.likedByMe)
-      setCount(data.likesCount)
+      setCount(data.nb_like)
     } catch {
       // ignore
     } finally {
