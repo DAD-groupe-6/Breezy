@@ -60,13 +60,12 @@ const en = {
       title: 'Explore',
       subtitle: 'Search posts by keyword, #tag, or @handle.',
       searchLabel: 'Search content',
-      searchPlaceholder: 'Ex: keyword, #tag',
+      searchPlaceholder: 'e.g. design, #react, @maried',
       searchNote: 'This search will be connected to the backend to filter posts by tags and mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'No messages yet.',
-      searchPlaceholder: 'Search...',
     },
     notifications: {
       title: 'Notifications',
@@ -81,6 +80,10 @@ const en = {
       languageDescription: 'Choose the interface language.',
       langFr: 'Français',
       langEn: 'English',
+      accountSection: 'Account',
+      accountDescription: 'Manage your account',
+      logout: 'Log out',
+      deleteAccount: 'Delete my account',
     },
   },
 

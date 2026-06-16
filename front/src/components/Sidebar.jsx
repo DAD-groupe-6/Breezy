@@ -14,8 +14,14 @@ export default function Sidebar({ user = null }) {
   const NAV_ITEMS = [
     { href: '/',              label: t('nav.home'),          Icon: FiHome          },
     { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
+<<<<<<< HEAD
     { href: '/notifications', label: t('nav.notifications'), Icon: FiBell,         },
     { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare },
+=======
+    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell,          badge: 3 },
+    { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: 2 },
+    { href: '/profil',        label: t('nav.profil'),        Icon: FiUser          },
+>>>>>>> origin/dev
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
   ]
 
