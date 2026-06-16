@@ -6,17 +6,17 @@
      ========================================================================== */
   
   /* Arrière-plans & Surfaces */
-  --color-light-bg-primary: #F5F5F7;   /* Fond principal neutre, proche des interfaces Apple */
-  --color-light-bg-surface: #FFFFFF;   /* Cartes et panneaux très nets */
-  --color-light-bg-surface-2: #FBFBFD; /* Variation subtile pour sections secondaires */
+   --color-light-bg-primary: #FFFFFF;   /* Fond principal gris clair plus present */
+   --color-light-bg-surface: #EBF0F5;   /* Cartes et panneaux en blanc net */
+   --color-light-bg-surface-2: #D1D9E3; /* Niveau secondaire plus fonce que primary */
   
   /* Bordures */
-  --color-light-border: #D2D2D7;       /* Bordures discrètes, légèrement grises */
+   --color-light-border: #A2AEBC;       /* Bordures volontairement plus foncees pour separer */
   
   /* Typographie & Contenu */
-  --color-light-text-title: #0071E3;   /* Bleu franc, inspiré des accents Apple */
-  --color-light-text-primary: #1D1D1F; /* Texte principal profond sans noir pur */
-  --color-light-text-secondary: #6E6E73;/* Texte secondaire sobre et lisible */
+  --color-light-text-title: #5B5EF4;   /* Bleu franc, inspiré des accents Apple */
+  --color-light-text-primary: #11141A; /* Texte principal profond sans noir pur */
+  --color-light-text-secondary: #5C6479;/* Texte secondaire sobre et lisible */
 
    /* Etats interactifs */
    --color-light-accent-soft: #EAF3FF;  /* Surface légère pour hover et états actifs */

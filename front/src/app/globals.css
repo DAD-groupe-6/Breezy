@@ -37,6 +37,6 @@ body {
   }
   
   [data-profile-page] {
-    background-color: var(--color-bg-surface);
+    background-color: var(--color-bg-primary);
   }
 }
