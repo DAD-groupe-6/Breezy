@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FiHome, FiCompass, FiBell, FiMessageSquare, FiUser, FiEdit, FiSettings } from 'react-icons/fi'
+import { FiHome, FiCompass, FiBell, FiMessageSquare, FiEdit, FiSettings } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
 import CurrentUser from "@/components/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
@@ -16,7 +16,6 @@ export default function Sidebar({ user = null }) {
     { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
     { href: '/notifications', label: t('nav.notifications'), Icon: FiBell,         },
     { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare },
-    { href: '/profil',        label: t('nav.profil'),        Icon: FiUser          },
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
   ]
 
