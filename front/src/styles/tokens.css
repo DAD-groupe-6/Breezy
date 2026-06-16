@@ -6,8 +6,8 @@
      ========================================================================== */
   
   /* Arrière-plans & Surfaces */
-   --color-light-bg-primary: #FFFFFF;   /* Fond principal gris clair plus present */
-   --color-light-bg-surface: #EBF0F5;   /* Cartes et panneaux en blanc net */
+   --color-light-bg-primary: #F4F5FA;   /* Fond principal gris clair plus present */
+   --color-light-bg-surface: #FFFFFF;   /* Cartes et panneaux en blanc net */
    --color-light-bg-surface-2: #D1D9E3; /* Niveau secondaire plus fonce que primary */
   
   /* Bordures */
