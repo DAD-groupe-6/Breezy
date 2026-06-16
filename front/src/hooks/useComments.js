@@ -15,15 +15,15 @@ export function useComments(postId, initialCount) {
   const currentUserId = getCurrentUserId()
 
   const mapComment = async (c) => {
-    const author = await resolveAuthor(c.authorId)
+    const author = await resolveAuthor(c.id_user)
     return {
       id: c._id,
       displayName: author?.pseudo || 'Utilisateur inconnu',
       username: author?.pseudo_uniq || 'inconnu',
       timestamp: timeAgo(c.createdAt),
       content: c.content,
-      canDelete: c.authorId === currentUserId,
-      likesCount: c.likesCount,
+      canDelete: c.id_user === currentUserId,
+      likesCount: c.nb_like,
       liked: c.likedByMe,
     }
   }
@@ -79,7 +79,7 @@ export function useComments(postId, initialCount) {
       setList((prev) =>
         prev.map((c) =>
           c.id === commentId
-            ? { ...c, liked: data.likedByMe, likesCount: data.likesCount }
+            ? { ...c, liked: data.likedByMe, likesCount: data.nb_like }
             : c
         )
       )

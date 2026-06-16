@@ -1,17 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import Link from 'next/link'
 import api from '@/utils/api'
 import Post from '@/components/post/Post'
-import AuthButtons from '@/components/auth/AuthButtons'
-import { useTranslation } from '@/hooks/useTranslation'
 import { timeAgo } from '@/utils/time'
 import { resolveAuthor } from '@/utils/authors'
-import { FiSettings } from 'react-icons/fi'
 
 export default function Home() {
-  const { t } = useTranslation()
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -24,7 +19,7 @@ export default function Home() {
       const enriched = await Promise.all(
         data.posts.map(async (post) => ({
           ...post,
-          author: await resolveAuthor(post.authorId),
+          author: await resolveAuthor(post.id_user),
         }))
       )
       setPosts(enriched)
@@ -40,37 +35,21 @@ export default function Home() {
   }, [loadPosts])
 
   return (
-    <main className="min-h-screen bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-      <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-primary)]/95 backdrop-blur">
-        <div className="flex w-full items-center justify-between px-4 py-3 md:px-6">
-          <h1 className="text-lg font-bold text-[var(--color-text-title)]">{t('pages.home.title')}</h1>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/settings"
-              aria-label={t('nav.settings')}
-              className="p-2 rounded-full hover:bg-[var(--color-bg-surface)] transition-colors text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]"
-            >
-              <FiSettings size={20} />
-            </Link>
-            <AuthButtons />
-          </div>
-        </div>
-      </header>
-
+    <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
         <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
           {posts.map((post) => (
             <Post
               key={post._id}
               postId={post._id}
-              authorId={post.authorId}
+              authorId={post.id_user}
               displayName={post.author?.pseudo || 'Utilisateur inconnu'}
               username={post.author?.pseudo_uniq || 'inconnu'}
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt)}
               content={post.content}
-              image={post.mediaUrl}
-              likes={post.likesCount}
+              image={post.image}
+              likes={post.nb_like}
               liked={post.likedByMe}
               comments={post.commentsCount}
               onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
@@ -94,6 +73,6 @@ export default function Home() {
           )}
         </div>
       </section>
-    </main>
+    </section>
   )
 }
