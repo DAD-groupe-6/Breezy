@@ -138,7 +138,6 @@ const en = {
     deleteError: 'Unable to delete this post. Please try again.',
     imageAlt: 'Post content',
     commentAria: 'Comment',
-    repostAria: 'Repost',
     likeAria: 'Like',
   },
 

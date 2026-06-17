@@ -138,7 +138,6 @@ const fr = {
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
     imageAlt: 'Contenu du post',
     commentAria: 'Commenter',
-    repostAria: 'Reposter',
     likeAria: 'Aimer',
   },
 
