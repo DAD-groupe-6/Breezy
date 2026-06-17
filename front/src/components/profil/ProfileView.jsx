@@ -140,10 +140,10 @@ export default function ProfileView({ userId, isOwnProfile }) {
 
     return (
         <div className="min-h-screen bg-[var(--color-bg-primary)]">
-            <div
-                className="md:max-w-2xl md:mx-auto md:my-4 md:rounded-2xl md:shadow-sm overflow-hidden"
-                style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-            >
+            <div className="mx-auto w-full max-w-3xl px-4 py-4">
+                <div
+                    className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
+                >
                 <ProfileHeader
                     displayName={user.pseudo}
                     username={user.pseudo_uniq}
@@ -157,16 +157,17 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     onFollow={handleFollow}
                 />
 
-                <div className="px-4 py-4">
-                    <h2 className="text-lg font-bold text-[var(--color-text-primary)]">
+                <div className="px-[var(--space-md)] py-[var(--space-md)] md:px-[var(--space-lg)]">
+                    <h2 className="text-lg text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-title)]">
                         {t('pages.profil.postsSection')}
                     </h2>
                 </div>
 
-                <div>
-                    {MOCK_POSTS.map((post) => (
-                        <Post key={post.id} {...post} />
-                    ))}
+                    <div>
+                        {MOCK_POSTS.map((post) => (
+                            <Post key={post.id} {...post} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

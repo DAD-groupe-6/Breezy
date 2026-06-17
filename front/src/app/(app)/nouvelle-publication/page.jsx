@@ -89,7 +89,6 @@ export default function NewPublicationPage() {
             >
               <FiArrowLeft />
             </Link>
-            <h1 className="text-xl font-bold text-[var(--color-text-title)] md:text-2xl">{t('nav.newPost')}</h1>
           </div>
 
           <button
@@ -124,12 +123,12 @@ export default function NewPublicationPage() {
                 onChange={(event) => setContent(event.target.value)}
                 placeholder={t('pages.newPost.contentPlaceholder')}
                 rows={8}
-                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
+                className="w-full resize-none rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-3 text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-text-title)]"
               />
 
               {mediaType && (
                 <div
-                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-primary)] px-4 py-6 text-center"
+                  className="mt-3 rounded-2xl border-2 border-dashed border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-4 py-6 text-center"
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={handleDrop}
                 >
