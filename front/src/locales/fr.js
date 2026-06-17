@@ -63,12 +63,13 @@ const fr = {
       title: 'Explorer',
       subtitle: 'Recherchez des posts par mot-clé, #tag ou @pseudo.',
       searchLabel: 'Rechercher un contenu',
-      searchPlaceholder: 'Ex: mot clé, #tag, @username',
+      searchPlaceholder: 'Ex: mot-clé, #tag',
       searchNote: 'Cette recherche sera reliée au back plus tard pour filtrer les posts par tags et mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'Aucun message pour le moment.',
+      searchPlaceholder: 'Rechercher...',
     },
     notifications: {
       title: 'Notifications',
@@ -137,7 +138,6 @@ const fr = {
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
     imageAlt: 'Contenu du post',
     commentAria: 'Commenter',
-    repostAria: 'Reposter',
     likeAria: 'Aimer',
   },
 

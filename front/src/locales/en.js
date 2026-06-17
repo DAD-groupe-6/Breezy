@@ -63,12 +63,13 @@ const en = {
       title: 'Explore',
       subtitle: 'Search posts by keyword, #tag, or @handle.',
       searchLabel: 'Search content',
-      searchPlaceholder: 'e.g. keyword, #tag, @username',
+      searchPlaceholder: 'Ex: keyword, #tag',
       searchNote: 'This search will be connected to the backend to filter posts by tags and mentions.',
     },
     messages: {
       title: 'Messages',
       empty: 'No messages yet.',
+      searchPlaceholder: 'Search...',
     },
     notifications: {
       title: 'Notifications',
@@ -137,7 +138,6 @@ const en = {
     deleteError: 'Unable to delete this post. Please try again.',
     imageAlt: 'Post content',
     commentAria: 'Comment',
-    repostAria: 'Repost',
     likeAria: 'Like',
   },
 
