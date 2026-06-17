@@ -13,6 +13,7 @@ function statusFor(message) {
     }
 }
 
+// Posts
 async function createPost(req, res) {
     try {
         const { content } = req.body;
@@ -55,6 +56,7 @@ async function deletePost(req, res) {
     }
 }
 
+// Likes
 async function likePost(req, res) {
     try {
         const post = await PostService.likePost(req.params.id, req.user.id);
@@ -73,6 +75,7 @@ async function unlikePost(req, res) {
     }
 }
 
+// Commentaires
 async function addComment(req, res) {
     try {
         const { content } = req.body;
@@ -109,13 +112,10 @@ async function deleteComment(req, res) {
     }
 }
 
+// Un commentaire est un post : on like/unlike directement par son id (commentId).
 async function likeComment(req, res) {
     try {
-        const comment = await PostService.likeComment(
-            req.params.id,
-            req.params.commentId,
-            req.user.id
-        );
+        const comment = await PostService.likePost(req.params.commentId, req.user.id);
         res.status(200).json(comment);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -124,11 +124,7 @@ async function likeComment(req, res) {
 
 async function unlikeComment(req, res) {
     try {
-        const comment = await PostService.unlikeComment(
-            req.params.id,
-            req.params.commentId,
-            req.user.id
-        );
+        const comment = await PostService.unlikePost(req.params.commentId, req.user.id);
         res.status(200).json(comment);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });

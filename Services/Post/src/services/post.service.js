@@ -1,37 +1,8 @@
 const mongoose = require("mongoose");
 const Post = require("../models/post.model");
-const { likeStats } = require("../utils/likes.util");
+const { toView } = require("../utils/postView");
 
-const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
-
-function toView(post, viewerId) {
-    return {
-        _id: post._id,
-        id_user: post.id_user,
-        content: post.content,
-        image: post.image,
-        type: post.type,
-        parent_id: post.parent_id,
-        list_tags: post.list_tags,
-        nb_signalement: post.nb_signalement,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-        commentsCount: post.comments.length,
-        ...likeStats(post.likes, viewerId),
-    };
-}
-
-function toCommentView(comment, viewerId) {
-    return {
-        _id: comment._id,
-        id_user: comment.id_user,
-        content: comment.content,
-        createdAt: comment.createdAt,
-        ...likeStats(comment.likes, viewerId),
-    };
-}
-
+// Posts
 async function createPost(userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
@@ -72,6 +43,7 @@ async function deletePost(id, userId) {
     return { message: "Post deleted" };
 }
 
+// Likes
 async function likePost(id, userId) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Post not found");
     const post = await Post.findByIdAndUpdate(
@@ -94,60 +66,37 @@ async function unlikePost(id, userId) {
     return toView(post, userId);
 }
 
-async function addComment(postId, userId, content) {
+// Commentaires (posts de type "response")
+async function addComment(parentId, userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
-    const post = await getPostById(postId);
-    post.comments.push({ id_user: String(userId), content: content.trim() });
-    await post.save();
-    const created = post.comments[post.comments.length - 1];
-    return toCommentView(created, userId);
+    await getPostById(parentId); // 404 si le post parent n'existe pas
+    const comment = await Post.create({
+        id_user: String(userId),
+        content: content.trim(),
+        type: "response",
+        parent_id: parentId,
+    });
+    await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: 1 } });
+    return toView(comment, userId);
 }
 
-async function listComments(postId, viewerId) {
-    const post = await getPostById(postId);
-    return [...post.comments]
-        .sort((a, b) => b.createdAt - a.createdAt)
-        .map((comment) => toCommentView(comment, viewerId));
+async function listComments(parentId, viewerId) {
+    await getPostById(parentId); // 404 si le post n'existe pas
+    const comments = await Post.find({ parent_id: parentId, type: "response" }).sort({
+        createdAt: -1,
+    });
+    return comments.map((comment) => toView(comment, viewerId));
 }
 
-async function deleteComment(postId, commentId, userId) {
-    if (!mongoose.Types.ObjectId.isValid(commentId)) {
-        throw new Error("Comment not found");
-    }
-    const post = await getPostById(postId);
-    const comment = post.comments.id(commentId);
-    if (!comment) throw new Error("Comment not found");
+async function deleteComment(parentId, commentId, userId) {
+    const comment = await getPostById(commentId);
     if (comment.id_user !== String(userId)) throw new Error("Forbidden");
 
-    post.comments.pull(commentId);
-    await post.save();
+    await comment.deleteOne();
+    await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: -1 } });
     return { message: "Comment deleted" };
-}
-
-async function getCommentOrThrow(postId, commentId) {
-    if (!mongoose.Types.ObjectId.isValid(commentId)) {
-        throw new Error("Comment not found");
-    }
-    const post = await getPostById(postId);
-    const comment = post.comments.id(commentId);
-    if (!comment) throw new Error("Comment not found");
-    return { post, comment };
-}
-
-async function likeComment(postId, commentId, userId) {
-    const { post, comment } = await getCommentOrThrow(postId, commentId);
-    if (!comment.likes.includes(String(userId))) comment.likes.push(String(userId));
-    await post.save();
-    return toCommentView(comment, userId);
-}
-
-async function unlikeComment(postId, commentId, userId) {
-    const { post, comment } = await getCommentOrThrow(postId, commentId);
-    comment.likes.pull(String(userId));
-    await post.save();
-    return toCommentView(comment, userId);
 }
 
 module.exports = {
@@ -161,6 +110,4 @@ module.exports = {
     addComment,
     listComments,
     deleteComment,
-    likeComment,
-    unlikeComment,
 };
