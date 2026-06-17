@@ -93,17 +93,17 @@ export default function ProfileView({ userId, isOwnProfile }) {
 
     // Nombre d'abonnements (suivis) du profil affiché
     useEffect(() => {
-        api.get(`/user/following/${userId}`)
-            .then(res => setFollowingCount(res.data.following_count ?? 0))
+        api.get(`/user/${userId}/following`)
+            .then(res => setFollowingCount((res.data.following || []).length))
             .catch(() => setFollowingCount(0))
     }, [userId])
 
     // Détermine si l'utilisateur connecté suit déjà ce profil
     useEffect(() => {
         if (isOwnProfile || !myId) return
-        api.get(`/user/following/${myId}`)
+        api.get(`/user/${myId}/following`)
             .then(res => {
-                const list = res.data.following_list || []
+                const list = res.data.following || []
                 setIsFollowing(list.map(String).includes(String(userId)))
             })
             .catch(() => setIsFollowing(false))
