@@ -2,7 +2,7 @@ export default function Badge({ count }) {
   if (!count || count <= 0) return null
 
   return (
-    <span className="bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center">
+    <span className="min-w-[20px] rounded-[var(--radius-pill)] bg-red-500 px-[6px] py-[2px] text-center text-xs font-bold text-white shadow-[var(--shadow-sm)]">
       {count > 99 ? '99+' : count}
     </span>
   )

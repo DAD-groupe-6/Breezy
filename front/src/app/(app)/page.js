@@ -72,14 +72,20 @@ export default function Home() {
             />
           ))}
 
-          {loading && (
-            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+            {loading && (
+                <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
               {t('pages.home.loading')}
-            </p>
-          )}
+                </p>
+            )}
 
-          {!loading && error && (
-            <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
+            {!loading && error && (
+                <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
+            )}
+
+          {!loading && !error && posts.length === 0 && (
+            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+              Aucun post pour le moment. Soyez le premier à publier !
+            </p>
           )}
         </div>
       </section>
