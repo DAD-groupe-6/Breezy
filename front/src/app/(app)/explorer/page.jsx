@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
-import Searchbar from '../../../components/Searchbar'
+import SearchBar from '../../../components/SearchBar'
 
 export default function ExplorerPage() {
   const [query, setQuery] = useState('')
@@ -15,7 +15,7 @@ export default function ExplorerPage() {
         <div className="absolute right-0 top-32 h-72 w-72 rounded-full bg-[var(--color-bg-surface-2)] blur-3xl" />
       </div>
 
-      <Searchbar
+      <SearchBar
         id="explorer-search"
         value={query}
         onChange={(event) => setQuery(event.target.value)}

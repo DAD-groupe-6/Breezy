@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { FiChevronLeft, FiPhone, FiVideo, FiPaperclip, FiSend } from 'react-icons/fi'
 import { useTranslation } from '@/hooks/useTranslation'
-import Searchbar from '../../../components/Searchbar'
+import SearchBar from '../../../components/SearchBar'
 
 const conversations = [
   {
@@ -128,7 +128,7 @@ export default function MessagesPage() {
         <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-[var(--color-bg-primary)] sm:flex">
           <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <div className="border-b border-[var(--color-border)] px-4 py-4 sm:px-5">
-              <Searchbar
+              <SearchBar
                 id="messages-search-desktop"
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
@@ -210,7 +210,7 @@ export default function MessagesPage() {
           {!selectedConversation ? (
             <section className="border-x border-[var(--color-border)] bg-[var(--color-bg-surface)]">
               <div className="border-b border-[var(--color-border)] px-4 py-4">
-                <Searchbar
+                <SearchBar
                   id="messages-search-mobile"
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
