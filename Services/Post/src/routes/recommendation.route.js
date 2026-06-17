@@ -25,11 +25,6 @@ const { authenticate } = require("../middlewares/auth.middleware");
  *           default: 20
  *           maximum: 50
  *         description: Number of posts to return
- *       - in: query
- *         name: before
- *         schema:
- *           type: string
- *         description: Cursor for pagination
  *     responses:
  *       200:
  *         description: List of recommended posts
@@ -42,8 +37,6 @@ const { authenticate } = require("../middlewares/auth.middleware");
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Post'
- *                 nextCursor:
- *                   type: string
  *       400:
  *         description: Bad request
  *       401:
