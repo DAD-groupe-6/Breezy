@@ -37,8 +37,8 @@ export function useComments(postId, initialCount) {
       const mapped = await Promise.all(data.map(mapComment))
       setList(mapped)
       setLoaded(true)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec du chargement des commentaires', err)
     }
   }
 
@@ -52,8 +52,8 @@ export function useComments(postId, initialCount) {
       const mapped = await mapComment(data)
       setList((prev) => [mapped, ...prev])
       setCount((prev) => prev + 1)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec de l\'ajout du commentaire', err)
     }
   }
 
@@ -62,8 +62,8 @@ export function useComments(postId, initialCount) {
       await api.delete(`/post/${postId}/comments/${commentId}`)
       setList((prev) => prev.filter((c) => c.id !== commentId))
       setCount((prev) => Math.max(0, prev - 1))
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec de la suppression du commentaire', err)
     }
   }
 
@@ -85,8 +85,8 @@ export function useComments(postId, initialCount) {
             : c
         )
       )
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec du like/unlike du commentaire', err)
     }
   }
 

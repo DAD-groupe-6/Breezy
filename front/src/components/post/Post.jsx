@@ -39,8 +39,8 @@ export default function Post({
     try {
       await api.delete(`/post/${postId}`);
       onDelete?.(postId);
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[Post] Échec de la suppression du post', err);
     }
   };
 

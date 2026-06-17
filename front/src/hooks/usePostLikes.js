@@ -23,8 +23,8 @@ export function usePostLikes(postId, initialLiked, initialCount) {
         : await api.post(`/post/${postId}/like`)
       setLiked(data.likedByMe)
       setCount(data.nb_like)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[usePostLikes] Échec du like/unlike du post', err)
     } finally {
       setLoading(false)
     }

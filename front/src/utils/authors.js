@@ -14,7 +14,8 @@ export async function resolveAuthor(authorId) {
     clearTimeout(timeout)
     cache[authorId] = data
     return data
-  } catch {
+  } catch (err) {
+    console.error(`[resolveAuthor] Impossible de récupérer l'auteur ${authorId}`, err)
     return null
   }
 }
