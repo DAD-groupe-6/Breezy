@@ -1,13 +1,19 @@
 const mongoose = require("mongoose");
 const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
+const { extractTags } = require("../utils/tags.util");
 
 // Posts
 async function createPost(userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
-    const post = await Post.create({ id_user: String(userId), content: content.trim() });
+    const trimmed = content.trim();
+    const post = await Post.create({
+        id_user: String(userId),
+        content: trimmed,
+        list_tags: extractTags(trimmed),
+    });
     return toView(post, userId);
 }
 
@@ -23,16 +29,6 @@ async function getPostById(id) {
 async function getPostView(id, viewerId) {
     const post = await getPostById(id);
     return toView(post, viewerId);
-}
-
-async function updatePost(id, userId, content) {
-    const post = await getPostById(id);
-    if (post.id_user !== String(userId)) throw new Error("Forbidden");
-    if (!content || !content.trim()) throw new Error("Content is required");
-
-    post.content = content.trim();
-    await post.save();
-    return toView(post, userId);
 }
 
 async function deletePost(id, userId) {
@@ -72,11 +68,13 @@ async function addComment(parentId, userId, content) {
         throw new Error("Content is required");
     }
     await getPostById(parentId); // 404 si le post parent n'existe pas
+    const trimmed = content.trim();
     const comment = await Post.create({
         id_user: String(userId),
-        content: content.trim(),
+        content: trimmed,
         type: "response",
         parent_id: parentId,
+        list_tags: extractTags(trimmed),
     });
     await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: 1 } });
     return toView(comment, userId);
@@ -103,7 +101,6 @@ module.exports = {
     createPost,
     getPostById,
     getPostView,
-    updatePost,
     deletePost,
     likePost,
     unlikePost,

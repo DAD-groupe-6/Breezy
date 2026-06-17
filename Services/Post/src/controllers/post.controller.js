@@ -33,20 +33,6 @@ async function getPost(req, res) {
     }
 }
 
-async function updatePost(req, res) {
-    try {
-        const { content } = req.body;
-        const post = await PostService.updatePost(
-            req.params.id,
-            req.user.id,
-            content
-        );
-        res.status(200).json(post);
-    } catch (err) {
-        res.status(statusFor(err.message)).json({ message: err.message });
-    }
-}
-
 async function deletePost(req, res) {
     try {
         const result = await PostService.deletePost(req.params.id, req.user.id);
@@ -134,7 +120,6 @@ async function unlikeComment(req, res) {
 module.exports = {
     createPost,
     getPost,
-    updatePost,
     deletePost,
     likePost,
     unlikePost,
