@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import api from '@/utils/api'
 import Post from '@/components/post/Post'
 import { timeAgo } from '@/utils/time'
@@ -9,6 +10,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
 
 export default function Home() {
+  const router = useRouter()
   const { t, locale } = useTranslation()
   const { user, loading } = useAuth()
   const [posts, setPosts] = useState([])
@@ -53,7 +55,7 @@ export default function Home() {
   return (
     <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-        <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
           {posts.map((post) => (
             <Post
               key={post._id}
@@ -68,6 +70,7 @@ export default function Home() {
               likes={post.nb_like}
               liked={post.likedByMe}
               comments={post.commentsCount}
+              onViewProfile={() => router.push(`/profil/${post.id_user}`)}
               onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
             />
           ))}
