@@ -5,9 +5,11 @@ import { getToken } from '@/utils/cookie'
 import { getCurrentUserId } from '@/utils/auth'
 import { resolveAuthor } from '@/utils/authors'
 import { timeAgo } from '@/utils/time'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useComments(postId, initialCount) {
   const router = useRouter()
+  const { t, locale } = useTranslation()
   const [list, setList] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [count, setCount] = useState(initialCount)
@@ -20,7 +22,7 @@ export function useComments(postId, initialCount) {
       id: c._id,
       displayName: author?.pseudo || 'Utilisateur inconnu',
       username: author?.pseudo_uniq || 'inconnu',
-      timestamp: timeAgo(c.createdAt),
+      timestamp: timeAgo(c.createdAt, t, locale),
       content: c.content,
       canDelete: c.id_user === currentUserId,
       likesCount: c.nb_like,
