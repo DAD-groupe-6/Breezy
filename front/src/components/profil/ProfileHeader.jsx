@@ -15,6 +15,8 @@ export default function ProfileHeader({
   followersCount = 0,
   followingCount = 0,
   isOwnProfile = false,
+  isFollowing = false,
+  followPending = false,
   onFollow,
   onEditProfile,
 }) {
@@ -81,8 +83,12 @@ export default function ProfileHeader({
               </div>
             ) : (
               /* Bouton Suivre pour le visiteur */
-              <Button variant="primary" onClick={onFollow}>
-                {t('profile.follow')}
+              <Button
+                variant={isFollowing ? 'secondary' : 'primary'}
+                onClick={onFollow}
+                disabled={followPending}
+              >
+                {isFollowing ? t('profile.following') : t('profile.follow')}
               </Button>
             )}
           </div>
