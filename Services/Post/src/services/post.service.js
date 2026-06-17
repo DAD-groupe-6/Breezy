@@ -3,6 +3,9 @@ const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
 const { extractTags } = require("../utils/tags.util");
 
+const DEFAULT_LIMIT = 5;
+const MAX_LIMIT = 50;
+
 // Posts
 async function createPost(userId, content) {
     if (!content || !content.trim()) {

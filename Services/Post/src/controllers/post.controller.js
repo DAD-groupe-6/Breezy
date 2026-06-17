@@ -132,7 +132,6 @@ module.exports = {
     createPost,
     getPost,
     getUserPosts,
-    updatePost,
     deletePost,
     likePost,
     unlikePost,
