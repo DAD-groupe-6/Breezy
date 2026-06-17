@@ -33,7 +33,7 @@ export default function Post({
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
-  const isMine = authorId === getCurrentUserId();
+  const isMine = String(authorId) === String(getCurrentUserId());
 
   const handleDeletePost = async () => {
     try {

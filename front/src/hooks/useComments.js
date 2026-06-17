@@ -24,7 +24,7 @@ export function useComments(postId, initialCount) {
       username: author?.pseudo_uniq || 'inconnu',
       timestamp: timeAgo(c.createdAt, t, locale),
       content: c.content,
-      canDelete: c.id_user === currentUserId,
+      canDelete: String(c.id_user) === String(currentUserId),
       likesCount: c.nb_like,
       liked: c.likedByMe,
     }
