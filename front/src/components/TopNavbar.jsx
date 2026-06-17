@@ -21,7 +21,7 @@ export default function AppTopNavbar() {
   const titleKey = ROUTE_TITLE_KEYS[pathname] || 'nav.home'
 
   return (
-    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg-surface)_86%,transparent)] shadow-[var(--shadow-sm)] backdrop-blur-xl">
+    <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-sm)]">
       <div className="flex w-full items-center justify-between px-[var(--space-md)] py-[var(--space-sm)] md:px-[var(--space-lg)]">
         <h1 className="text-lg text-[var(--color-text-title)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-display)]">{t(titleKey)}</h1>
         <div className="flex items-center gap-[var(--space-sm)]">
