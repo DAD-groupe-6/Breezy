@@ -94,9 +94,10 @@ export default function ProfileView({ userId, isOwnProfile }) {
 
     return (
         <div className="min-h-screen bg-[var(--color-bg-primary)]">
-            <div
-                className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
-            >
+            <div className="mx-auto w-full max-w-3xl px-4 py-4">
+                <div
+                    className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
+                >
                 <ProfileHeader
                     displayName={user.pseudo}
                     username={user.pseudo_uniq}
@@ -112,10 +113,11 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     </h2>
                 </div>
 
-                <div>
-                    {MOCK_POSTS.map((post) => (
-                        <Post key={post.id} {...post} />
-                    ))}
+                    <div>
+                        {MOCK_POSTS.map((post) => (
+                            <Post key={post.id} {...post} />
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
