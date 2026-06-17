@@ -3,6 +3,8 @@ const router = express.Router();
 const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 
+router.get("/user/:userId", authenticate, PostController.getUserPosts);
+
 router.get("/:id", authenticate, PostController.getPost);
 
 router.post("/", authenticate, PostController.createPost);

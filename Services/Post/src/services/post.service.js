@@ -97,8 +97,28 @@ async function deleteComment(parentId, commentId, userId) {
     return { message: "Comment deleted" };
 }
 
+async function getUserPosts(userId, { page, limit } = {}) {
+    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
+
+    const posts = await Post.find({ id_user: String(userId), type: "post" })
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(safeLimit + 1);
+
+    const hasMore = posts.length > safeLimit;
+    const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
+
+    return {
+        posts: pagePosts.map((post) => toView(post, userId)),
+        hasMore,
+    };
+}
+
 module.exports = {
     createPost,
+    getUserPosts,
     getPostById,
     getPostView,
     deletePost,

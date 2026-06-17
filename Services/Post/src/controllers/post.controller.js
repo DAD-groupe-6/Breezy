@@ -33,6 +33,17 @@ async function getPost(req, res) {
     }
 }
 
+async function getUserPosts(req, res) {
+    try {
+        const { page, limit } = req.query;
+        const result = await PostService.getUserPosts(req.params.userId, { page, limit });
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+
 async function deletePost(req, res) {
     try {
         const result = await PostService.deletePost(req.params.id, req.user.id);
@@ -120,6 +131,8 @@ async function unlikeComment(req, res) {
 module.exports = {
     createPost,
     getPost,
+    getUserPosts,
+    updatePost,
     deletePost,
     likePost,
     unlikePost,
