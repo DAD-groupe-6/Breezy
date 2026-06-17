@@ -5,9 +5,11 @@ import { getToken } from '@/utils/cookie'
 import { getCurrentUserId } from '@/utils/auth'
 import { resolveAuthor } from '@/utils/authors'
 import { timeAgo } from '@/utils/time'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useComments(postId, initialCount) {
   const router = useRouter()
+  const { t, locale } = useTranslation()
   const [list, setList] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [count, setCount] = useState(initialCount)
@@ -20,9 +22,9 @@ export function useComments(postId, initialCount) {
       id: c._id,
       displayName: author?.pseudo || 'Utilisateur inconnu',
       username: author?.pseudo_uniq || 'inconnu',
-      timestamp: timeAgo(c.createdAt),
+      timestamp: timeAgo(c.createdAt, t, locale),
       content: c.content,
-      canDelete: c.id_user === currentUserId,
+      canDelete: String(c.id_user) === String(currentUserId),
       likesCount: c.nb_like,
       liked: c.likedByMe,
     }
@@ -35,8 +37,8 @@ export function useComments(postId, initialCount) {
       const mapped = await Promise.all(data.map(mapComment))
       setList(mapped)
       setLoaded(true)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec du chargement des commentaires', err)
     }
   }
 
@@ -50,8 +52,8 @@ export function useComments(postId, initialCount) {
       const mapped = await mapComment(data)
       setList((prev) => [mapped, ...prev])
       setCount((prev) => prev + 1)
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec de l\'ajout du commentaire', err)
     }
   }
 
@@ -60,8 +62,8 @@ export function useComments(postId, initialCount) {
       await api.delete(`/post/${postId}/comments/${commentId}`)
       setList((prev) => prev.filter((c) => c.id !== commentId))
       setCount((prev) => Math.max(0, prev - 1))
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec de la suppression du commentaire', err)
     }
   }
 
@@ -83,8 +85,8 @@ export function useComments(postId, initialCount) {
             : c
         )
       )
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[useComments] Échec du like/unlike du commentaire', err)
     }
   }
 

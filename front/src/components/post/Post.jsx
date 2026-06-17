@@ -33,14 +33,14 @@ export default function Post({
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
-  const isMine = authorId === getCurrentUserId();
+  const isMine = String(authorId) === String(getCurrentUserId());
 
   const handleDeletePost = async () => {
     try {
       await api.delete(`/post/${postId}`);
       onDelete?.(postId);
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[Post] Échec de la suppression du post', err);
     }
   };
 
