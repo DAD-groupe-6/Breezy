@@ -23,8 +23,6 @@ export default function Post({
   likes = 0,
   liked = false,
   comments = 0,
-  replies = 0,
-  onReply,
   onViewProfile,
   onReport,
   onDelete,
@@ -98,11 +96,9 @@ export default function Post({
 
         <PostActions
           commentCount={commentsHook.count}
-          replies={replies}
           liked={postLikes.liked}
           likeCount={postLikes.count}
           onComment={handleCommentClick}
-          onReply={(e) => { e.stopPropagation(); onReply?.(); }}
           onLike={(e) => { e.stopPropagation(); postLikes.toggle(); }}
         />
 

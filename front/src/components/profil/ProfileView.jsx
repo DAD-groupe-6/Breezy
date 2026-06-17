@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
@@ -67,6 +68,7 @@ const MOCK_POSTS = [
 ];
 
 export default function ProfileView({ userId, isOwnProfile }) {
+    const router = useRouter()
     const { t } = useTranslation()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -165,7 +167,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
 
                     <div>
                         {MOCK_POSTS.map((post) => (
-                            <Post key={post.id} {...post} />
+                            <Post key={post.id} {...post} onViewProfile={() => router.push(`/profil/${post.username}`)} />
                         ))}
                     </div>
                 </div>
