@@ -115,6 +115,7 @@ const fr = {
     statFollowing: 'Suivis',
     statFollowers: 'Followers',
     follow: 'Suivre',
+    following: 'Abonné',
     editProfile: 'Modifier le profil',
     changePhoto: 'Changer la photo de profil',
     optionsAriaLabel: 'Options du profil',

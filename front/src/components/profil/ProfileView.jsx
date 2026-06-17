@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
+import { getToken } from '@/utils/cookie'
 import ProfileHeader from '@/components/profil/ProfileHeader'
 import Post from '@/components/post/Post'
 import { useTranslation } from '@/hooks/useTranslation'
@@ -68,13 +70,57 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const { t } = useTranslation()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [followersCount, setFollowersCount] = useState(0)
+    const [followingCount, setFollowingCount] = useState(0)
+    const [isFollowing, setIsFollowing] = useState(false)
+    const [followPending, setFollowPending] = useState(false)
+
+    // Id de l'utilisateur connecté (depuis le JWT)
+    const token = getToken()
+    const myId = token ? String(jwtDecode(token).id) : null
 
     useEffect(() => {
         api.get(`/user/${userId}`)
-            .then(res => setUser(res.data))
+            .then(res => {
+                setUser(res.data)
+                setFollowersCount(res.data.nb_followers ?? 0)
+            })
             .catch(() => setUser(null))
             .finally(() => setLoading(false))
     }, [userId])
+
+    // Nombre d'abonnements (suivis) du profil affiché
+    useEffect(() => {
+        api.get(`/user/following/${userId}`)
+            .then(res => setFollowingCount(res.data.following_count ?? 0))
+            .catch(() => setFollowingCount(0))
+    }, [userId])
+
+    // Détermine si l'utilisateur connecté suit déjà ce profil
+    useEffect(() => {
+        if (isOwnProfile || !myId) return
+        api.get(`/user/following/${myId}`)
+            .then(res => {
+                const list = res.data.following_list || []
+                setIsFollowing(list.map(String).includes(String(userId)))
+            })
+            .catch(() => setIsFollowing(false))
+    }, [userId, myId, isOwnProfile])
+
+    async function handleFollow() {
+        if (!myId || followPending) return
+        setFollowPending(true)
+        const endpoint = isFollowing ? '/user/follow/remove' : '/user/follow/add'
+        try {
+            await api.post(endpoint, { follower_id: myId, following_id: String(userId) })
+            setIsFollowing(prev => !prev)
+            setFollowersCount(prev => Math.max(0, prev + (isFollowing ? -1 : 1)))
+        } catch (err) {
+            // En cas d'échec, on laisse l'état inchangé
+        } finally {
+            setFollowPending(false)
+        }
+    }
 
     if (loading) {
         return (
@@ -103,8 +149,12 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     username={user.pseudo_uniq}
                     bio={user.bio}
                     imageUrl={user.img_profile}
-                    followersCount={user.nb_followers}
+                    followersCount={followersCount}
+                    followingCount={followingCount}
                     isOwnProfile={isOwnProfile}
+                    isFollowing={isFollowing}
+                    followPending={followPending}
+                    onFollow={handleFollow}
                 />
 
                 <div className="px-4 py-4">
