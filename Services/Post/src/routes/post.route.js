@@ -18,4 +18,8 @@ router.delete("/:id/comments/:commentId", authenticate, PostController.deleteCom
 router.post("/:id/comments/:commentId/like", authenticate, PostController.likeComment);
 router.delete("/:id/comments/:commentId/like", authenticate, PostController.unlikeComment);
 
+// Recherche
+router.get("/search/content", authenticate, PostController.searchByContent);
+router.get("/search/tags/:tag", authenticate, PostController.searchByTag);
+
 module.exports = router;

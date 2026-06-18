@@ -40,7 +40,21 @@ async function deleteUser(id_user) {
     return { id_user };
 }
 
-module.exports = { createUser, getUser, updateUser, deleteUser };
+async function searchUsersByPseudo(pseudo_uniq) {
+    const { Op } = require("sequelize");
+    const users = await User.findAll({
+        where: {
+            pseudo_uniq: {
+                [Op.iLike]: `%${pseudo_uniq}%`
+            }
+        },
+        attributes: ["pseudo", "pseudo_uniq", "img_profile", "bio"],
+        limit: 10
+    });
+    return users;
+}
+
+module.exports = { createUser, getUser, updateUser, deleteUser, searchUsersByPseudo };
 
 
 

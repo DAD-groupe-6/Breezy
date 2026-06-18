@@ -97,6 +97,32 @@ async function deleteComment(parentId, commentId, userId) {
     return { message: "Comment deleted" };
 }
 
+// Recherche
+async function searchByContent(keywords, viewerId) {
+    if (!keywords || !keywords.trim()) {
+        throw new Error("Keywords are required");
+    }
+    // Créer une regex pour chercher les mots-clés (insensible à la casse)
+    const regex = new RegExp(keywords, "i");
+    const posts = await Post.find({
+        content: regex,
+        type: "post",
+    }).sort({ createdAt: -1 }).limit(10);
+    return posts.map((post) => toView(post, viewerId));
+}
+
+async function searchByTag(tag, viewerId) {
+    if (!tag || !tag.trim()) {
+        throw new Error("Tag is required");
+    }
+    const trimmedTag = tag.trim();
+    const posts = await Post.find({
+        list_tags: trimmedTag,
+        type: "post",
+    }).sort({ createdAt: -1 }).limit(10);
+    return posts.map((post) => toView(post, viewerId));
+}
+
 module.exports = {
     createPost,
     getPostById,
@@ -107,4 +133,6 @@ module.exports = {
     addComment,
     listComments,
     deleteComment,
+    searchByContent,
+    searchByTag,
 };
