@@ -128,6 +128,27 @@ async function unlikeComment(req, res) {
     }
 }
 
+// Recherche
+async function searchByContent(req, res) {
+    try {
+        const { keywords } = req.query;
+        const posts = await PostService.searchByContent(keywords, req.user.id);
+        res.status(200).json(posts);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function searchByTag(req, res) {
+    try {
+        const { tag } = req.params;
+        const posts = await PostService.searchByTag(tag, req.user.id);
+        res.status(200).json(posts);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
 module.exports = {
     createPost,
     getPost,
@@ -140,4 +161,6 @@ module.exports = {
     deleteComment,
     likeComment,
     unlikeComment,
+    searchByContent,
+    searchByTag,
 };
