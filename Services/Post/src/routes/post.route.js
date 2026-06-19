@@ -8,6 +8,7 @@ router.get("/:id", authenticate, PostController.getPost);
 router.post("/", authenticate, PostController.createPost);
 router.put("/:id", authenticate, PostController.updatePost);
 router.delete("/:id", authenticate, PostController.deletePost);
+router.post("/:id/report", authenticate, PostController.reportPost);
 
 router.post("/:id/like", authenticate, PostController.likePost);
 router.delete("/:id/like", authenticate, PostController.unlikePost);

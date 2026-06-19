@@ -6,8 +6,16 @@ function statusFor(message) {
             return 404;
         case "Comment not found":
             return 404;
+        case "User not found":
+            return 404;
         case "Forbidden":
             return 403;
+        case "Failed to report post":
+            return 502;
+        case "Cannot report your own post":
+            return 403;
+        case "Already reported":
+            return 409;
         default:
             return 400;
     }
@@ -49,6 +57,15 @@ async function updatePost(req, res) {
 async function deletePost(req, res) {
     try {
         const result = await PostService.deletePost(req.params.id, req.user.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function reportPost(req, res) {
+    try {
+        const result = await PostService.reportPost(req.params.id, req.user.id);
         res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -140,6 +157,7 @@ module.exports = {
     getPost,
     updatePost,
     deletePost,
+    reportPost,
     likePost,
     unlikePost,
     addComment,

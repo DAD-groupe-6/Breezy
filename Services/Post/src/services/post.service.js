@@ -1,6 +1,9 @@
+const axios = require("axios");
 const mongoose = require("mongoose");
 const Post = require("../models/post.model");
 const { likeStats } = require("../utils/likes.util");
+
+const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -70,6 +73,50 @@ async function deletePost(id, userId) {
 
     await post.deleteOne();
     return { message: "Post deleted" };
+}
+
+async function reportPost(id, reporterId) {
+    const post = await getPostById(id);
+
+    if (post.id_user === String(reporterId)) {
+        throw new Error("Cannot report your own post");
+    }
+
+    if (post.reporters.includes(String(reporterId))) {
+        throw new Error("Already reported");
+    }
+
+    post.reporters.push(String(reporterId));
+    post.nb_signalement += 1;
+    await post.save();
+
+    if (post.nb_signalement < 3) {
+        return {
+            message: "Post reported",
+            deleted: false,
+            reports: post.nb_signalement,
+        };
+    }
+
+    try {
+        await axios.post(
+            `${USER_SERVICE_URL}/api/v1/user/${post.id_user}/report`,
+            { reportedBy: String(reporterId) },
+            { timeout: 5000 }
+        );
+    } catch (err) {
+        if (err.response?.status === 404) {
+            throw new Error("User not found");
+        }
+        throw new Error("Failed to report post");
+    }
+
+    await post.deleteOne();
+    return {
+        message: "Post reported and deleted",
+        deleted: true,
+        reports: post.nb_signalement,
+    };
 }
 
 async function likePost(id, userId) {
@@ -156,6 +203,7 @@ module.exports = {
     getPostView,
     updatePost,
     deletePost,
+    reportPost,
     likePost,
     unlikePost,
     addComment,
