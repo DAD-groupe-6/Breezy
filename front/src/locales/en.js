@@ -125,6 +125,18 @@ const en = {
     editProfile: 'Edit profile',
     changePhoto: 'Change profile picture',
     optionsAriaLabel: 'Profile options',
+    editModal: {
+      title: 'Edit profile',
+      pseudoLabel: 'Display name',
+      bioLabel: 'Bio',
+      pseudoInvalid:
+        'The name can only contain letters, numbers, spaces, hyphens and underscores.',
+      pseudoRequired: 'Name is required.',
+      saveError: 'Error while saving',
+      cancel: 'Cancel',
+      saving: 'Saving...',
+      save: 'Save',
+    },
   },
 
   comments: {
