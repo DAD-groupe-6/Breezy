@@ -160,6 +160,13 @@ const fr = {
     report: 'Signaler',
     delete: 'Supprimer',
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
+    deleteConfirm: {
+      title: 'Supprimer le post',
+      message: 'Voulez-vous vraiment supprimer ce post ? Cette action est irréversible.',
+      confirm: 'Supprimer',
+      cancel: 'Annuler',
+      deleting: 'Suppression...',
+    },
     imageAlt: 'Contenu du post',
     commentAria: 'Commenter',
     likeAria: 'Aimer',
