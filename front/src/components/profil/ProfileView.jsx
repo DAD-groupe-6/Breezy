@@ -12,10 +12,12 @@ import Post from '@/components/post/Post'
 import LoadMoreButton from '@/components/post/LoadMoreButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useToast } from '@/hooks/useToast'
 
 export default function ProfileView({ userId, isOwnProfile }) {
     const router = useRouter()
     const { t } = useTranslation()
+    const toast = useToast()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [followersCount, setFollowersCount] = useState(0)
@@ -68,6 +70,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
             setFollowersCount(prev => Math.max(0, prev + (isFollowing ? -1 : 1)))
         } catch (err) {
             // En cas d'échec, on laisse l'état inchangé
+            toast.error(t('toasts.followError'))
         } finally {
             setFollowPending(false)
         }

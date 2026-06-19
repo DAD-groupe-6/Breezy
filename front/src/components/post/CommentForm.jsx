@@ -4,9 +4,6 @@ import { useState } from 'react';
 import { FiX } from 'react-icons/fi';
 import { useTranslation } from '@/hooks/useTranslation';
 
-// replyTarget : { username } optionnel -> affiche la puce "Réponse à @x"
-// onCancelTarget : annule la cible (revient à une réponse au commentaire)
-// inputRef : ref vers l'input, pour que le parent puisse y placer le curseur
 export default function CommentForm({ onSubmit, replyTarget = null, onCancelTarget, inputRef }) {
   const [draft, setDraft] = useState('');
   const { t } = useTranslation();

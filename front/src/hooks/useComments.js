@@ -6,6 +6,7 @@ import { getCurrentUserId } from '@/utils/auth'
 import { resolveAuthor } from '@/utils/authors'
 import { timeAgo } from '@/utils/time'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useToast } from '@/hooks/useToast'
 
 // Nombre de commentaires/réponses récupérés par tranche (pagination serveur).
 const PAGE_SIZE = 5
@@ -16,6 +17,7 @@ const PAGE_SIZE = 5
 export function useComments(parentId, initialCount, { order = 'desc' } = {}) {
   const router = useRouter()
   const { t, locale } = useTranslation()
+  const toast = useToast()
   const [list, setList] = useState([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
@@ -130,6 +132,7 @@ export function useComments(parentId, initialCount, { order = 'desc' } = {}) {
         )
       )
     } catch (err) {
+      toast.error(t('toasts.likeError'))
       console.error('[useComments] Échec du like/unlike du commentaire', err)
     }
   }

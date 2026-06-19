@@ -6,12 +6,8 @@ import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import LoadMoreButton from './LoadMoreButton';
 
-// Sous-conversation d'un commentaire : réutilise useComments(commentId).
-// Toutes les réponses sont à plat ici (le serveur ré-ancre sur ce commentaire).
 export default function RepliesThread({ commentId, autoFocus = false }) {
-  // order 'asc' : les réponses sont chronologiques, les nouvelles apparaissent en bas.
   const replies = useComments(commentId, undefined, { order: 'asc' });
-  // Cible "↳ @pseudo" du prochain envoi : null = réponse au commentaire lui-même.
   const [target, setTarget] = useState(null);
   const inputRef = useRef(null);
 
@@ -21,12 +17,10 @@ export default function RepliesThread({ commentId, autoFocus = false }) {
     load();
   }, [load]);
 
-  // Place le curseur dans la zone de texte quand le fil s'ouvre via "Répondre".
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
   }, [autoFocus]);
 
-  // Cible une réponse précise + place le curseur prêt à écrire.
   const handleReplyTo = (reply) => {
     setTarget({ id: reply.id, username: reply.username });
     inputRef.current?.focus();

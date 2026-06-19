@@ -1,6 +1,5 @@
 // Formate une date ISO en libellé court "il y a X" (ex: "à l'instant", "5min", "2h", "3j").
-// Les libellés viennent de l'i18n : `t` est la fonction de traduction et `locale`
-// la langue courante (utilisée pour le format de date long).
+
 export function timeAgo(dateString, t, locale = 'fr') {
   const date = new Date(dateString)
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000)
