@@ -1,4 +1,5 @@
 const { User } = require("../models/user.model");
+const sequelize = require("../config/database.config");
 
 async function createUser(id_user, pseudo_uniq, pseudo) {
     const existing = await User.findByPk(id_user);
@@ -70,6 +71,33 @@ async function reportUser(id_user) {
     };
 }
 
+async function getSuggestions(currentUserId, limit = 5) {
+    const { Op } = require("sequelize");
+    const max = Math.min(Math.max(Number(limit) || 5, 1), 20);
+
+    // On exclut soi-même et les comptes déjà suivis
+    const excludeIds = [];
+    if (currentUserId) {
+        excludeIds.push(currentUserId);
+        const current = await User.findByPk(currentUserId);
+        if (current) {
+            const following = await current.getFollowing({
+                attributes: ["id_user"],
+                joinTableAttributes: [],
+            });
+            for (const f of following) excludeIds.push(f.id_user);
+        }
+    }
+
+    const users = await User.findAll({
+        where: excludeIds.length ? { id_user: { [Op.notIn]: excludeIds } } : undefined,
+        attributes: ["id_user", "pseudo", "pseudo_uniq", "img_profile", "bio"],
+        order: sequelize.random(),
+        limit: max,
+    });
+    return users;
+}
+
 async function searchUsersByPseudo(pseudo_uniq) {
     const { Op } = require("sequelize");
     const users = await User.findAll({
@@ -90,5 +118,6 @@ module.exports = {
     deleteUser,
     reportUser,
     searchUsersByPseudo,
+    getSuggestions,
 };
 

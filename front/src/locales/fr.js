@@ -68,6 +68,7 @@ const fr = {
       searching: 'Recherche en cours...',
       noResults: 'Aucun résultat trouvé',
       searchError: 'Erreur lors de la recherche',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',

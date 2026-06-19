@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import UserInfo from '../UserInfo';
 import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function ProfileCard({
   userId,
@@ -12,23 +13,33 @@ export default function ProfileCard({
   username,
   imageUrl = null,
   bio = '',
+  initialFollowing = false,
+  onFollowChange,
   onViewProfile,
 }) {
   const router = useRouter();
-  const [isFollowing, setIsFollowing] = useState(false);
+  const { t } = useTranslation();
+  const [isFollowing, setIsFollowing] = useState(initialFollowing);
+  const [pending, setPending] = useState(false);
   const currentUserId = getCurrentUserId();
   const isOwnProfile = String(userId) === String(currentUserId);
 
   const handleFollow = async () => {
+    if (!currentUserId || pending) return;
+    setPending(true);
+    const endpoint = isFollowing ? '/user/follow/remove' : '/user/follow/add';
     try {
-      if (isFollowing) {
-        // await api.delete(`/user/${userId}/follow`);
-      } else {
-        // await api.post(`/user/${userId}/follow`);
-      }
-      setIsFollowing(!isFollowing);
+      await api.post(endpoint, {
+        follower_id: String(currentUserId),
+        following_id: String(userId),
+      });
+      const next = !isFollowing;
+      setIsFollowing(next);
+      onFollowChange?.(userId, next);
     } catch (err) {
       console.error('[ProfileCard] Erreur lors du suivi', err);
+    } finally {
+      setPending(false);
     }
   };
 
@@ -68,13 +79,14 @@ export default function ProfileCard({
                 e.stopPropagation();
                 handleFollow();
               }}
-              className={`px-4 py-1 rounded-full text-sm font-bold whitespace-nowrap transition-colors ${
+              disabled={pending}
+              className={`px-4 py-1 rounded-full text-sm font-bold whitespace-nowrap transition-colors disabled:opacity-50 ${
                 isFollowing
                   ? 'border border-[var(--color-text-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]'
                   : 'bg-[var(--color-text-primary)] text-[var(--color-bg-primary)] hover:opacity-80'
               }`}
             >
-              {isFollowing ? 'Suivi' : 'Suivre'}
+              {isFollowing ? t('profile.following') : t('profile.follow')}
             </button>
           )}
         </div>
