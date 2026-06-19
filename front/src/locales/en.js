@@ -192,6 +192,7 @@ const en = {
     },
     username: {
       required: 'Username is required',
+      invalid: 'The username can only contain letters, numbers, spaces, hyphens and underscores.',
     },
     confirm: {
       mismatch: 'Passwords do not match',

@@ -192,6 +192,7 @@ const fr = {
     },
     username: {
       required: "Le nom d'utilisateur est requis",
+      invalid: "Le nom d'utilisateur ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.",
     },
     confirm: {
       mismatch: 'Les mots de passe ne correspondent pas',
