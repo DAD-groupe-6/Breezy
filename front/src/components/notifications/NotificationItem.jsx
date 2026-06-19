@@ -24,7 +24,7 @@ export default function NotificationItem({ notification, t, locale }) {
         />
       </div>
 
-      <p className="mt-1 pl-[52px] pr-5 text-[13px] leading-5 text-[var(--color-text-secondary)] sm:text-sm">
+      <p className="mt-1 pl-[52px] pr-5 text-[13px] leading-5 text-[var(--color-text-primary)] [font-weight:var(--font-weight-title)] sm:text-sm">
         {actionText}
       </p>
       <p className="mt-0.5 pl-[52px] text-[11px] font-medium text-[var(--color-text-secondary)] sm:text-xs">
