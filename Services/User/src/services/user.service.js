@@ -70,5 +70,25 @@ async function reportUser(id_user) {
     };
 }
 
-module.exports = { createUser, getUser, updateUser, deleteUser, reportUser };
+async function searchUsersByPseudo(pseudo_uniq) {
+    const { Op } = require("sequelize");
+    const users = await User.findAll({
+        where: {
+            pseudo_uniq: {
+                [Op.iLike]: `%${pseudo_uniq}%`
+            }
+        },
+        attributes: ["id_user", "pseudo", "pseudo_uniq", "img_profile", "bio"],
+        limit: 10
+    });
+    return users;
+}
+module.exports = {
+    createUser,
+    getUser,
+    updateUser,
+    deleteUser,
+    reportUser,
+    searchUsersByPseudo,
+};
 

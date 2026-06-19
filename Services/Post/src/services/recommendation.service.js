@@ -1,41 +1,13 @@
 const axios = require("axios");
-const mongoose = require("mongoose");
 const Post = require("../models/post.model");
-const { likeStats } = require("../utils/likes.util");
+const { toView } = require("../utils/postView");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
 
-function toView(post, viewerId) {
-    return {
-        _id: post._id,
-        id_user: post.id_user,
-        content: post.content,
-        image: post.image,
-        type: post.type,
-        parent_id: post.parent_id,
-        list_tags: post.list_tags,
-        nb_signalement: post.nb_signalement,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-        commentsCount: post.comments.length,
-        ...likeStats(post.likes, viewerId),
-    };
-}
-
-async function getRecentPosts(excludeIds, limit) {
-    const query = {
-        id_user: { $nin: excludeIds.map(String) }
-    };
-
-    return await Post.find(query)
-        .sort({ createdAt: -1, _id: -1 })
-        .limit(limit);
-}
-
-async function getRecommendedPosts(userId, { limit, before } = {}) {
+async function getRecommendedPosts(userId, { limit } = {}) {
     const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
 
     try {
@@ -45,64 +17,40 @@ async function getRecommendedPosts(userId, { limit, before } = {}) {
         );
         const followingUsers = followingResponse.data.following || [];
 
-        let query = {};
+        // 1. Posts des comptes suivis (que de vrais posts, pas les commentaires)
         let posts = [];
-
         if (followingUsers.length > 0) {
-            query = {
-                id_user: { $in: followingUsers.map(String) }
-            };
-
-            if (before && mongoose.Types.ObjectId.isValid(before)) {
-                query._id = { $lt: before };
-            }
-
-            posts = await Post.find(query)
+            posts = await Post.find({
+                type: "post",
+                id_user: { $in: followingUsers.map(String) },
+            })
                 .sort({ createdAt: -1, _id: -1 })
                 .limit(safeLimit);
         }
 
+        // 2. Complement avec d'autres comptes si on n'a pas atteint la limite
         if (posts.length < safeLimit) {
-            const remainingCount = safeLimit - posts.length;
             const followedIds = [...followingUsers.map(String), String(userId)];
-
-            let randomQuery = {
-                id_user: { $nin: followedIds.map(String) }
-            };
-
-            if (before && mongoose.Types.ObjectId.isValid(before)) {
-                randomQuery._id = { $lt: before };
-            }
-
-            const randomPosts = await Post.find(randomQuery)
+            const randomPosts = await Post.find({
+                type: "post",
+                id_user: { $nin: followedIds },
+            })
                 .sort({ createdAt: -1, _id: -1 })
-                .limit(remainingCount);
+                .limit(safeLimit - posts.length);
             posts = [...posts, ...randomPosts];
         }
 
-        const nextCursor =
-            posts.length === safeLimit ? posts[posts.length - 1]._id : null;
-
-        return {
-            posts: posts.map((post) => toView(post, userId)),
-            nextCursor
-        };
+        return { posts: posts.map((post) => toView(post, userId)) };
     } catch (err) {
+        // Utilisateur inconnu cote user-service : on renvoie un feed generique
         if (err.response?.status === 404) {
-            // User not found - return recent posts to everyone
-            const query = { id_user: { $nin: [String(userId)] } };
-            if (before && mongoose.Types.ObjectId.isValid(before)) {
-                query._id = { $lt: before };
-            }
-            const posts = await Post.find(query)
+            const posts = await Post.find({
+                type: "post",
+                id_user: { $nin: [String(userId)] },
+            })
                 .sort({ createdAt: -1, _id: -1 })
-                .limit(DEFAULT_LIMIT);
-            const nextCursor =
-                posts.length === DEFAULT_LIMIT ? posts[posts.length - 1]._id : null;
-            return {
-                posts: posts.map((post) => toView(post, userId)),
-                nextCursor
-            };
+                .limit(safeLimit);
+            return { posts: posts.map((post) => toView(post, userId)) };
         }
         throw new Error(`Failed to fetch recommendations: ${err.message}`);
     }

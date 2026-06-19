@@ -7,65 +7,9 @@ import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
 import ProfileHeader from '@/components/profil/ProfileHeader'
 import Post from '@/components/post/Post'
+import LoadMoreButton from '@/components/post/LoadMoreButton'
+import { useUserPosts } from '@/hooks/useUserPosts'
 import { useTranslation } from '@/hooks/useTranslation'
-
-const MOCK_POSTS = [
-    {
-        id: 1,
-        displayName: 'Lucas Martin',
-        username: 'lucas_m',
-        imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-        timestamp: '2h',
-        content: "Je viens de déployer ma première app Next.js en prod 🚀 C'est une fierté incroyable. Merci à toute l'équipe !",
-        likes: 87,
-        comments: 14,
-        replies: 5,
-    },
-    {
-        id: 2,
-        displayName: 'Lucas Martin',
-        username: 'lucas_m',
-        imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-        timestamp: '1j',
-        content: "Le CSS c'est de l'art. Vous ne me convaincrez jamais du contraire. 🎨\n\n(dit celui qui passe 3h à centrer une div)",
-        likes: 204,
-        comments: 32,
-        replies: 18,
-    },
-    {
-        id: 3,
-        displayName: 'Lucas Martin',
-        username: 'lucas_m',
-        imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-        timestamp: '3j',
-        content: "Hot take : les microservices c'est fantastique jusqu'au moment où vous devez les déboguer à 2h du matin.",
-        likes: 511,
-        comments: 67,
-        replies: 43,
-    },
-    {
-        id: 4,
-        displayName: 'Lucas Martin',
-        username: 'lucas_m',
-        imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-        timestamp: '1 sem',
-        content: 'Petite question : vous préférez travailler en remote complet, hybride ou full présentiel ? (je collecte des données non-représentatives)',
-        likes: 138,
-        comments: 89,
-        replies: 12,
-    },
-    {
-        id: 5,
-        displayName: 'Lucas Martin',
-        username: 'lucas_m',
-        imageUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-        timestamp: '2 sem',
-        content: 'Premier commit de 2026 ✅\nDernier commit de 2026 : probablement "fix typo" à 23h58.',
-        likes: 760,
-        comments: 45,
-        replies: 30,
-    },
-];
 
 export default function ProfileView({ userId, isOwnProfile }) {
     const router = useRouter()
@@ -76,6 +20,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followingCount, setFollowingCount] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
     const [followPending, setFollowPending] = useState(false)
+    const { posts, hasMore, loading: postsLoading, loadMore, removePost } = useUserPosts(userId)
 
     // Id de l'utilisateur connecté (depuis le JWT)
     const token = getToken()
@@ -93,17 +38,17 @@ export default function ProfileView({ userId, isOwnProfile }) {
 
     // Nombre d'abonnements (suivis) du profil affiché
     useEffect(() => {
-        api.get(`/user/following/${userId}`)
-            .then(res => setFollowingCount(res.data.following_count ?? 0))
+        api.get(`/user/${userId}/following`)
+            .then(res => setFollowingCount((res.data.following || []).length))
             .catch(() => setFollowingCount(0))
     }, [userId])
 
     // Détermine si l'utilisateur connecté suit déjà ce profil
     useEffect(() => {
         if (isOwnProfile || !myId) return
-        api.get(`/user/following/${myId}`)
+        api.get(`/user/${myId}/following`)
             .then(res => {
-                const list = res.data.following_list || []
+                const list = res.data.following || []
                 setIsFollowing(list.map(String).includes(String(userId)))
             })
             .catch(() => setIsFollowing(false))
@@ -166,9 +111,22 @@ export default function ProfileView({ userId, isOwnProfile }) {
                 </div>
 
                     <div>
-                        {MOCK_POSTS.map((post) => (
-                            <Post key={post.id} {...post} onViewProfile={() => router.push(`/profil/${post.username}`)} />
+                        {posts.map((post) => (
+                            <Post
+                                key={post.postId}
+                                {...post}
+                                onViewProfile={() => router.push(`/profil/${post.authorId}`)}
+                                onDelete={removePost}
+                            />
                         ))}
+
+                        {!postsLoading && posts.length === 0 && (
+                            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                                {t('pages.profil.noPosts')}
+                            </p>
+                        )}
+
+                        {hasMore && <LoadMoreButton onClick={loadMore} />}
                     </div>
                 </div>
             </div>

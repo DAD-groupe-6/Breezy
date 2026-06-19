@@ -65,6 +65,9 @@ const en = {
       searchLabel: 'Search content',
       searchPlaceholder: 'Ex: keyword, #tag',
       searchNote: 'This search will be connected to the backend to filter posts by tags and mentions.',
+      searching: 'Searching...',
+      noResults: 'No results found',
+      searchError: 'Error searching',
     },
     messages: {
       title: 'Messages',
@@ -79,6 +82,8 @@ const en = {
       postsSection: 'Posts',
       loading: 'Loading...',
       notFound: 'Profile not found',
+      loadMore: 'Load more',
+      noPosts: 'No posts yet.',
     },
     settings: {
       title: 'Settings',

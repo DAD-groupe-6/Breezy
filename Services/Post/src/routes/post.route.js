@@ -3,10 +3,14 @@ const router = express.Router();
 const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 
+// Recherche et routes spécifiques avant les routes dynamiques `/:id`.
+router.get("/search/content", authenticate, PostController.searchByContent);
+router.get("/search/tags/:tag", authenticate, PostController.searchByTag);
+router.get("/user/:userId", authenticate, PostController.getUserPosts);
+
 router.get("/:id", authenticate, PostController.getPost);
 
 router.post("/", authenticate, PostController.createPost);
-router.put("/:id", authenticate, PostController.updatePost);
 router.delete("/:id", authenticate, PostController.deletePost);
 router.post("/:id/report", authenticate, PostController.reportPost);
 
