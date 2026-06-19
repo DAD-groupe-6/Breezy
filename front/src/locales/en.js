@@ -77,6 +77,13 @@ const en = {
     notifications: {
       title: 'Notifications',
       empty: 'No notifications yet.',
+      actions: {
+        likedPhoto: 'liked your photo',
+        startedFollowing: 'started following you',
+        commentedPhoto: 'commented on your post',
+        sharedPost: 'shared your post.',
+        mentionedInComment: 'mentioned you in a comment',
+      },
     },
     profil: {
       postsSection: 'Posts',
