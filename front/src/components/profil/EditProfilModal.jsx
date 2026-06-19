@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react'
 import api from '@/utils/api'
 
+const NAME_REGEX = /^[\p{L}\p{N} _-]+$/u
+const EMOJI_REGEX = /\p{Extended_Pictographic}/u
+
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     const [pseudo, setPseudo] = useState('')
     const [bio, setBio] = useState('')
@@ -18,16 +21,24 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
     if (!isOpen) return null
 
+    const trimmedPseudo = pseudo.trim()
+    const pseudoValid = trimmedPseudo.length > 0 && NAME_REGEX.test(trimmedPseudo)
+    const isValid = pseudoValid
+
+    let validationMessage = null
+    if (!pseudoValid && pseudo.length > 0) {
+        validationMessage = 'Le nom ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.'
+    } else if (!pseudoValid) {
+        validationMessage = 'Le nom est requis.'
+    }
+
     const handleSave = async () => {
-        if (!pseudo.trim()) {
-            setError('Le nom est requis')
-            return
-        }
+        if (!isValid) return
         setSaving(true)
         setError(null)
         try {
             const { data } = await api.put(`/user/${user.id_user}`, {
-                pseudo: pseudo.trim(),
+                pseudo: trimmedPseudo,
                 bio: bio.trim(),
             })
             onSaved?.(data)
@@ -40,13 +51,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     }
 
     return (
-        <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
             <div
                 className="w-full max-w-md rounded-2xl p-6"
                 style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
-                onClick={(e) => e.stopPropagation()}
             >
                 <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-text-title)' }}>
                     Modifier le profil
@@ -67,7 +75,6 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     }}
                 />
 
-
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                     Bio
                 </label>
@@ -75,7 +82,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     rows={4}
-                    className="w-full mb-4 px-3 py-2.5 rounded-xl border text-sm outline-none resize-none"
+                    className="w-full mb-2 px-3 py-2.5 rounded-xl border text-sm outline-none resize-none"
                     style={{
                         backgroundColor: 'var(--color-bg-surface)',
                         borderColor: 'var(--color-border)',
@@ -83,9 +90,10 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     }}
                 />
 
+                {validationMessage && <p className="text-sm text-rose-500 mb-3">{validationMessage}</p>}
                 {error && <p className="text-sm text-rose-500 mb-3">{error}</p>}
 
-                <div className="flex gap-3 justify-end">
+                <div className="flex gap-3 justify-end mt-2">
                     <button
                         onClick={onClose}
                         disabled={saving}
@@ -96,8 +104,8 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={saving}
-                        className="px-4 py-2 rounded-full text-sm font-semibold cursor-pointer"
+                        disabled={saving || !isValid}
+                        className="px-4 py-2 rounded-full text-sm font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ backgroundColor: 'var(--color-text-title)', color: 'var(--color-bg-surface)' }}
                     >
                         {saving ? 'Enregistrement...' : 'Enregistrer'}
