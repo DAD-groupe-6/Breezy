@@ -6,6 +6,7 @@ import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
 import ProfileHeader from '@/components/profil/ProfileHeader'
+import EditProfileModal from '@/components/profil/EditProfilModal'
 import Post from '@/components/post/Post'
 import LoadMoreButton from '@/components/post/LoadMoreButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
@@ -20,6 +21,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followingCount, setFollowingCount] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
     const [followPending, setFollowPending] = useState(false)
+    const [editOpen, setEditOpen] = useState(false)
     const { posts, hasMore, loading: postsLoading, loadMore, removePost } = useUserPosts(userId)
 
     // Id de l'utilisateur connecté (depuis le JWT)
@@ -91,24 +93,25 @@ export default function ProfileView({ userId, isOwnProfile }) {
                 <div
                     className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
                 >
-                <ProfileHeader
-                    displayName={user.pseudo}
-                    username={user.pseudo_uniq}
-                    bio={user.bio}
-                    imageUrl={user.img_profile}
-                    followersCount={followersCount}
-                    followingCount={followingCount}
-                    isOwnProfile={isOwnProfile}
-                    isFollowing={isFollowing}
-                    followPending={followPending}
-                    onFollow={handleFollow}
-                />
+                    <ProfileHeader
+                        displayName={user.pseudo}
+                        username={user.pseudo_uniq}
+                        bio={user.bio}
+                        imageUrl={user.img_profile}
+                        followersCount={followersCount}
+                        followingCount={followingCount}
+                        isOwnProfile={isOwnProfile}
+                        isFollowing={isFollowing}
+                        followPending={followPending}
+                        onFollow={handleFollow}
+                        onEditProfile={() => setEditOpen(true)}
+                    />
 
-                <div className="px-[var(--space-md)] py-[var(--space-md)] md:px-[var(--space-lg)]">
-                    <h2 className="text-lg text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-title)]">
-                        {t('pages.profil.postsSection')}
-                    </h2>
-                </div>
+                    <div className="px-[var(--space-md)] py-[var(--space-md)] md:px-[var(--space-lg)]">
+                        <h2 className="text-lg text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-title)]">
+                            {t('pages.profil.postsSection')}
+                        </h2>
+                    </div>
 
                     <div>
                         {posts.map((post) => (
@@ -130,6 +133,16 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     </div>
                 </div>
             </div>
+
+            {/* Modale d'édition (uniquement pour son propre profil) */}
+            {isOwnProfile && (
+                <EditProfileModal
+                    isOpen={editOpen}
+                    onClose={() => setEditOpen(false)}
+                    user={user}
+                    onSaved={(updated) => setUser(updated)}
+                />
+            )}
         </div>
     )
 }
