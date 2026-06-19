@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import api from '@/utils/api'
 
 const NAME_REGEX = /^[\p{L}\p{N} _-]+$/u
-const EMOJI_REGEX = /\p{Extended_Pictographic}/u
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     const [pseudo, setPseudo] = useState('')
