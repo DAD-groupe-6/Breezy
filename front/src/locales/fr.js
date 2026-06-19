@@ -125,6 +125,18 @@ const fr = {
     editProfile: 'Modifier le profil',
     changePhoto: 'Changer la photo de profil',
     optionsAriaLabel: 'Options du profil',
+    editModal: {
+      title: 'Modifier le profil',
+      pseudoLabel: "Nom d'affichage",
+      bioLabel: 'Bio',
+      pseudoInvalid:
+        'Le nom ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.',
+      pseudoRequired: 'Le nom est requis.',
+      saveError: 'Erreur lors de la sauvegarde',
+      cancel: 'Annuler',
+      saving: 'Enregistrement...',
+      save: 'Enregistrer',
+    },
   },
 
   comments: {

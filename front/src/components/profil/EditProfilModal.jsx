@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import api from '@/utils/api'
+import { useTranslation } from '@/hooks/useTranslation'
 
 const NAME_REGEX = /^[\p{L}\p{N} _-]+$/u
 
 export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
+    const { t } = useTranslation()
     const [pseudo, setPseudo] = useState('')
     const [bio, setBio] = useState('')
     const [saving, setSaving] = useState(false)
@@ -26,9 +28,9 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
 
     let validationMessage = null
     if (!pseudoValid && pseudo.length > 0) {
-        validationMessage = 'Le nom ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.'
+        validationMessage = t('profile.editModal.pseudoInvalid')
     } else if (!pseudoValid) {
-        validationMessage = 'Le nom est requis.'
+        validationMessage = t('profile.editModal.pseudoRequired')
     }
 
     const handleSave = async () => {
@@ -43,7 +45,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
             onSaved?.(data)
             onClose()
         } catch (err) {
-            setError(err.response?.data?.message || 'Erreur lors de la sauvegarde')
+            setError(err.response?.data?.message || t('profile.editModal.saveError'))
         } finally {
             setSaving(false)
         }
@@ -56,11 +58,11 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
             >
                 <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-text-title)' }}>
-                    Modifier le profil
+                    {t('profile.editModal.title')}
                 </h2>
 
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                    Nom d'affichage
+                    {t('profile.editModal.pseudoLabel')}
                 </label>
                 <input
                     type="text"
@@ -75,7 +77,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 />
 
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
-                    Bio
+                    {t('profile.editModal.bioLabel')}
                 </label>
                 <textarea
                     value={bio}
@@ -99,7 +101,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                         className="px-4 py-2 rounded-full border text-sm font-semibold cursor-pointer"
                         style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
                     >
-                        Annuler
+                        {t('profile.editModal.cancel')}
                     </button>
                     <button
                         onClick={handleSave}
@@ -107,7 +109,7 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                         className="px-4 py-2 rounded-full text-sm font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{ backgroundColor: 'var(--color-text-title)', color: 'var(--color-bg-surface)' }}
                     >
-                        {saving ? 'Enregistrement...' : 'Enregistrer'}
+                        {saving ? t('profile.editModal.saving') : t('profile.editModal.save')}
                     </button>
                 </div>
             </div>
