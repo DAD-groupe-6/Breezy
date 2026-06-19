@@ -3,6 +3,10 @@ const router = express.Router();
 const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 
+// Recherche (doit être déclarée avant les routes dynamiques `/:id`)
+router.get("/search/content", authenticate, PostController.searchByContent);
+router.get("/search/tags/:tag", authenticate, PostController.searchByTag);
+
 router.get("/:id", authenticate, PostController.getPost);
 
 router.post("/", authenticate, PostController.createPost);
@@ -17,9 +21,5 @@ router.delete("/:id/comments/:commentId", authenticate, PostController.deleteCom
 
 router.post("/:id/comments/:commentId/like", authenticate, PostController.likeComment);
 router.delete("/:id/comments/:commentId/like", authenticate, PostController.unlikeComment);
-
-// Recherche
-router.get("/search/content", authenticate, PostController.searchByContent);
-router.get("/search/tags/:tag", authenticate, PostController.searchByTag);
 
 module.exports = router;

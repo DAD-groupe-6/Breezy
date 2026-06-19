@@ -65,6 +65,9 @@ const fr = {
       searchLabel: 'Rechercher un contenu',
       searchPlaceholder: 'Ex: mot-clé, #tag',
       searchNote: 'Cette recherche sera reliée au back plus tard pour filtrer les posts par tags et mentions.',
+      searching: 'Recherche en cours...',
+      noResults: 'Aucun résultat trouvé',
+      searchError: 'Erreur lors de la recherche',
     },
     messages: {
       title: 'Messages',

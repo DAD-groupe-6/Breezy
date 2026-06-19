@@ -48,7 +48,7 @@ async function searchUsersByPseudo(pseudo_uniq) {
                 [Op.iLike]: `%${pseudo_uniq}%`
             }
         },
-        attributes: ["pseudo", "pseudo_uniq", "img_profile", "bio"],
+        attributes: ["id_user", "pseudo", "pseudo_uniq", "img_profile", "bio"],
         limit: 10
     });
     return users;
