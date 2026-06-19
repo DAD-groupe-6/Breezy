@@ -77,6 +77,13 @@ const fr = {
     notifications: {
       title: 'Notifications',
       empty: 'Aucune notification pour le moment.',
+      actions: {
+        likedPhoto: 'a aimé votre photo',
+        startedFollowing: 'a commencé à vous suivre',
+        commentedPhoto: 'a commenté votre publication',
+        sharedPost: 'a partagé votre publication.',
+        mentionedInComment: 'vous a mentionné dans un commentaire',
+      },
     },
     profil: {
       postsSection: 'Posts',
