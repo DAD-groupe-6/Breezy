@@ -1,8 +1,19 @@
+require("dotenv").config();
 const express = require('express');
-const app = express();
-const port = 3000;
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const morgan = require('morgan');
+const sequelize = require('./config/database.config');
+const userRoutes = require('./routes/user.route');
+const followRoutes = require('./routes/follow.route');
+const logger = require('./logger');
+
+const app = express();
+const port = process.env.API_PORT || 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 
 const swaggerOptions = {
   definition: {
@@ -10,7 +21,7 @@ const swaggerOptions = {
     info: {
       title: 'API User Service',
       version: '1.0.0',
-      description: 'Documentation du service d\'User',
+      description: "Documentation du service d'User",
     },
     servers: [
       {
@@ -24,11 +35,25 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Route de test qui sera appelée via la Gateway
-app.get('/', (req, res) => {
-  res.send('[User Service] : Service fonctionnel');
+app.get('/api/v1/user/health', (req, res) => {
+  res.status(200).json({ status: 'UP' });
 });
 
-app.listen(port, () => {
-  console.log(`Service User démarré sur le port ${port}`);
-});
+app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/user', followRoutes);
+
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    logger.info("Connected to DB");
+    await sequelize.sync({ alter: true });
+    logger.info("Synchronized tables");
+    app.listen(port, () => {
+      logger.info(`User service → http://localhost:${port}`);
+    });
+  } catch (err) {
+    logger.error(`Erreur BDD : ${err.message}`);
+  }
+}
+
+startServer();

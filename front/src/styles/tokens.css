@@ -1,0 +1,168 @@
+:root {
+  /* ==========================================================================
+     THEME: LIGHT (Mode Clair) - PAR DÉFAUT
+     Palette light inspirée d'une esthétique Apple : neutres très propres,
+     surfaces aérées et accent bleu précis.
+     ========================================================================== */
+  
+  /* Arrière-plans & Surfaces */
+   --color-light-bg-primary: #F4F5FA;   /* Fond principal gris clair plus present */
+   --color-light-bg-surface: #FFFFFF;   /* Cartes et panneaux en blanc net */
+   --color-light-bg-surface-2: #F0F2F9; /* Niveau secondaire plus fonce que primary */
+  
+  /* Bordures */
+  --color-light-border: #E2E4F0;       /* Lignes de séparation et contours subtils */
+  
+  /* Typographie & Contenu */
+  --color-light-text-title: #5B5EF4;   /* Bleu franc, inspiré des accents Apple */
+  --color-light-text-primary: #11141A; /* Texte principal profond sans noir pur */
+  --color-light-text-secondary: #5C6479;/* Texte secondaire sobre et lisible */
+
+   /* Etats interactifs */
+   --color-light-accent-soft: #EAF3FF;  /* Surface légère pour hover et états actifs */
+   --color-light-accent-hover: #005FC7; /* Accent renforcé au survol */
+   --color-light-focus-ring: rgba(0, 113, 227, 0.18); /* Halo de focus discret */
+
+   /* Elevation */
+   --elevation-light-1: 0 1px 2px rgba(29, 29, 31, 0.04);
+   --elevation-light-2: 0 8px 24px rgba(29, 29, 31, 0.08);
+   --elevation-light-3: 0 18px 48px rgba(29, 29, 31, 0.12);
+
+
+  /* ==========================================================================
+     THEME: DARK (Mode Sombre)
+     Couleurs utilisées pour l’alternative sombre de l’application.
+     ========================================================================== */
+  
+  /* Arrière-plans & Surfaces */
+  --color-dark-bg-primary: #0A0B14;    /* Fond principal de l'application */
+  --color-dark-bg-surface: #12131A;    /* Cartes, conteneurs et éléments surélevés (niveau 1) */
+  --color-dark-bg-surface-2: #1A1C26;  /* Éléments imbriqués ou états de survol (niveau 2) */
+  
+  /* Bordures */
+  --color-dark-border: #1E1F2E;        /* Séparateurs, bordures de cartes et d'inputs */
+  
+  /* Typographie & Contenu */
+  --color-dark-text-title: #5B5EF4;    /* Titres principaux, accents ou liens importants */
+  --color-dark-text-primary: #E8EAF2;  /* Texte de corps principal, haute lisibilité */
+  --color-dark-text-secondary: #6B7090;/* Textes secondaires, légendes et indications discrètes */
+
+   /* Etats interactifs */
+   --color-dark-accent-soft: rgba(91, 94, 244, 0.16);
+   --color-dark-accent-hover: #7073FF;
+   --color-dark-focus-ring: rgba(91, 94, 244, 0.24);
+
+   /* Elevation */
+   --elevation-dark-1: 0 1px 2px rgba(0, 0, 0, 0.28);
+   --elevation-dark-2: 0 12px 32px rgba(0, 0, 0, 0.34);
+   --elevation-dark-3: 0 22px 56px rgba(0, 0, 0, 0.42);
+
+
+  /* ==========================================================================
+     ACTIVE THEME TOKENS (Tokens Sémantiques)
+     Ces variables pointent vers le thème par défaut : le mode CLAIR (Light).
+     ========================================================================== */
+  
+  /* Raccourcis sémantiques pour les fonds */
+  --color-bg-primary: var(--color-light-bg-primary);
+  --color-bg-surface: var(--color-light-bg-surface);
+  --color-bg-surface-2: var(--color-light-bg-surface-2);
+  
+  /* Raccourci sémantique pour les bordures */
+  --color-border: var(--color-light-border);
+  
+  /* Raccourcis sémantiques pour le texte */
+  --color-text-title: var(--color-light-text-title);
+  --color-text-primary: var(--color-light-text-primary);
+  --color-text-secondary: var(--color-light-text-secondary);
+
+   /* Raccourcis sémantiques pour les états interactifs */
+   --color-accent-soft: var(--color-light-accent-soft);
+   --color-accent-hover: var(--color-light-accent-hover);
+   --color-focus-ring: var(--color-light-focus-ring);
+
+   /* Raccourcis sémantiques pour l'élévation */
+   --elevation-1: var(--elevation-light-1);
+   --elevation-2: var(--elevation-light-2);
+   --elevation-3: var(--elevation-light-3);
+
+   color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+   --color-bg-primary: var(--color-dark-bg-primary);
+   --color-bg-surface: var(--color-dark-bg-surface);
+   --color-bg-surface-2: var(--color-dark-bg-surface-2);
+   --color-border: var(--color-dark-border);
+   --color-text-title: var(--color-dark-text-title);
+   --color-text-primary: var(--color-dark-text-primary);
+   --color-text-secondary: var(--color-dark-text-secondary);
+   --color-accent-soft: var(--color-dark-accent-soft);
+   --color-accent-hover: var(--color-dark-accent-hover);
+   --color-focus-ring: var(--color-dark-focus-ring);
+   --elevation-1: var(--elevation-dark-1);
+   --elevation-2: var(--elevation-dark-2);
+   --elevation-3: var(--elevation-dark-3);
+   color-scheme: dark;
+}
+
+/* ==========================================================================
+    TYPOGRAPHIE
+    ========================================================================== */
+:root {
+   /* Familles de polices */
+   --font-family-base: 'Inter', sans-serif;
+
+   /* Tailles de police */
+   --font-size-xs:   11px;
+   --font-size-sm:   13px;
+   --font-size-md:   15px;
+   --font-size-lg:   18px;
+   --font-size-xl:   22px;
+   --font-size-2xl:  28px;
+   --font-size-3xl:  36px;
+
+   /* Graisses */
+   --font-weight-regular:   400;
+   --font-weight-medium:    500;
+   --font-weight-semibold:  600;
+   --font-weight-bold:      700;
+   --font-weight-label: var(--font-weight-medium);
+   --font-weight-title: var(--font-weight-semibold);
+   --font-weight-display: var(--font-weight-bold);
+
+   /* Hauteurs de ligne */
+   --line-height-auto:    normal;
+   --line-height-tight:   1.2;
+   --line-height-normal:  1.5;
+   --line-height-relaxed: 1.75;
+
+   /* Espacement des lettres */
+   --letter-spacing-normal:  0%;
+   --letter-spacing-wide:    0.05em;
+   --letter-spacing-wider:   0.1em;
+   --tracking-label: var(--letter-spacing-wide);
+   --tracking-title: var(--letter-spacing-normal);
+   --tracking-display: -0.02em;
+
+   /* Espacements */
+   --space-2xs: 4px;
+   --space-xs: 8px;
+   --space-sm: 12px;
+   --space-md: 16px;
+   --space-lg: 24px;
+   --space-xl: 32px;
+
+   /* Rayons */
+   --radius-sm: 10px;
+   --radius-md: 14px;
+   --radius-lg: 18px;
+   --radius-xl: 24px;
+   --radius-pill: 999px;
+
+   /* Ombres */
+   --shadow-sm: var(--elevation-1);
+   --shadow-md: var(--elevation-2);
+   --shadow-lg: var(--elevation-3);
+   --shadow-focus: 0 0 0 4px var(--color-focus-ring);
+}

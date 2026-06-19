@@ -1,34 +1,34 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const sequelize = require("./config/database.config");
+const authRoutes = require("./routes/auth.route");
+const logger = require("./logger");
 const app = express();
-const port = 3000;
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
+const port = process.env.API_PORT || 3001;
 
-const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API Auth Service',
-      version: '1.0.0',
-      description: 'Documentation du service d\'authentification',
-    },
-    servers: [
-      {
-        url: 'http://localhost/api/v1/auth',
-      },
-    ],
-  },
-  apis: ['./*.js'],
-};
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+async function startServer() {
+  try {
+    await sequelize.authenticate();
+    logger.info("Connected to DB");
+    await sequelize.sync({ alter: true });
+    logger.info("Synchronized tables");
+    app.listen(port, () => {
+      logger.info(`Auth service → http://localhost:${port}`);
+    });
+  } catch (err) {
+    logger.error(`Erreur BDD : ${err.message}`);
+  }
+}
 
-// Route de test qui sera appelée via la Gateway
-app.get('/', (req, res) => {
-  res.send('[Auth Service] : Service fonctionnel');
+app.get("/api/v1/auth/health", (req, res) => {
+  res.status(200).json({ status: "UP" });
 });
 
-app.listen(port, () => {
-  console.log(`Service Auth démarré sur le port ${port}`);
-});
+app.use("/api/v1/auth", authRoutes);
+
+startServer();
