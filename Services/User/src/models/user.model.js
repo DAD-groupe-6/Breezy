@@ -26,6 +26,11 @@ const User = sequelize.define("User", {
         type: DataTypes.INTEGER,
         defaultValue: 0,
     },
+    banned_until: {
+        type: DataTypes.DATE,
+        allowNull: true,
+        defaultValue: null,
+    },
     nb_followers: {
         type: DataTypes.INTEGER,
         defaultValue: 0,

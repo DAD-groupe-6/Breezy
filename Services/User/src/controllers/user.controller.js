@@ -37,4 +37,13 @@ async function deleteUser(req, res) {
     }
 }
 
-module.exports = { createUser, getUser, updateUser, deleteUser };
+async function reportUser(req, res) {
+    try {
+        const result = await UserService.reportUser(req.params.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+module.exports = { createUser, getUser, updateUser, deleteUser, reportUser };
