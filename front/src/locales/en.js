@@ -73,6 +73,13 @@ const en = {
       title: 'Messages',
       empty: 'No messages yet.',
       searchPlaceholder: 'Search...',
+      noConversationSelected: 'Select a conversation to start chatting.',
+      messagePlaceholder: 'Write a message...',
+      backToConversations: 'Back to conversations',
+      call: 'Call',
+      videoCall: 'Video call',
+      attachFile: 'Attach file',
+      send: 'Send',
     },
     notifications: {
       title: 'Notifications',

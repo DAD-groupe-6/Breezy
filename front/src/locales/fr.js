@@ -73,6 +73,13 @@ const fr = {
       title: 'Messages',
       empty: 'Aucun message pour le moment.',
       searchPlaceholder: 'Rechercher...',
+      noConversationSelected: 'Sélectionnez une conversation pour démarrer la discussion.',
+      messagePlaceholder: 'Écrire un message...',
+      backToConversations: 'Retour aux conversations',
+      call: 'Appeler',
+      videoCall: 'Appel vidéo',
+      attachFile: 'Joindre un fichier',
+      send: 'Envoyer',
     },
     notifications: {
       title: 'Notifications',
