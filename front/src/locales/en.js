@@ -82,6 +82,8 @@ const en = {
       postsSection: 'Posts',
       loading: 'Loading...',
       notFound: 'Profile not found',
+      loadMore: 'Load more',
+      noPosts: 'No posts yet.',
     },
     settings: {
       title: 'Settings',

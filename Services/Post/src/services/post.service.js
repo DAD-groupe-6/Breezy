@@ -3,6 +3,9 @@ const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
 const { extractTags } = require("../utils/tags.util");
 
+const DEFAULT_LIMIT = 5;
+const MAX_LIMIT = 50;
+
 // Posts
 async function createPost(userId, content) {
     if (!content || !content.trim()) {
@@ -123,8 +126,28 @@ async function searchByTag(tag, viewerId) {
     return posts.map((post) => toView(post, viewerId));
 }
 
+async function getUserPosts(userId, { page, limit } = {}) {
+    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
+
+    const posts = await Post.find({ id_user: String(userId), type: "post" })
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(safeLimit + 1);
+
+    const hasMore = posts.length > safeLimit;
+    const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
+
+    return {
+        posts: pagePosts.map((post) => toView(post, userId)),
+        hasMore,
+    };
+}
+
 module.exports = {
     createPost,
+    getUserPosts,
     getPostById,
     getPostView,
     deletePost,

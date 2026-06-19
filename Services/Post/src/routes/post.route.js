@@ -3,9 +3,10 @@ const router = express.Router();
 const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 
-// Recherche (doit être déclarée avant les routes dynamiques `/:id`)
+// Recherche et routes spécifiques avant les routes dynamiques `/:id`.
 router.get("/search/content", authenticate, PostController.searchByContent);
 router.get("/search/tags/:tag", authenticate, PostController.searchByTag);
+router.get("/user/:userId", authenticate, PostController.getUserPosts);
 
 router.get("/:id", authenticate, PostController.getPost);
 

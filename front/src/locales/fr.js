@@ -82,6 +82,8 @@ const fr = {
       postsSection: 'Posts',
       loading: 'Chargement...',
       notFound: 'Profil introuvable',
+      loadMore: 'Charger plus',
+      noPosts: 'Aucun post pour le moment.',
     },
     settings: {
       title: 'Paramètres',
