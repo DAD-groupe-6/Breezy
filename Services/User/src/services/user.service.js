@@ -40,6 +40,36 @@ async function deleteUser(id_user) {
     return { id_user };
 }
 
+async function reportUser(id_user) {
+    const user = await User.findByPk(id_user);
+    if (!user) throw new Error("User not found");
+
+    const nextDeletedPostsCount = Number(user.signalement || 0) + 1;
+    user.signalement = nextDeletedPostsCount;
+
+    if (nextDeletedPostsCount >= 3) {
+        const now = new Date();
+        const activeBanUntil =
+            user.banned_until && new Date(user.banned_until) > now
+                ? new Date(user.banned_until)
+                : now;
+
+        user.banned_until = new Date(
+            activeBanUntil.getTime() + 30 * 24 * 60 * 60 * 1000
+        );
+        user.signalement = 0;
+    }
+
+    await user.save();
+
+    return {
+        id_user: user.id_user,
+        deleted_reported_posts: user.signalement,
+        banned_until: user.banned_until,
+        is_banned: Boolean(user.banned_until && new Date(user.banned_until) > new Date()),
+    };
+}
+
 async function searchUsersByPseudo(pseudo_uniq) {
     const { Op } = require("sequelize");
     const users = await User.findAll({
@@ -53,8 +83,12 @@ async function searchUsersByPseudo(pseudo_uniq) {
     });
     return users;
 }
-
-module.exports = { createUser, getUser, updateUser, deleteUser, searchUsersByPseudo };
-
-
+module.exports = {
+    createUser,
+    getUser,
+    updateUser,
+    deleteUser,
+    reportUser,
+    searchUsersByPseudo,
+};
 

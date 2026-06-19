@@ -9,6 +9,7 @@ import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
 import { usePostLikes } from '@/hooks/usePostLikes';
 import { useComments } from '@/hooks/useComments';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Post({
   postId,
@@ -28,6 +29,7 @@ export default function Post({
   onDelete,
 }) {
   const [showComments, setShowComments] = useState(false);
+  const { t } = useTranslation();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
@@ -38,7 +40,19 @@ export default function Post({
       await api.delete(`/post/${postId}`);
       onDelete?.(postId);
     } catch (err) {
-      console.error('[Post] Échec de la suppression du post', err);
+      console.error('[Post] Failed to delete post', err);
+    }
+  };
+
+  const handleReportPost = async () => {
+    try {
+      const { data } = await api.post(`/post/${postId}/report`);
+      if (data?.deleted) {
+        onReport?.(postId);
+        onDelete?.(postId);
+      }
+    } catch (err) {
+      console.error('[Post] Failed to report post', err);
     }
   };
 
@@ -73,7 +87,7 @@ export default function Post({
           <PostMenu
             isMine={isMine}
             onViewProfile={onViewProfile}
-            onReport={onReport}
+            onReport={handleReportPost}
             onDelete={handleDeletePost}
           />
         </div>
@@ -84,7 +98,7 @@ export default function Post({
 
         {image && (
           <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
-            <img src={image} alt="Contenu du post" className="w-full h-auto object-cover max-h-96" />
+            <img src={image} alt={t('post.imageAlt')} className="w-full h-auto object-cover max-h-96" />
           </div>
         )}
 

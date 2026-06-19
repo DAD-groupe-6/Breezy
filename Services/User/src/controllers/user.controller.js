@@ -37,6 +37,15 @@ async function deleteUser(req, res) {
     }
 }
 
+async function reportUser(req, res) {
+    try {
+        const result = await UserService.reportUser(req.params.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
 async function searchUsersByPseudo(req, res) {
     try {
         const { pseudo_uniq } = req.query;
@@ -50,4 +59,11 @@ async function searchUsersByPseudo(req, res) {
     }
 }
 
-module.exports = { createUser, getUser, updateUser, deleteUser, searchUsersByPseudo };
+module.exports = {
+    createUser,
+    getUser,
+    updateUser,
+    deleteUser,
+    reportUser,
+    searchUsersByPseudo,
+};

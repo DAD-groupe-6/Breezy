@@ -71,6 +71,7 @@ export default function Home() {
               liked={post.likedByMe}
               comments={post.commentsCount}
               onViewProfile={() => router.push(`/profil/${post.id_user}`)}
+              onReport={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
               onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
             />
           ))}
@@ -87,7 +88,7 @@ export default function Home() {
 
           {!loading && !error && posts.length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
-              Aucun post pour le moment. Soyez le premier à publier !
+              {t('pages.home.empty')}
             </p>
           )}
         </div>

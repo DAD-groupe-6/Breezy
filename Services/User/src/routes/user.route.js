@@ -7,5 +7,6 @@ router.get("/search", UserController.searchUsersByPseudo);
 router.get("/:id", UserController.getUser);
 router.put("/:id", UserController.updateUser);
 router.delete("/:id", UserController.deleteUser);
+router.post("/:id/report", UserController.reportUser);
 
 module.exports = router;

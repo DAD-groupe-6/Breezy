@@ -23,6 +23,10 @@ const postSchema = new mongoose.Schema(
             type: Number,
             default: 0,
         },
+        reporters: {
+            type: [String],
+            default: [],
+        },
         type: {
             type: String,
             enum: ["post", "response"],
