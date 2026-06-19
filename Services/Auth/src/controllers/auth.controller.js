@@ -19,7 +19,8 @@ async function login(req, res) {
         // On retourne juste le token en JSON
         res.status(200).json(result);
     } catch (err) {
-        res.status(401).json({ message: err.message });
+        const status = err.message === "Account is banned" ? 403 : 401;
+        res.status(status).json({ message: err.message });
     }
 }
 
@@ -28,10 +29,18 @@ function logout(req, res) {
     res.status(200).json({ message: "Logged out" });
 }
 
-function validate(req, res) {
+async function validate(req, res) {
     if (!req.user) {
         return res.status(401).json({ message: "Unauthorized" });
     }
+
+    try {
+        await AuthService.assertUserNotBanned(req.user.id);
+    } catch (err) {
+        const status = err.message === "Account is banned" ? 403 : 401;
+        return res.status(status).json({ message: err.message });
+    }
+
     return res.status(200).json({ message: "Token is valid" });
 }
 
