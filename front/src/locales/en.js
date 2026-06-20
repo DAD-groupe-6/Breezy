@@ -160,6 +160,13 @@ const en = {
     report: 'Report',
     delete: 'Delete',
     deleteError: 'Unable to delete this post. Please try again.',
+    deleteConfirm: {
+      title: 'Delete post',
+      message: 'Do you really want to delete this post? This action is irreversible.',
+      confirm: 'Delete',
+      cancel: 'Cancel',
+      deleting: 'Deleting...',
+    },
     imageAlt: 'Post content',
     commentAria: 'Comment',
     likeAria: 'Like',
@@ -192,6 +199,7 @@ const en = {
     },
     username: {
       required: 'Username is required',
+      invalid: 'The username can only contain letters, numbers, spaces, hyphens and underscores.',
     },
     confirm: {
       mismatch: 'Passwords do not match',
