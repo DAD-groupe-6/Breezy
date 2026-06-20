@@ -20,7 +20,7 @@ export default function ExplorerPage() {
   const { t } = useTranslation()
   const searchTimeoutRef = useRef(null)
 
-  // Récupérer 5 utilisateurs suggérés (au hasard, non suivis) au chargement
+  // Récupérer 5 utilisateurs suggérés au chargement
   useEffect(() => {
     let cancelled = false
     const fetchSuggestions = async () => {
@@ -42,11 +42,6 @@ export default function ExplorerPage() {
       cancelled = true
     }
   }, [])
-
-  // Retirer un utilisateur des suggestions une fois suivi
-  const handleSuggestionFollow = (userId) => {
-    setSuggestions((prev) => prev.filter((u) => u.id_user !== userId))
-  }
 
   // Récupérer les informations de l'auteur pour un post
   const fetchAuthorInfo = async (authorId) => {
@@ -176,43 +171,49 @@ export default function ExplorerPage() {
       </div>
 
       <div className="mx-auto max-w-2xl">
-        <SearchBar
-          id="explorer-search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t('pages.explorer.searchPlaceholder')}
-          className="mt-8 w-full"
-        />
+        <div
+          className="mt-8 rounded-2xl border p-6"
+          style={{
+            backgroundColor: 'var(--color-bg-surface)',
+            borderColor: 'var(--color-border)',
+          }}
+        >
+          <SearchBar
+            id="explorer-search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={t('pages.explorer.searchPlaceholder')}
+            className="w-full"
+          />
 
-        {/* Onglet Suggestions : affiché tant qu'aucune recherche n'est en cours */}
-        {!query.trim() && (suggestionsLoading || suggestions.length > 0) && (
-          <section className="mt-6">
-            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
-              {t('pages.explorer.suggestionsTitle')}
-            </h2>
-            {suggestionsLoading ? (
-              <div className="text-center text-sm text-[var(--color-text-secondary)]">
-                {t('pages.explorer.searching')}
-              </div>
-            ) : (
-              <div className="border border-[var(--color-border)] rounded-2xl overflow-hidden">
-                <div className="divide-y divide-[var(--color-border)]">
-                  {suggestions.map((user) => (
-                    <ProfileCard
-                      key={user.id_user}
-                      userId={user.id_user}
-                      displayName={user.pseudo}
-                      username={user.pseudo_uniq}
-                      imageUrl={user.img_profile}
-                      bio={user.bio}
-                      onFollowChange={handleSuggestionFollow}
-                    />
-                  ))}
+          {/* Onglet Suggestions : affiché tant qu'aucune recherche n'est en cours */}
+          {!query.trim() && (suggestionsLoading || suggestions.length > 0) && (
+            <section className="mt-6">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
+                {t('pages.explorer.suggestionsTitle')}
+              </h2>
+              {suggestionsLoading ? (
+                <div className="text-center text-sm text-[var(--color-text-secondary)]">
+                  {t('pages.explorer.searching')}
                 </div>
-              </div>
-            )}
-          </section>
-        )}
+              ) : (
+                <div className="border border-[var(--color-border)] rounded-2xl overflow-hidden">
+                  <div className="divide-y divide-[var(--color-border)]">
+                    {suggestions.map((user) => (
+                      <ProfileCard
+                        key={user.id_user}
+                        userId={user.id_user}
+                        displayName={user.pseudo}
+                        username={user.pseudo_uniq}
+                        imageUrl={user.img_profile}
+                        bio={user.bio}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
         {/* Afficher l'état de chargement ou les erreurs */}
         {isLoading && (
@@ -298,6 +299,7 @@ export default function ExplorerPage() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   )
