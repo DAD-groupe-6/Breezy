@@ -2,14 +2,15 @@
 
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
-import { clearToken } from '@/utils/cookie'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function AccountActions() {
     const { t } = useTranslation()
     const router = useRouter()
+    const { logout } = useAuth()
 
     const handleLogout = () => {
-        clearToken()
+        logout()
         router.push('/login')
     }
 
@@ -17,7 +18,7 @@ export default function AccountActions() {
         // À brancher plus tard sur l'API de suppression
         if (confirm(t('pages.settings.deleteConfirm'))) {
             // await api.delete('/user/me') etc.
-            clearToken()
+            logout()
             router.push('/register')
         }
     }

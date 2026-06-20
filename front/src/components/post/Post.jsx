@@ -126,6 +126,8 @@ export default function Post({
         {showComments && (
           <CommentSection
             comments={commentsHook.list}
+            hasMore={commentsHook.hasMore}
+            onLoadMore={commentsHook.loadMore}
             onAddComment={commentsHook.add}
             onDelete={commentsHook.remove}
             onLike={commentsHook.like}
