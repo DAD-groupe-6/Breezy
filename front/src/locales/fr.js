@@ -160,6 +160,13 @@ const fr = {
     report: 'Signaler',
     delete: 'Supprimer',
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
+    deleteConfirm: {
+      title: 'Supprimer le post',
+      message: 'Voulez-vous vraiment supprimer ce post ? Cette action est irréversible.',
+      confirm: 'Supprimer',
+      cancel: 'Annuler',
+      deleting: 'Suppression...',
+    },
     imageAlt: 'Contenu du post',
     commentAria: 'Commenter',
     likeAria: 'Aimer',
@@ -192,6 +199,7 @@ const fr = {
     },
     username: {
       required: "Le nom d'utilisateur est requis",
+      invalid: "Le nom d'utilisateur ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.",
     },
     confirm: {
       mismatch: 'Les mots de passe ne correspondent pas',
