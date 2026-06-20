@@ -1,64 +1,77 @@
-'use client';
+'use client'
 
-// Modale de confirmation générique.
-// Props : isOpen, title, message, confirmLabel, cancelLabel, onConfirm, onClose,
-//         loading (désactive les boutons), danger (bouton de confirmation rouge).
+import { useEffect } from 'react'
+
 export default function ConfirmDialog({
-  isOpen,
-  title,
-  message,
-  confirmLabel,
-  cancelLabel,
-  onConfirm,
-  onClose,
-  loading = false,
-  danger = false,
+    isOpen,
+    title,
+    message,
+    confirmLabel,
+    cancelLabel,
+    onConfirm,
+    onClose,
+    loading = false,
+    danger = false,
 }) {
-  if (!isOpen) return null;
+    useEffect(() => {
+        if (!isOpen) return
+        const onKeyDown = (e) => {
+            if (e.key === 'Escape') onClose?.()
+        }
+        document.addEventListener('keydown', onKeyDown)
+        return () => document.removeEventListener('keydown', onKeyDown)
+    }, [isOpen, onClose])
 
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-      onClick={() => { if (!loading) onClose?.(); }}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="w-full max-w-sm rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-[var(--space-lg)] shadow-[var(--shadow-lg)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {title && (
-          <h2 className="text-[length:var(--font-size-lg)] font-[var(--font-weight-bold)] text-[var(--color-text-primary)]">
-            {title}
-          </h2>
-        )}
-        {message && (
-          <p className="mt-[var(--space-xs)] text-sm text-[var(--color-text-secondary)]">
-            {message}
-          </p>
-        )}
+    if (!isOpen) return null
 
-        <div className="mt-[var(--space-lg)] flex justify-end gap-[var(--space-sm)]">
-          <button
-            type="button"
-            onClick={() => onClose?.()}
-            disabled={loading}
-            className="rounded-[var(--radius-pill)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-md)] py-2 text-sm font-semibold text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-bg-surface-2)] disabled:opacity-50"
-          >
-            {cancelLabel}
-          </button>
-          <button
-            type="button"
-            onClick={() => onConfirm?.()}
-            disabled={loading}
-            className={`rounded-[var(--radius-pill)] border border-transparent px-[var(--space-md)] py-2 text-sm font-semibold text-white transition-colors disabled:opacity-50 ${
-              danger ? 'bg-rose-600 hover:bg-rose-700' : 'bg-[var(--color-text-title)] hover:bg-[var(--color-accent-hover)]'
-            }`}
-          >
-            {confirmLabel}
-          </button>
+    return (
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+            onClick={onClose}
+        >
+            <div
+                role="dialog"
+                aria-modal="true"
+                className="w-full max-w-sm rounded-2xl p-6"
+                style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}
+                onClick={(e) => e.stopPropagation()}
+            >
+                {title && (
+                    <h2 className="text-lg font-bold mb-2" style={{ color: 'var(--color-text-title)' }}>
+                        {title}
+                    </h2>
+                )}
+                {message && (
+                    <p className="text-sm mb-5" style={{ color: 'var(--color-text-secondary)' }}>
+                        {message}
+                    </p>
+                )}
+
+                <div className="flex gap-3 justify-end">
+                    <button
+                        onClick={onClose}
+                        disabled={loading}
+                        className="px-4 py-2 rounded-full border text-sm font-semibold cursor-pointer disabled:opacity-50"
+                        style={{ borderColor: 'var(--color-border)', color: 'var(--color-text-secondary)' }}
+                    >
+                        {cancelLabel}
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        disabled={loading}
+                        className={`px-4 py-2 rounded-full text-sm font-semibold cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                            danger ? 'bg-rose-600 text-white hover:bg-rose-700 transition-colors' : ''
+                        }`}
+                        style={
+                            danger
+                                ? undefined
+                                : { backgroundColor: 'var(--color-text-title)', color: 'var(--color-bg-surface)' }
+                        }
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    )
 }

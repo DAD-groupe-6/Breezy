@@ -68,6 +68,7 @@ const en = {
       searching: 'Searching...',
       noResults: 'No results found',
       searchError: 'Error searching',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',
