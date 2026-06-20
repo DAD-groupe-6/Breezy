@@ -113,35 +113,91 @@ async function unlikePost(id, userId) {
 }
 
 // Commentaires (posts de type "response")
-async function addComment(parentId, userId, content) {
+// targetId = le noeud sur lequel on a cliqué "Répondre" (post, commentaire ou réponse).
+// On garde l'arbre PLAT (2 niveaux max) en ré-ancrant toujours sur le commentaire racine.
+async function addComment(targetId, userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
-    await getPostById(parentId); // 404 si le post parent n'existe pas
+    const target = await getPostById(targetId); // 404 si la cible n'existe pas
+
+    // Détermine la conversation racine (rootId) + la cible (replyTo = id du noeud visé).
+    // Toute réponse pointe vers le noeud auquel elle répond (commentaire OU réponse) afin
+    // de toujours afficher "↳ @pseudo". Seul un commentaire de 1er niveau (réponse au post)
+    // n'a pas de cible.
+    let rootId = targetId;       // cas post : commentaire de 1er niveau
+    let replyTo = null;
+    if (target.type === "response") {
+        replyTo = target._id; // on répond à ce noeud précis -> "↳ @son auteur"
+        const parent = await getPostById(target.parent_id);
+        // Réponse à une RÉPONSE -> ré-ancrage sur le commentaire racine ;
+        // réponse à un COMMENTAIRE de 1er niveau -> root = ce commentaire.
+        rootId = parent.type === "response" ? target.parent_id : target._id;
+    }
+
     const trimmed = content.trim();
     const comment = await Post.create({
         id_user: String(userId),
         content: trimmed,
         type: "response",
-        parent_id: parentId,
+        parent_id: rootId,
+        reply_to: replyTo,
         list_tags: extractTags(trimmed),
     });
-    await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: 1 } });
-    return toView(comment, userId);
+    await Post.findByIdAndUpdate(rootId, { $inc: { commentsCount: 1 } });
+    // On renvoie reply_to_user dès l'ajout (même forme que listComments) pour que la
+    // flèche "↳ @pseudo" s'affiche immédiatement, sans rechargement. L'auteur de la
+    // cible, c'est simplement target.id_user (déjà chargé).
+    return {
+        ...toView(comment, userId),
+        reply_to_user: replyTo ? target.id_user : null,
+    };
 }
 
-async function listComments(parentId, viewerId) {
-    await getPostById(parentId); // 404 si le post n'existe pas
-    const comments = await Post.find({ parent_id: parentId, type: "response" }).sort({
-        createdAt: -1,
-    });
-    return comments.map((comment) => toView(comment, viewerId));
+// Liste paginée des enfants directs d'un parent (commentaires d'un post,
+// OU réponses d'un commentaire : même mécanique). Calqué sur getUserPosts.
+async function listComments(parentId, viewerId, { page, limit, order } = {}) {
+    await getPostById(parentId); // 404 si le parent n'existe pas
+    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
+    const safePage = Math.max(Number(page) || 1, 1);
+    const skip = (safePage - 1) * safeLimit;
+    // Réponses : "asc" (chronologique, nouvelles en bas) ; commentaires : "desc" (récents en haut).
+    const sortDir = order === "asc" ? 1 : -1;
+
+    const found = await Post.find({ parent_id: parentId, type: "response" })
+        .sort({ createdAt: sortDir, _id: sortDir })
+        .skip(skip)
+        .limit(safeLimit + 1);
+
+    const hasMore = found.length > safeLimit;
+    const pageComments = hasMore ? found.slice(0, safeLimit) : found;
+
+    // Résout l'auteur des cibles "reply_to" (-> id_user) en UNE requête, pour
+    // afficher "↳ @pseudo" sans surcoût côté front.
+    const targetIds = [
+        ...new Set(pageComments.map((c) => c.reply_to).filter(Boolean).map(String)),
+    ];
+    let authorByTarget = {};
+    if (targetIds.length) {
+        const targets = await Post.find({ _id: { $in: targetIds } }).select("_id id_user");
+        authorByTarget = Object.fromEntries(targets.map((tg) => [String(tg._id), tg.id_user]));
+    }
+
+    return {
+        comments: pageComments.map((c) => ({
+            ...toView(c, viewerId),
+            reply_to_user: c.reply_to ? authorByTarget[String(c.reply_to)] ?? null : null,
+        })),
+        hasMore,
+    };
 }
 
 async function deleteComment(parentId, commentId, userId) {
     const comment = await getPostById(commentId);
     if (comment.id_user !== String(userId)) throw new Error("Forbidden");
 
+    // Cascade : si c'est un commentaire racine, on supprime aussi ses réponses.
+    await Post.deleteMany({ parent_id: commentId, type: "response" });
     await comment.deleteOne();
     await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: -1 } });
     return { message: "Comment deleted" };

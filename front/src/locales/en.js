@@ -68,6 +68,7 @@ const en = {
       searching: 'Searching...',
       noResults: 'No results found',
       searchError: 'Error searching',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',
@@ -152,6 +153,12 @@ const en = {
     empty: 'No comments yet.',
     deleteAria: 'Delete comment',
     likeAria: 'Like comment',
+    reply: 'Reply',
+    viewRepliesBefore: 'View',
+    viewRepliesAfter: 'replies',
+    hideReplies: 'Hide replies',
+    replyingTo: 'Replying to',
+    cancelReply: 'Cancel reply',
   },
 
   post: {

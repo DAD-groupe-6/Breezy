@@ -68,6 +68,7 @@ const fr = {
       searching: 'Recherche en cours...',
       noResults: 'Aucun résultat trouvé',
       searchError: 'Erreur lors de la recherche',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',
@@ -152,6 +153,12 @@ const fr = {
     empty: 'Aucun commentaire pour le moment.',
     deleteAria: 'Supprimer le commentaire',
     likeAria: 'Aimer le commentaire',
+    reply: 'Répondre',
+    viewRepliesBefore: 'Voir les',
+    viewRepliesAfter: 'réponses',
+    hideReplies: 'Masquer les réponses',
+    replyingTo: 'Réponse à',
+    cancelReply: 'Annuler la réponse',
   },
 
   post: {
