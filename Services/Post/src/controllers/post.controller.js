@@ -106,7 +106,12 @@ async function addComment(req, res) {
 
 async function listComments(req, res) {
     try {
-        const comments = await PostService.listComments(req.params.id, req.user.id);
+        const { page, limit, order } = req.query;
+        const comments = await PostService.listComments(req.params.id, req.user.id, {
+            page,
+            limit,
+            order,
+        });
         res.status(200).json(comments);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });

@@ -10,6 +10,7 @@ function toView(post, viewerId) {
         image: post.image,
         type: post.type,
         parent_id: post.parent_id,
+        reply_to: post.reply_to,
         list_tags: post.list_tags,
         nb_signalement: post.nb_signalement,
         createdAt: post.createdAt,
