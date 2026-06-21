@@ -9,6 +9,7 @@ router.post("/login",    AuthController.login);
 router.post("/logout",   AuthController.logout);
 router.get("/validate",  authenticate, AuthController.validate);
 
+router.get("/roles", RoleController.listRoles);
 router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermission);
 router.get("/roles/:roleId/permissions-by-name/:permissionName", RoleController.checkPermissionByName);
 

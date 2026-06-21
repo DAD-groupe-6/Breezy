@@ -1,4 +1,21 @@
 const { Role, Permission, RolePermission } = require("../models");
+const { Op } = require("sequelize");
+
+async function listRoles() {
+    try {
+        return await Role.findAll({
+            attributes: ["id", "name", "description"],
+            where: {
+                name: {
+                    [Op.notIn]: ["visiteur", "visitor"],
+                },
+            },
+            order: [["id", "ASC"]],
+        });
+    } catch (err) {
+        throw new Error(`Error listing roles: ${err.message}`);
+    }
+}
 
 async function checkPermission(roleId, permissionId) {
     try {
@@ -31,4 +48,4 @@ async function checkPermissionByName(roleId, permissionName) {
     }
 }
 
-module.exports = { checkPermission, checkPermissionByName };
+module.exports = { listRoles, checkPermission, checkPermissionByName };

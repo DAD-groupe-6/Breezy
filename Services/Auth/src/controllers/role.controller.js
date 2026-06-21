@@ -1,5 +1,14 @@
 const RoleService = require("../services/role.service");
 
+async function listRoles(req, res) {
+    try {
+        const roles = await RoleService.listRoles();
+        res.status(200).json({ roles });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 async function checkPermission(req, res) {
     try {
         const { roleId, permissionId } = req.params;
@@ -43,4 +52,4 @@ async function checkPermissionByName(req, res) {
     }
 }
 
-module.exports = { checkPermission, checkPermissionByName };
+module.exports = { listRoles, checkPermission, checkPermissionByName };

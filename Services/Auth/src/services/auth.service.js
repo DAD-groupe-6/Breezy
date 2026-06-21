@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { hashPassword, comparePassword } = require("../utils/bcrypt.util");
 const { generateToken } = require("../utils/jwt.util");
-const User = require("../models/user.model");
+const { User, Role } = require("../models");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 
@@ -33,12 +33,25 @@ async function assertUserNotBanned(userId) {
     }
 }
 
-async function register(email, password, pseudo_uniq, pseudo) {
+async function register(email, password, pseudo_uniq, pseudo, roleId) {
     const existingEmail = await User.findOne({ where: { email } });
     if (existingEmail) throw new Error("Email already exists");
 
+    let parsedRoleId = null;
+    if (roleId !== undefined && roleId !== null && roleId !== "") {
+        parsedRoleId = parseInt(roleId, 10);
+        if (Number.isNaN(parsedRoleId)) {
+            throw new Error("Invalid roleId");
+        }
+
+        const roleExists = await Role.findByPk(parsedRoleId);
+        if (!roleExists) {
+            throw new Error("Role not found");
+        }
+    }
+
     const passwordHash = await hashPassword(password);
-    const newUser = await User.create({ email, passwordHash });
+    const newUser = await User.create({ email, passwordHash, roleId: parsedRoleId });
 
     try {
         await axios.post(`${USER_SERVICE_URL}/api/v1/user/`, {
@@ -52,7 +65,7 @@ async function register(email, password, pseudo_uniq, pseudo) {
         throw new Error(message);
     }
 
-    return { id: newUser.id, email: newUser.email, role: newUser.role };
+    return { id: newUser.id, email: newUser.email, roleId: newUser.roleId };
 }
 
 async function login(email, password) {
@@ -64,7 +77,7 @@ async function login(email, password) {
 
     await assertUserNotBanned(user.id);
 
-    const token = generateToken({ id: user.id, role: user.role });
+    const token = generateToken({ id: user.id, roleId: user.roleId, role: user.roleId });
 
     return { token };
 }
