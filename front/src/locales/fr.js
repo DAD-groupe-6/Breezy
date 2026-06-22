@@ -46,6 +46,16 @@ const fr = {
       register: "S'inscrire",
       logout: 'Déconnexion',
     },
+    createAccount: {
+      button: 'Nouveau compte',
+      title: 'Créer un compte utilisateur',
+      subtitle: 'Renseignez les informations du nouveau compte.',
+      roleLabel: 'Rôle',
+      rolesLoadError: 'Impossible de charger les rôles.',
+      submit: 'Créer le compte',
+      submitLoading: 'Création...',
+      success: 'Compte créé avec succès.',
+    },
     currentUser: {
       signIn: 'Se connecter',
       signInUsername: 'connexion',
@@ -210,6 +220,7 @@ const fr = {
   common: {
     unknownUser: 'Utilisateur inconnu',
     unknownHandle: 'inconnu',
+    cancel: 'Annuler',
   },
 
   errors: {
@@ -224,6 +235,12 @@ const fr = {
     username: {
       required: "Le nom d'utilisateur est requis",
       invalid: "Le nom d'utilisateur ne peut contenir que des lettres, chiffres, espaces, tirets et underscores.",
+    },
+    displayName: {
+      required: "Le nom d'affichage est requis",
+    },
+    role: {
+      required: 'Le rôle est requis',
     },
     confirm: {
       mismatch: 'Les mots de passe ne correspondent pas',

@@ -5,6 +5,7 @@ const { toView } = require("../utils/postView");
 const { extractTags } = require("../utils/tags.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
+const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
@@ -37,9 +38,9 @@ async function getPostView(id, viewerId) {
     return toView(post, viewerId);
 }
 
-async function deletePost(id, userId) {
+async function deletePost(id, userId, canModerate = false) {
     const post = await getPostById(id);
-    if (post.id_user !== String(userId)) throw new Error("Forbidden");
+    if (!canModerate && post.id_user !== String(userId)) throw new Error("Forbidden");
 
     await post.deleteOne();
     return { message: "Post deleted" };
@@ -72,7 +73,7 @@ async function reportPost(id, reporterId) {
         await axios.post(
             `${USER_SERVICE_URL}/api/v1/user/${post.id_user}/report`,
             { reportedBy: String(reporterId) },
-            { timeout: 5000 }
+            { headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET }, timeout: 5000 }
         );
     } catch (err) {
         if (err.response?.status === 404) {
@@ -192,9 +193,9 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     };
 }
 
-async function deleteComment(parentId, commentId, userId) {
+async function deleteComment(parentId, commentId, userId, canModerate = false) {
     const comment = await getPostById(commentId);
-    if (comment.id_user !== String(userId)) throw new Error("Forbidden");
+    if (!canModerate && comment.id_user !== String(userId)) throw new Error("Forbidden");
 
     // Cascade : si c'est un commentaire racine, on supprime aussi ses réponses.
     await Post.deleteMany({ parent_id: commentId, type: "response" });

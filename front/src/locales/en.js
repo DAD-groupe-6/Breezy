@@ -46,6 +46,16 @@ const en = {
       register: 'Sign up',
       logout: 'Log out',
     },
+    createAccount: {
+      button: 'New account',
+      title: 'Create a user account',
+      subtitle: 'Fill in the details for the new account.',
+      roleLabel: 'Role',
+      rolesLoadError: 'Unable to load roles.',
+      submit: 'Create account',
+      submitLoading: 'Creating...',
+      success: 'Account created successfully.',
+    },
     currentUser: {
       signIn: 'Sign in',
       signInUsername: 'login',
@@ -210,6 +220,7 @@ const en = {
   common: {
     unknownUser: 'Unknown user',
     unknownHandle: 'unknown',
+    cancel: 'Cancel',
   },
 
   errors: {
@@ -224,6 +235,12 @@ const en = {
     username: {
       required: 'Username is required',
       invalid: 'The username can only contain letters, numbers, spaces, hyphens and underscores.',
+    },
+    displayName: {
+      required: 'Display name is required',
+    },
+    role: {
+      required: 'Role is required',
     },
     confirm: {
       mismatch: 'Passwords do not match',
