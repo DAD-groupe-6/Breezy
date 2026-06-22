@@ -23,7 +23,6 @@ async function createPost(userId, content) {
         content: trimmed,
         list_tags: extractTags(trimmed),
     });
-    // Post tout neuf : nb_like = 0 (défaut) et personne ne l'a encore liké.
     return toView(post, false);
 }
 
@@ -47,8 +46,7 @@ async function deletePost(id, userId, canModerate = false) {
     if (!canModerate && post.id_user !== String(userId)) throw new Error("Forbidden");
 
     await post.deleteOne();
-    // On nettoie les likes orphelins : sans ça, ils pointeraient vers un post supprimé.
-    await Like.deleteMany({ post_id: post._id });
+    await Like.deleteMany({ post_id: post._id }); // cascade : likes du post
     return { message: "Post deleted" };
 }
 
@@ -104,17 +102,11 @@ async function likePost(id, userId) {
     if (!post) throw new Error("Post not found");
 
     try {
-        // On crée le document Like. L'index unique (post_id, user_id) garantit
-        // qu'un même user ne peut liker qu'une fois.
         await Like.create({ post_id: post._id, user_id: String(userId) });
-        // On n'incrémente le compteur QUE si le like est nouveau (sinon on tombe
-        // dans le catch ci-dessous sans toucher nb_like).
         post.nb_like += 1;
         await post.save();
     } catch (err) {
-        // 11000 = clé dupliquée → le user avait déjà liké. C'est idempotent
-        // (comme $addToSet avant), donc on ignore et on renvoie l'état courant.
-        if (err.code !== 11000) throw err;
+        if (err.code !== 11000) throw err; // 11000 = déjà liké → idempotent
     }
     return toView(post, true);
 }
@@ -125,9 +117,7 @@ async function unlikePost(id, userId) {
     if (!post) throw new Error("Post not found");
 
     const result = await Like.deleteOne({ post_id: post._id, user_id: String(userId) });
-    // deletedCount > 0 → un like existait vraiment. On ne décrémente que dans ce cas
-    // (un unlike répété ne fait pas descendre le compteur dans le négatif).
-    if (result.deletedCount > 0) {
+    if (result.deletedCount > 0) { // un like existait → décrémente
         post.nb_like = Math.max(0, post.nb_like - 1);
         await post.save();
     }
@@ -161,7 +151,6 @@ async function addComment(targetId, userId, content) {
     });
     await Post.findByIdAndUpdate(rootId, { $inc: { commentsCount: 1 } });
     return {
-        // Commentaire tout neuf : pas encore liké.
         ...toView(comment, false),
         reply_to_user: replyTo ? target.id_user : null,
     };
@@ -193,7 +182,7 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
         authorByTarget = Object.fromEntries(targets.map((tg) => [String(tg._id), tg.id_user]));
     }
 
-    // Likes de la page en UNE requête (les commentaires sont des posts → même collection Like).
+    // likes de la page en une requête
     const likedSet = await likedPostIds(pageComments.map((c) => c._id), viewerId);
 
     return {
@@ -209,13 +198,12 @@ async function deleteComment(parentId, commentId, userId, canModerate = false) {
     const comment = await getPostById(commentId);
     if (!canModerate && comment.id_user !== String(userId)) throw new Error("Forbidden");
 
-    // On récupère les réponses AVANT de supprimer, pour nettoyer leurs likes aussi.
+    // cascade : likes du commentaire et de ses réponses
     const replies = await Post.find({ parent_id: commentId, type: "response" }).select("_id");
     const deletedIds = [comment._id, ...replies.map((r) => r._id)];
-    // Cascade likes : ceux du commentaire ET de toutes ses réponses.
     await Like.deleteMany({ post_id: { $in: deletedIds } });
 
-    // Cascade : si c'est un commentaire racine, on supprime aussi ses réponses.
+    // cascade : réponses du commentaire
     await Post.deleteMany({ parent_id: commentId, type: "response" });
     await comment.deleteOne();
     await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: -1 } });
@@ -227,7 +215,7 @@ async function searchByContent(keywords, viewerId) {
     if (!keywords || !keywords.trim()) {
         throw new Error("Keywords are required");
     }
-    // Créer une regex pour chercher les mots-clés (insensible à la casse)
+    // regex insensible à la casse
     const regex = new RegExp(keywords, "i");
     const posts = await Post.find({
         content: regex,
@@ -255,7 +243,6 @@ async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     const safePage = Math.max(Number(page) || 1, 1);
     const skip = (safePage - 1) * safeLimit;
 
-    // userId = l'auteur dont on liste les posts.
     const posts = await Post.find({ id_user: String(userId), type: "post" })
         .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
@@ -264,7 +251,7 @@ async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     const hasMore = posts.length > safeLimit;
     const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
 
-    // viewerId = l'utilisateur connecté : c'est SON likedByMe qu'on calcule.
+    // likedByMe pour le viewer connecté, pas l'auteur du profil
     const likedSet = await likedPostIds(pagePosts.map((p) => p._id), viewerId);
     return {
         posts: pagePosts.map((post) => toView(post, likedSet.has(String(post._id)))),

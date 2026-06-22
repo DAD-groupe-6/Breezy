@@ -1,9 +1,4 @@
-// Transforme un document Post (post OU commentaire) en objet exposé par l'API.
-// Un commentaire est un post de type "response" : il utilise donc la même vue.
-//
-// `likedByMe` est désormais FOURNI par le service (calculé via la collection Like),
-// au lieu d'être déduit d'un tableau embarqué. `nb_like` est lu directement sur
-// le document (compteur dénormalisé, tenu à jour à chaque like/unlike).
+// Transforme un document Post (post ou commentaire) en objet exposé par l'API.
 function toView(post, likedByMe = false) {
     return {
         _id: post._id,
