@@ -23,7 +23,7 @@ export function useMessages(conversations = []) {
   )
 
   const selectConversation = (conversationId) => {
-    setSelectedId(conversationId)
+    setSelectedId((currentId) => (currentId === conversationId ? null : conversationId))
   }
 
   const clearSelection = () => {
