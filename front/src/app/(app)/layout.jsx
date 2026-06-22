@@ -1,6 +1,6 @@
-import Sidebar from "@/components/Sidebar";
-import NavbarMobile from "@/components/NavbarMobile";
-import AppTopNavbar from "@/components/TopNavbar";
+import Sidebar from "@/components/navigation/Sidebar";
+import NavbarMobile from "@/components/navigation/NavbarMobile";
+import AppTopNavbar from "@/components/navigation/TopNavbar";
 
 export default function AppLayout({ children }) {
   return (

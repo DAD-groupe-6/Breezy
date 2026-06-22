@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
-import SearchBar from '../../../components/SearchBar'
+import SearchBar from '@/components/navigation/SearchBar'
 import Post from '../../../components/post/Post'
-import ProfileCard from '../../../components/profil/ProfileCard'
+import ProfileCard from '@/components/profile/ProfileCard'
 import api from '@/utils/api'
 import { getCurrentUserId } from '@/utils/auth'
 import { timeAgo } from '@/utils/time'

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { FiChevronLeft, FiPhone, FiVideo, FiPaperclip, FiSend } from 'react-icons/fi'
 import { useTranslation } from '@/hooks/useTranslation'
-import SearchBar from '../../../components/SearchBar'
+import SearchBar from '@/components/navigation/SearchBar'
 
 const conversations = [
   {
