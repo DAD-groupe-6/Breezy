@@ -1,32 +1,31 @@
 :root {
   /* ==========================================================================
      THEME: LIGHT (Mode Clair) - PAR DÉFAUT
-     Palette light inspirée d'une esthétique Apple : neutres très propres,
-     surfaces aérées et accent bleu précis.
+      Couleurs utilisées pour le thème clair de l’application.
      ========================================================================== */
   
   /* Arrière-plans & Surfaces */
-   --color-light-bg-primary: #F4F5FA;   /* Fond principal gris clair plus present */
-   --color-light-bg-surface: #FFFFFF;   /* Cartes et panneaux en blanc net */
-   --color-light-bg-surface-2: #F0F2F9; /* Niveau secondaire plus fonce que primary */
+   --color-light-bg-primary: #F4F5FA;       /* Fond principal de l'application */
+   --color-light-bg-surface: #FFFFFF;       /* Cartes, conteneurs et éléments surélevés (niveau 1) */
+   --color-light-bg-surface-2: #F0F2F9;     /* Éléments imbriqués ou états de survol (niveau 2) */
   
   /* Bordures */
-  --color-light-border: #E2E4F0;       /* Lignes de séparation et contours subtils */
+  --color-light-border: #E2E4F0;            /* Séparateurs, bordures de cartes et d'inputs */
   
   /* Typographie & Contenu */
-  --color-light-text-title: #5B5EF4;   /* Bleu franc, inspiré des accents Apple */
-  --color-light-text-primary: #11141A; /* Texte principal profond sans noir pur */
-  --color-light-text-secondary: #5C6479;/* Texte secondaire sobre et lisible */
+  --color-light-text-title: #4346D6;        /* Titres principaux, accents ou liens importants */
+  --color-light-text-primary: #0E101A;      /* Texte de corps principal, haute lisibilité */
+  --color-light-text-secondary: #62667E;    /* Textes secondaires, légendes et indications discrètes */
 
    /* Etats interactifs */
-   --color-light-accent-soft: #EAF3FF;  /* Surface légère pour hover et états actifs */
-   --color-light-accent-hover: #005FC7; /* Accent renforcé au survol */
-   --color-light-focus-ring: rgba(0, 113, 227, 0.18); /* Halo de focus discret */
+   --color-light-accent-soft: #EAF3FF;          /* Arrière-plan doux pour les états actifs */
+   --color-light-accent-hover: #005FC7;         /* Couleur au survol */
+   --color-light-focus-ring: rgba(0, 113, 227, 0.18); /* Anneau de focus */  
 
    /* Elevation */
-   --elevation-light-1: 0 1px 2px rgba(29, 29, 31, 0.04);
-   --elevation-light-2: 0 8px 24px rgba(29, 29, 31, 0.08);
-   --elevation-light-3: 0 18px 48px rgba(29, 29, 31, 0.12);
+   --elevation-light-1: 0 1px 2px rgba(29, 29, 31, 0.04);   /* Ombre légère */
+   --elevation-light-2: 0 8px 24px rgba(29, 29, 31, 0.08);   /* Ombre moyenne */
+   --elevation-light-3: 0 18px 48px rgba(29, 29, 31, 0.12);   /* Ombre prononcée */
 
 
   /* ==========================================================================
@@ -35,32 +34,32 @@
      ========================================================================== */
   
   /* Arrière-plans & Surfaces */
-  --color-dark-bg-primary: #0A0B14;    /* Fond principal de l'application */
-  --color-dark-bg-surface: #12131A;    /* Cartes, conteneurs et éléments surélevés (niveau 1) */
-  --color-dark-bg-surface-2: #1A1C26;  /* Éléments imbriqués ou états de survol (niveau 2) */
+  --color-dark-bg-primary: #0A0B14;       /* Fond principal de l'application */
+  --color-dark-bg-surface: #12131A;       /* Cartes, conteneurs et éléments surélevés (niveau 1) */
+  --color-dark-bg-surface-2: #1A1C26;     /* Éléments imbriqués ou états de survol (niveau 2) */
   
   /* Bordures */
-  --color-dark-border: #1E1F2E;        /* Séparateurs, bordures de cartes et d'inputs */
+  --color-dark-border: #1E1F2E;            /* Séparateurs, bordures de cartes et d'inputs */
   
   /* Typographie & Contenu */
-  --color-dark-text-title: #5B5EF4;    /* Titres principaux, accents ou liens importants */
-  --color-dark-text-primary: #E8EAF2;  /* Texte de corps principal, haute lisibilité */
-  --color-dark-text-secondary: #6B7090;/* Textes secondaires, légendes et indications discrètes */
+  --color-dark-text-title: #5B5EF4;        /* Titres principaux, accents ou liens importants */
+  --color-dark-text-primary: #E8EAF2;      /* Texte de corps principal, haute lisibilité */
+  --color-dark-text-secondary: #6B7090;    /* Textes secondaires, légendes et indications discrètes */
 
    /* Etats interactifs */
-   --color-dark-accent-soft: rgba(91, 94, 244, 0.16);
-   --color-dark-accent-hover: #7073FF;
-   --color-dark-focus-ring: rgba(91, 94, 244, 0.24);
+   --color-dark-accent-soft: rgba(91, 94, 244, 0.16);    /* Arrière-plan doux pour les états actifs */
+   --color-dark-accent-hover: #7073FF;                   /* Couleur au survol */
+   --color-dark-focus-ring: rgba(91, 94, 244, 0.24);     /* Anneau de focus */
 
    /* Elevation */
-   --elevation-dark-1: 0 1px 2px rgba(0, 0, 0, 0.28);
-   --elevation-dark-2: 0 12px 32px rgba(0, 0, 0, 0.34);
-   --elevation-dark-3: 0 22px 56px rgba(0, 0, 0, 0.42);
+   --elevation-dark-1: 0 1px 2px rgba(0, 0, 0, 0.28);     /* Ombre légère */
+   --elevation-dark-2: 0 12px 32px rgba(0, 0, 0, 0.34);   /* Ombre moyenne */
+   --elevation-dark-3: 0 22px 56px rgba(0, 0, 0, 0.42);    /* Ombre prononcée */
 
 
   /* ==========================================================================
      ACTIVE THEME TOKENS (Tokens Sémantiques)
-     Ces variables pointent vers le thème par défaut : le mode CLAIR (Light).
+     Ces variables sont utilisées dans l'application pour s'adapter dynamiquement au thème actif (clair ou sombre).
      ========================================================================== */
   
   /* Raccourcis sémantiques pour les fonds */
@@ -108,61 +107,62 @@
 
 /* ==========================================================================
     TYPOGRAPHIE
+
     ========================================================================== */
 :root {
    /* Familles de polices */
    --font-family-base: 'Inter', sans-serif;
 
    /* Tailles de police */
-   --font-size-xs:   11px;
-   --font-size-sm:   13px;
-   --font-size-md:   15px;
-   --font-size-lg:   18px;
-   --font-size-xl:   22px;
-   --font-size-2xl:  28px;
-   --font-size-3xl:  36px;
+   --font-size-xs:    11px;  /* Extra-small */
+   --font-size-sm:    13px;  /* Small */
+   --font-size-md:    15px;  /* Medium */
+   --font-size-lg:    18px;  /* Large */
+   --font-size-xl:    22px;  /* Extra-large */
+   --font-size-2xl:   28px;  /* 2X-Large */
+   --font-size-3xl:   36px;  /* 3X-Large */
 
    /* Graisses */
-   --font-weight-regular:   400;
-   --font-weight-medium:    500;
-   --font-weight-semibold:  600;
-   --font-weight-bold:      700;
-   --font-weight-label: var(--font-weight-medium);
-   --font-weight-title: var(--font-weight-semibold);
-   --font-weight-display: var(--font-weight-bold);
+   --font-weight-regular:    400;                          /* Normal */
+   --font-weight-medium:     500;                          /* Medium */
+   --font-weight-semibold:   600;                          /* Semi-bold */
+   --font-weight-bold:       700;                          /* Bold */
+   --font-weight-label:      var(--font-weight-medium);    /* Labels */
+   --font-weight-title:      var(--font-weight-semibold);  /* Titres */
+   --font-weight-display:    var(--font-weight-bold);      /* Display */
 
    /* Hauteurs de ligne */
-   --line-height-auto:    normal;
-   --line-height-tight:   1.2;
-   --line-height-normal:  1.5;
-   --line-height-relaxed: 1.75;
+   --line-height-auto:     normal;   /* Normal */
+   --line-height-tight:    1.2;      /* Serré */
+   --line-height-normal:   1.5;      /* Normal */
+   --line-height-relaxed:  1.75;     /* Relaxé */
 
    /* Espacement des lettres */
-   --letter-spacing-normal:  0%;
-   --letter-spacing-wide:    0.05em;
-   --letter-spacing-wider:   0.1em;
-   --tracking-label: var(--letter-spacing-wide);
-   --tracking-title: var(--letter-spacing-normal);
-   --tracking-display: -0.02em;
+   --letter-spacing-normal:  0%;                          /* Normal */
+   --letter-spacing-wide:    0.05em;                      /* Large */
+   --letter-spacing-wider:   0.1em;                       /* Très large */
+   --tracking-label:         var(--letter-spacing-wide);  /* Labels */
+   --tracking-title:         var(--letter-spacing-normal); /* Titres */
+   --tracking-display:       -0.02em;                      /* Display */
 
    /* Espacements */
-   --space-2xs: 4px;
-   --space-xs: 8px;
-   --space-sm: 12px;
-   --space-md: 16px;
-   --space-lg: 24px;
-   --space-xl: 32px;
+   --space-2xs:  4px;   /* 2X-Small */
+   --space-xs:   8px;   /* Extra-small */
+   --space-sm:   12px;  /* Small */
+   --space-md:   16px;  /* Medium */
+   --space-lg:   24px;  /* Large */
+   --space-xl:   32px;  /* Extra-large */
 
    /* Rayons */
-   --radius-sm: 10px;
-   --radius-md: 14px;
-   --radius-lg: 18px;
-   --radius-xl: 24px;
-   --radius-pill: 999px;
+   --radius-sm:   10px;  /* Small */
+   --radius-md:   14px;  /* Medium */
+   --radius-lg:   18px;  /* Large */
+   --radius-xl:   24px;  /* Extra-large */
+   --radius-pill: 999px; /* Circulaire */
 
    /* Ombres */
-   --shadow-sm: var(--elevation-1);
-   --shadow-md: var(--elevation-2);
-   --shadow-lg: var(--elevation-3);
-   --shadow-focus: 0 0 0 4px var(--color-focus-ring);
+   --shadow-sm:    var(--elevation-1);                     /* Petite ombre */
+   --shadow-md:    var(--elevation-2);                     /* Ombre moyenne */
+   --shadow-lg:    var(--elevation-3);                     /* Grande ombre */
+   --shadow-focus: 0 0 0 4px var(--color-focus-ring);      /* Ombre focus */
 }
