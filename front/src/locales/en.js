@@ -155,6 +155,15 @@ const en = {
     },
   },
 
+  toasts: {
+    postCreated: 'Post published',
+    postCreateError: 'Failed to publish, please try again',
+    postDeleted: 'Post deleted',
+    postDeleteError: 'Unable to delete this post',
+    likeError: 'Action failed, please try again',
+    followError: 'Action failed, please try again',
+  },
+
   comments: {
     placeholder: 'Add a comment...',
     submit: 'Post',

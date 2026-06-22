@@ -155,6 +155,15 @@ const fr = {
     },
   },
 
+  toasts: {
+    postCreated: 'Post publié',
+    postCreateError: 'Échec de la publication, réessaie',
+    postDeleted: 'Post supprimé',
+    postDeleteError: 'Impossible de supprimer ce post',
+    likeError: 'Action impossible, réessaie',
+    followError: 'Action impossible, réessaie',
+  },
+
   comments: {
     placeholder: 'Ajouter un commentaire...',
     submit: 'Publier',

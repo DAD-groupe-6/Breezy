@@ -7,6 +7,7 @@ import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
 import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useToast } from '@/hooks/useToast'
 import Avatar from '@/components/Avatar'
 import Button from '@/components/ui/Button'
 
@@ -15,11 +16,11 @@ const MAX_LENGTH = 300
 export default function NewPostComposer() {
   const router = useRouter()
   const { t } = useTranslation()
+  const toast = useToast()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
   const [author, setAuthor] = useState(null)
   const imageInputRef = useRef(null)
   const videoInputRef = useRef(null)
@@ -48,13 +49,13 @@ export default function NewPostComposer() {
       return
     }
 
-    setError(null)
     setLoading(true)
     try {
       await api.post('/post', { content })
+      toast.success(t('toasts.postCreated'))
       router.push('/')
     } catch (err) {
-      setError(err.response?.data?.message || t('pages.newPost.networkError'))
+      toast.error(err.response?.data?.message || t('toasts.postCreateError'))
     } finally {
       setLoading(false)
     }
@@ -95,12 +96,6 @@ export default function NewPostComposer() {
   return (
     <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <div className="mx-auto w-full max-w-3xl px-4 py-4">
-        {error && (
-          <p className="mb-4 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-500">
-            {error}
-          </p>
-        )}
-
         <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4 md:p-6">
           <div className="flex items-start gap-3">
             <div className="shrink-0">
