@@ -249,11 +249,12 @@ async function searchByTag(tag, viewerId) {
     return posts.map((post) => toView(post, likedSet.has(String(post._id))));
 }
 
-async function getUserPosts(userId, { page, limit } = {}) {
+async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
     const safePage = Math.max(Number(page) || 1, 1);
     const skip = (safePage - 1) * safeLimit;
 
+    // userId = l'auteur dont on liste les posts.
     const posts = await Post.find({ id_user: String(userId), type: "post" })
         .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
@@ -262,7 +263,8 @@ async function getUserPosts(userId, { page, limit } = {}) {
     const hasMore = posts.length > safeLimit;
     const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
 
-    const likedSet = await likedPostIds(pagePosts.map((p) => p._id), userId);
+    // viewerId = l'utilisateur connecté : c'est SON likedByMe qu'on calcule.
+    const likedSet = await likedPostIds(pagePosts.map((p) => p._id), viewerId);
     return {
         posts: pagePosts.map((post) => toView(post, likedSet.has(String(post._id)))),
         hasMore,
