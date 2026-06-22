@@ -1,7 +1,9 @@
 const axios = require("axios");
 const mongoose = require("mongoose");
 const Post = require("../models/post.model");
+const Like = require("../models/like.model");
 const { toView } = require("../utils/postView");
+const { isLikedBy, likedPostIds } = require("../utils/likes.util");
 const { extractTags } = require("../utils/tags.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
@@ -20,7 +22,8 @@ async function createPost(userId, content) {
         content: trimmed,
         list_tags: extractTags(trimmed),
     });
-    return toView(post, userId);
+    // Post tout neuf : nb_like = 0 (défaut) et personne ne l'a encore liké.
+    return toView(post, false);
 }
 
 async function getPostById(id) {
@@ -34,7 +37,8 @@ async function getPostById(id) {
 
 async function getPostView(id, viewerId) {
     const post = await getPostById(id);
-    return toView(post, viewerId);
+    const likedByMe = await isLikedBy(post._id, viewerId);
+    return toView(post, likedByMe);
 }
 
 async function deletePost(id, userId) {
@@ -42,6 +46,8 @@ async function deletePost(id, userId) {
     if (post.id_user !== String(userId)) throw new Error("Forbidden");
 
     await post.deleteOne();
+    // On nettoie les likes orphelins : sans ça, ils pointeraient vers un post supprimé.
+    await Like.deleteMany({ post_id: post._id });
     return { message: "Post deleted" };
 }
 
@@ -82,6 +88,7 @@ async function reportPost(id, reporterId) {
     }
 
     await post.deleteOne();
+    await Like.deleteMany({ post_id: post._id });
     return {
         message: "Post reported and deleted",
         deleted: true,
@@ -92,46 +99,53 @@ async function reportPost(id, reporterId) {
 // Likes
 async function likePost(id, userId) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Post not found");
-    const post = await Post.findByIdAndUpdate(
-        id,
-        { $addToSet: { likes: String(userId) } },
-        { new: true }
-    );
+    const post = await Post.findById(id);
     if (!post) throw new Error("Post not found");
-    return toView(post, userId);
+
+    try {
+        // On crée le document Like. L'index unique (post_id, user_id) garantit
+        // qu'un même user ne peut liker qu'une fois.
+        await Like.create({ post_id: post._id, user_id: String(userId) });
+        // On n'incrémente le compteur QUE si le like est nouveau (sinon on tombe
+        // dans le catch ci-dessous sans toucher nb_like).
+        post.nb_like += 1;
+        await post.save();
+    } catch (err) {
+        // 11000 = clé dupliquée → le user avait déjà liké. C'est idempotent
+        // (comme $addToSet avant), donc on ignore et on renvoie l'état courant.
+        if (err.code !== 11000) throw err;
+    }
+    return toView(post, true);
 }
 
 async function unlikePost(id, userId) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Post not found");
-    const post = await Post.findByIdAndUpdate(
-        id,
-        { $pull: { likes: String(userId) } },
-        { new: true }
-    );
+    const post = await Post.findById(id);
     if (!post) throw new Error("Post not found");
-    return toView(post, userId);
+
+    const result = await Like.deleteOne({ post_id: post._id, user_id: String(userId) });
+    // deletedCount > 0 → un like existait vraiment. On ne décrémente que dans ce cas
+    // (un unlike répété ne fait pas descendre le compteur dans le négatif).
+    if (result.deletedCount > 0) {
+        post.nb_like = Math.max(0, post.nb_like - 1);
+        await post.save();
+    }
+    return toView(post, false);
 }
 
-// Commentaires (posts de type "response")
-// targetId = le noeud sur lequel on a cliqué "Répondre" (post, commentaire ou réponse).
-// On garde l'arbre PLAT (2 niveaux max) en ré-ancrant toujours sur le commentaire racine.
+// Commentaires 
 async function addComment(targetId, userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
     const target = await getPostById(targetId); // 404 si la cible n'existe pas
 
-    // Détermine la conversation racine (rootId) + la cible (replyTo = id du noeud visé).
-    // Toute réponse pointe vers le noeud auquel elle répond (commentaire OU réponse) afin
-    // de toujours afficher "↳ @pseudo". Seul un commentaire de 1er niveau (réponse au post)
-    // n'a pas de cible.
-    let rootId = targetId;       // cas post : commentaire de 1er niveau
+
+    let rootId = targetId;       
     let replyTo = null;
     if (target.type === "response") {
-        replyTo = target._id; // on répond à ce noeud précis -> "↳ @son auteur"
+        replyTo = target._id; 
         const parent = await getPostById(target.parent_id);
-        // Réponse à une RÉPONSE -> ré-ancrage sur le commentaire racine ;
-        // réponse à un COMMENTAIRE de 1er niveau -> root = ce commentaire.
         rootId = parent.type === "response" ? target.parent_id : target._id;
     }
 
@@ -145,23 +159,20 @@ async function addComment(targetId, userId, content) {
         list_tags: extractTags(trimmed),
     });
     await Post.findByIdAndUpdate(rootId, { $inc: { commentsCount: 1 } });
-    // On renvoie reply_to_user dès l'ajout (même forme que listComments) pour que la
-    // flèche "↳ @pseudo" s'affiche immédiatement, sans rechargement. L'auteur de la
-    // cible, c'est simplement target.id_user (déjà chargé).
     return {
-        ...toView(comment, userId),
+        // Commentaire tout neuf : pas encore liké.
+        ...toView(comment, false),
         reply_to_user: replyTo ? target.id_user : null,
     };
 }
 
-// Liste paginée des enfants directs d'un parent (commentaires d'un post,
-// OU réponses d'un commentaire : même mécanique). Calqué sur getUserPosts.
+// Liste paginée des enfants directs d'un parent (commentaires d'un post,ou rép d'un commentaire)
 async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     await getPostById(parentId); // 404 si le parent n'existe pas
     const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
     const safePage = Math.max(Number(page) || 1, 1);
     const skip = (safePage - 1) * safeLimit;
-    // Réponses : "asc" (chronologique, nouvelles en bas) ; commentaires : "desc" (récents en haut).
+
     const sortDir = order === "asc" ? 1 : -1;
 
     const found = await Post.find({ parent_id: parentId, type: "response" })
@@ -172,8 +183,6 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     const hasMore = found.length > safeLimit;
     const pageComments = hasMore ? found.slice(0, safeLimit) : found;
 
-    // Résout l'auteur des cibles "reply_to" (-> id_user) en UNE requête, pour
-    // afficher "↳ @pseudo" sans surcoût côté front.
     const targetIds = [
         ...new Set(pageComments.map((c) => c.reply_to).filter(Boolean).map(String)),
     ];
@@ -183,9 +192,12 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
         authorByTarget = Object.fromEntries(targets.map((tg) => [String(tg._id), tg.id_user]));
     }
 
+    // Likes de la page en UNE requête (les commentaires sont des posts → même collection Like).
+    const likedSet = await likedPostIds(pageComments.map((c) => c._id), viewerId);
+
     return {
         comments: pageComments.map((c) => ({
-            ...toView(c, viewerId),
+            ...toView(c, likedSet.has(String(c._id))),
             reply_to_user: c.reply_to ? authorByTarget[String(c.reply_to)] ?? null : null,
         })),
         hasMore,
@@ -195,6 +207,12 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
 async function deleteComment(parentId, commentId, userId) {
     const comment = await getPostById(commentId);
     if (comment.id_user !== String(userId)) throw new Error("Forbidden");
+
+    // On récupère les réponses AVANT de supprimer, pour nettoyer leurs likes aussi.
+    const replies = await Post.find({ parent_id: commentId, type: "response" }).select("_id");
+    const deletedIds = [comment._id, ...replies.map((r) => r._id)];
+    // Cascade likes : ceux du commentaire ET de toutes ses réponses.
+    await Like.deleteMany({ post_id: { $in: deletedIds } });
 
     // Cascade : si c'est un commentaire racine, on supprime aussi ses réponses.
     await Post.deleteMany({ parent_id: commentId, type: "response" });
@@ -214,7 +232,8 @@ async function searchByContent(keywords, viewerId) {
         content: regex,
         type: "post",
     }).sort({ createdAt: -1 }).limit(10);
-    return posts.map((post) => toView(post, viewerId));
+    const likedSet = await likedPostIds(posts.map((p) => p._id), viewerId);
+    return posts.map((post) => toView(post, likedSet.has(String(post._id))));
 }
 
 async function searchByTag(tag, viewerId) {
@@ -226,7 +245,8 @@ async function searchByTag(tag, viewerId) {
         list_tags: trimmedTag,
         type: "post",
     }).sort({ createdAt: -1 }).limit(10);
-    return posts.map((post) => toView(post, viewerId));
+    const likedSet = await likedPostIds(posts.map((p) => p._id), viewerId);
+    return posts.map((post) => toView(post, likedSet.has(String(post._id))));
 }
 
 async function getUserPosts(userId, { page, limit } = {}) {
@@ -242,8 +262,9 @@ async function getUserPosts(userId, { page, limit } = {}) {
     const hasMore = posts.length > safeLimit;
     const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
 
+    const likedSet = await likedPostIds(pagePosts.map((p) => p._id), userId);
     return {
-        posts: pagePosts.map((post) => toView(post, userId)),
+        posts: pagePosts.map((post) => toView(post, likedSet.has(String(post._id)))),
         hasMore,
     };
 }
