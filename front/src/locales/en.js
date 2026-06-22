@@ -145,6 +145,14 @@ const en = {
       saving: 'Saving...',
       save: 'Save',
     },
+    followModal: {
+      followers: 'Followers',
+      following: 'Following',
+      loading: 'Loading...',
+      empty: 'Nobody yet.',
+      loadError: 'Error while loading.',
+      close: 'Close',
+    },
   },
 
   comments: {

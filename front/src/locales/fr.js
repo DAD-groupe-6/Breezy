@@ -145,6 +145,14 @@ const fr = {
       saving: 'Enregistrement...',
       save: 'Enregistrer',
     },
+    followModal: {
+      followers: 'Abonnés',
+      following: 'Abonnements',
+      loading: 'Chargement...',
+      empty: 'Personne pour le moment.',
+      loadError: 'Erreur lors du chargement.',
+      close: 'Fermer',
+    },
   },
 
   comments: {
