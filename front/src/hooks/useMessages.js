@@ -18,12 +18,12 @@ export function useMessages(conversations = []) {
   }, [conversations, normalizedQuery])
 
   const selectedConversation = useMemo(
-    () => filteredConversations.find((conversation) => conversation.id === selectedId) ?? null,
-    [filteredConversations, selectedId]
+    () => conversations.find((conversation) => conversation.id === selectedId) ?? null,
+    [conversations, selectedId]
   )
 
   const selectConversation = (conversationId) => {
-    setSelectedId((currentId) => (currentId === conversationId ? null : conversationId))
+    setSelectedId(conversationId)
   }
 
   const clearSelection = () => {
