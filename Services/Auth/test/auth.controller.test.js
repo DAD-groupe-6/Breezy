@@ -20,7 +20,8 @@ describe("AuthController", () => {
   });
 
   describe("register", () => {
-    it("returns 201 when registration succeeds", async () => {
+    it("returns 201 and passes caller to service when registration succeeds", async () => {
+      const caller = { id: 1, roleId: 1, role: "administrateur" };
       const req = {
         body: {
           email: "john@example.com",
@@ -29,6 +30,7 @@ describe("AuthController", () => {
           pseudo: "John",
           roleId: 2,
         },
+        user: caller,
       };
       const res = createRes();
       AuthService.register.mockResolvedValue({ id: 1, email: "john@example.com" });
@@ -40,14 +42,42 @@ describe("AuthController", () => {
         "pwd",
         "john_1",
         "John",
-        2
+        2,
+        caller
       );
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith({ id: 1, email: "john@example.com" });
     });
 
+    it("returns 201 without caller for self-registration", async () => {
+      const req = {
+        body: { email: "self@example.com", password: "pwd", pseudo_uniq: "self_1", pseudo: "Self" },
+        user: null,
+      };
+      const res = createRes();
+      AuthService.register.mockResolvedValue({ id: 5, email: "self@example.com" });
+
+      await AuthController.register(req, res);
+
+      expect(AuthService.register).toHaveBeenCalledWith(
+        "self@example.com", "pwd", "self_1", "Self", undefined, null
+      );
+      expect(res.status).toHaveBeenCalledWith(201);
+    });
+
+    it("returns 403 when registration is Forbidden", async () => {
+      const req = { body: { email: "bad@example.com", password: "pwd" }, user: null };
+      const res = createRes();
+      AuthService.register.mockRejectedValue(new Error("Forbidden"));
+
+      await AuthController.register(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ message: "Forbidden" });
+    });
+
     it("returns 400 when registration fails", async () => {
-      const req = { body: { email: "bad@example.com", password: "pwd" } };
+      const req = { body: { email: "bad@example.com", password: "pwd" }, user: null };
       const res = createRes();
       AuthService.register.mockRejectedValue(new Error("Email already exists"));
 
