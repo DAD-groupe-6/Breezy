@@ -8,7 +8,7 @@ import { getToken } from '@/utils/cookie'
 import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
-import Avatar from '@/components/Avatar'
+import Avatar from '@/components/user/Avatar'
 import Button from '@/components/ui/Button'
 
 const MAX_LENGTH = 300

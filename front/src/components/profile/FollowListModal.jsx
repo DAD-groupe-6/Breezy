@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { FiX } from 'react-icons/fi'
 import api from '@/utils/api'
-import ProfileCard from '@/components/profil/ProfileCard'
+import ProfileCard from '@/components/profile/ProfileCard'
 import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 

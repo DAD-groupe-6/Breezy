@@ -6,7 +6,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 
 export default function PostMenu({ isMine, onViewProfile, onReport, onDelete }) {
   const [open, setOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const ref = useRef(null);
+  const menuRef = useRef(null);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -16,6 +18,16 @@ export default function PostMenu({ isMine, onViewProfile, onReport, onDelete }) 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!open || !ref.current) return;
+
+    const triggerRect = ref.current.getBoundingClientRect();
+    const menuHeight = menuRef.current?.offsetHeight ?? 170;
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+
+    setOpenUpward(spaceBelow < menuHeight + 12);
+  }, [open, isMine]);
 
   const itemClass =
     'w-full text-left px-4 py-3 hover:bg-[var(--color-bg-surface-2)] text-sm font-medium transition-colors';
@@ -31,7 +43,10 @@ export default function PostMenu({ isMine, onViewProfile, onReport, onDelete }) 
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-1 w-44 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-20 overflow-hidden">
+        <div
+          ref={menuRef}
+          className={`absolute right-0 w-44 bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-xl shadow-lg z-20 overflow-hidden ${openUpward ? 'bottom-full mb-1' : 'top-full mt-1'}`}
+        >
           <button
             className={`${itemClass} text-[var(--color-text-primary)]`}
             onClick={() => { setOpen(false); onViewProfile?.(); }}

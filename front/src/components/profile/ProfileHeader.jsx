@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
-import Avatar from '../Avatar';
+import Avatar from '@/components/user/Avatar';
 import Button from '../ui/Button';
 import { useTranslation } from '@/hooks/useTranslation';
 
