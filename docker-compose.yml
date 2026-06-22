@@ -70,6 +70,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - SALT_ROUNDS=12
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       db-auth:
         condition: service_healthy
@@ -82,6 +83,8 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_NAME=user_db
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       db-user:
         condition: service_healthy
@@ -93,6 +96,7 @@ services:
       - API_PORT=3000
       - MONGO_URI=mongodb://db-post:27017/post_db
       - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       db-post:
         condition: service_healthy

@@ -21,22 +21,15 @@ const permissionsList = [
     { name: "list_user_posts", description: "Fx11. Liste des messages publiés sur le profil" },
     { name: "add_tags", description: "Fx12. Ajout de tags aux messages" },
     { name: "search_tags", description: "Fx13. Recherche de posts via des tags" },
-    { name: "notifications_mentions", description: "Fx14. Notifications pour les mentions" },
-    { name: "notifications_likes", description: "Fx15. Notifications pour les likes" },
-    { name: "notifications_followers", description: "Fx16. Notifications pour les nouveaux followers" },
-    { name: "private_messaging", description: "Fx17. Système de messages privés" },
-    { name: "add_images", description: "Fx18. Ajout d'images aux messages" },
-    { name: "add_videos", description: "Fx19. Ajout de vidéos aux messages" },
     { name: "report_content", description: "Fx20. Signalement de contenu inapproprié" },
     { name: "moderate_users", description: "Fx21. Suspension ou bannissement des utilisateurs" },
-    { name: "multi_language", description: "Fx22. Interface multi-langues" },
-    { name: "custom_theme", description: "Fx23. Thème personnalisé" },
 ];
 
 const rolePermissionsMap = {
-    utilisateur: ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "notifications_mentions", "notifications_likes", "notifications_followers", "private_messaging", "add_images", "add_videos", "report_content", "multi_language", "custom_theme"],
-    moderateur: ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "notifications_mentions", "private_messaging", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "notifications_mentions", "private_messaging", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"]
+    visiteur:       ["create_account"],
+    utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content"],
+    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
 };
 
 async function seedDatabase() {
@@ -81,6 +74,10 @@ async function seedDatabase() {
                 defaults: { id: u.id, email: u.email, passwordHash: hashedPassword, roleId: u.roleId },
             });
         }
+
+        await sequelize.query(
+            `SELECT setval(pg_get_serial_sequence('"users"', 'id'), COALESCE((SELECT MAX(id) FROM "users"), 0))`
+        );
 
         console.log("\n=== COMPTES CRÉÉS ===");
         console.log("Mot de passe unique : 123456789");

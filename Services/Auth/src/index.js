@@ -18,6 +18,9 @@ async function startServer() {
     logger.info("Connected to DB");
     initializeAssociations();
     await sequelize.sync({ alter: true });
+    await sequelize.query(
+        `SELECT setval(pg_get_serial_sequence('"users"', 'id'), COALESCE((SELECT MAX(id) FROM "users"), 0))`
+    );
     logger.info("Synchronized tables");
     app.listen(port, () => {
       logger.info(`Auth service → http://localhost:${port}`);
