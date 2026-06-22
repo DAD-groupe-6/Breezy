@@ -1,6 +1,7 @@
 const axios = require("axios");
 const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
+const { likedPostIds } = require("../utils/likes.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
@@ -41,7 +42,8 @@ async function getRecommendedPosts(userId, { limit } = {}) {
             posts = [...posts, ...randomPosts];
         }
 
-        return { posts: posts.map((post) => toView(post, userId)) };
+        const likedSet = await likedPostIds(posts.map((p) => p._id), userId);
+        return { posts: posts.map((post) => toView(post, likedSet.has(String(post._id)))) };
     } catch (err) {
         // Utilisateur inconnu cote user-service : on renvoie un feed generique
         if (err.response?.status === 404) {
@@ -51,7 +53,8 @@ async function getRecommendedPosts(userId, { limit } = {}) {
             })
                 .sort({ createdAt: -1, _id: -1 })
                 .limit(safeLimit);
-            return { posts: posts.map((post) => toView(post, userId)) };
+            const likedSet = await likedPostIds(posts.map((p) => p._id), userId);
+            return { posts: posts.map((post) => toView(post, likedSet.has(String(post._id)))) };
         }
         throw new Error(`Failed to fetch recommendations: ${err.message}`);
     }
