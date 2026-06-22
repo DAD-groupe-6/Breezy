@@ -3,6 +3,7 @@ const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
+const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
 const DEFAULT_LIMIT = 20;
 const MAX_LIMIT = 50;
@@ -13,7 +14,7 @@ async function getRecommendedPosts(userId, { limit } = {}) {
     try {
         const followingResponse = await axios.get(
             `${USER_SERVICE_URL}/api/v1/user/${userId}/following`,
-            { timeout: 5000 }
+            { headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET }, timeout: 5000 }
         );
         const followingUsers = followingResponse.data.following || [];
 
