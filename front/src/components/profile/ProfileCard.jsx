@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import UserInfo from '../UserInfo';
+import UserInfo from '@/components/user/UserInfo';
 import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
 import { useTranslation } from '@/hooks/useTranslation';

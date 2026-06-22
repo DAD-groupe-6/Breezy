@@ -6,9 +6,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import LikeButton from './LikeButton';
 import RepliesThread from './RepliesThread';
 
-// comment : objet mappé par useComments
-// isReply : true si c'est une réponse (pas de sous-niveau, affiche "↳ @pseudo")
-// onReply : callback appelé sur "Répondre" (les réponses l'utilisent pour cibler @pseudo)
 export default function CommentItem({ comment, onDelete, onLike, isReply = false, onReply }) {
   const { t } = useTranslation();
   const [showReplies, setShowReplies] = useState(false);

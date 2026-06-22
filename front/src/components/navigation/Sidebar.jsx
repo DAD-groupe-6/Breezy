@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { FiHome, FiCompass, FiBell, FiMessageSquare, FiEdit, FiSettings } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
-import CurrentUser from "@/components/CurrentUser";
+import CurrentUser from "@/components/user/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
 
 export default function Sidebar({ user = null }) {

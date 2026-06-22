@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import { getToken } from '@/utils/cookie'
-import ProfileView from '@/components/profil/ProfileView'
+import ProfileView from '@/components/profile/ProfileView'
 
 export default function MyProfilPage() {
   const router = useRouter()

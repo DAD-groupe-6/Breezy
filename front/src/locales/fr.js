@@ -155,6 +155,23 @@ const fr = {
       saving: 'Enregistrement...',
       save: 'Enregistrer',
     },
+    followModal: {
+      followers: 'Abonnés',
+      following: 'Abonnements',
+      loading: 'Chargement...',
+      empty: 'Personne pour le moment.',
+      loadError: 'Erreur lors du chargement.',
+      close: 'Fermer',
+    },
+  },
+
+  toasts: {
+    postCreated: 'Post publié',
+    postCreateError: 'Échec de la publication, réessaie',
+    postDeleted: 'Post supprimé',
+    postDeleteError: 'Impossible de supprimer ce post',
+    likeError: 'Action impossible, réessaie',
+    followError: 'Action impossible, réessaie',
   },
 
   comments: {

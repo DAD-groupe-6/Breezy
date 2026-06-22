@@ -1,4 +1,4 @@
-import UserInfo from '@/components/UserInfo'
+import UserInfo from '@/components/user/UserInfo'
 import { timeAgo } from '@/utils/time'
 
 export default function NotificationItem({ notification, t, locale }) {
