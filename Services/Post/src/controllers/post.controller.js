@@ -43,6 +43,10 @@ async function getPost(req, res) {
 
 async function getUserPosts(req, res) {
     try {
+        const role = req.user?.role;
+        if (role === "utilisateur" && String(req.user.id) !== String(req.params.userId)) {
+            return res.status(403).json({ message: "You can only view your own posts" });
+        }
         const { page, limit } = req.query;
         // req.params.userId = l'auteur du profil visité ; req.user.id = le viewer connecté.
         // Les deux sont distincts : sinon likedByMe serait calculé pour l'auteur, pas pour moi.
@@ -56,7 +60,8 @@ async function getUserPosts(req, res) {
 
 async function deletePost(req, res) {
     try {
-        const result = await PostService.deletePost(req.params.id, req.user.id);
+        const canModerate = ["moderateur", "administrateur"].includes(req.user?.role);
+        const result = await PostService.deletePost(req.params.id, req.user.id, canModerate);
         res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -122,10 +127,12 @@ async function listComments(req, res) {
 
 async function deleteComment(req, res) {
     try {
+        const canModerate = ["moderateur", "administrateur"].includes(req.user?.role);
         const result = await PostService.deleteComment(
             req.params.id,
             req.params.commentId,
-            req.user.id
+            req.user.id,
+            canModerate
         );
         res.status(200).json(result);
     } catch (err) {

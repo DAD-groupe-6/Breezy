@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const RecommendationController = require("../controllers/recommendation.controller");
-const { authenticate } = require("../middlewares/auth.middleware");
+const { optionalAuthenticate } = require("../middlewares/auth.middleware");
+const { requirePermission } = require("../middlewares/permission.middleware");
 
 /**
  * @swagger
@@ -42,6 +43,6 @@ const { authenticate } = require("../middlewares/auth.middleware");
  *       401:
  *         description: Unauthorized
  */
-router.get("/:userId", authenticate, RecommendationController.getRecommendedPosts);
+router.get("/:userId", optionalAuthenticate, requirePermission("view_timeline"), RecommendationController.getRecommendedPosts);
 
 module.exports = router;

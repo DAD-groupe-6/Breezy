@@ -4,6 +4,7 @@ const cookieParser = require("cookie-parser");
 const sequelize = require("./config/database.config");
 const authRoutes = require("./routes/auth.route");
 const logger = require("./logger");
+const { initializeAssociations } = require("./models");
 const app = express();
 const port = process.env.API_PORT || 3001;
 
@@ -15,7 +16,11 @@ async function startServer() {
   try {
     await sequelize.authenticate();
     logger.info("Connected to DB");
+    initializeAssociations();
     await sequelize.sync({ alter: true });
+    await sequelize.query(
+        `SELECT setval(pg_get_serial_sequence('"users"', 'id'), COALESCE((SELECT MAX(id) FROM "users"), 0))`
+    );
     logger.info("Synchronized tables");
     app.listen(port, () => {
       logger.info(`Auth service → http://localhost:${port}`);

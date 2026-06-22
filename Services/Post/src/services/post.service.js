@@ -7,6 +7,7 @@ const { isLikedBy, likedPostIds } = require("../utils/likes.util");
 const { extractTags } = require("../utils/tags.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
+const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
@@ -41,9 +42,9 @@ async function getPostView(id, viewerId) {
     return toView(post, likedByMe);
 }
 
-async function deletePost(id, userId) {
+async function deletePost(id, userId, canModerate = false) {
     const post = await getPostById(id);
-    if (post.id_user !== String(userId)) throw new Error("Forbidden");
+    if (!canModerate && post.id_user !== String(userId)) throw new Error("Forbidden");
 
     await post.deleteOne();
     // On nettoie les likes orphelins : sans ça, ils pointeraient vers un post supprimé.
@@ -78,7 +79,7 @@ async function reportPost(id, reporterId) {
         await axios.post(
             `${USER_SERVICE_URL}/api/v1/user/${post.id_user}/report`,
             { reportedBy: String(reporterId) },
-            { timeout: 5000 }
+            { headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET }, timeout: 5000 }
         );
     } catch (err) {
         if (err.response?.status === 404) {
@@ -204,9 +205,9 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     };
 }
 
-async function deleteComment(parentId, commentId, userId) {
+async function deleteComment(parentId, commentId, userId, canModerate = false) {
     const comment = await getPostById(commentId);
-    if (comment.id_user !== String(userId)) throw new Error("Forbidden");
+    if (!canModerate && comment.id_user !== String(userId)) throw new Error("Forbidden");
 
     // On récupère les réponses AVANT de supprimer, pour nettoyer leurs likes aussi.
     const replies = await Post.find({ parent_id: commentId, type: "response" }).select("_id");
