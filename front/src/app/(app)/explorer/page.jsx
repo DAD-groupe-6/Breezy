@@ -269,7 +269,7 @@ export default function ExplorerPage() {
                     imageUrl={imageUrl}
                     timestamp={timeAgo(post.createdAt || post.timestamp, t)}
                     content={post.content}
-                    image={post.image}
+                    images={post.images}
                     video={post.video}
                     likes={post.likes || 0}
                     liked={post.liked || false}

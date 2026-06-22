@@ -10,14 +10,18 @@ const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
 
 // Posts
-async function createPost(userId, content) {
-    if (!content || !content.trim()) {
+async function createPost(userId, content, images = []) {
+    const trimmed = (content || "").trim();
+    // Au plus 4 images, on ignore les valeurs vides.
+    const imgs = (Array.isArray(images) ? images : []).filter(Boolean).slice(0, 4);
+    // Un post doit avoir au moins du texte OU une image.
+    if (!trimmed && imgs.length === 0) {
         throw new Error("Content is required");
     }
-    const trimmed = content.trim();
     const post = await Post.create({
         id_user: String(userId),
         content: trimmed,
+        images: imgs,
         list_tags: extractTags(trimmed),
     });
     return toView(post, userId);

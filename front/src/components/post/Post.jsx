@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import UserInfo from '@/components/user/UserInfo';
 import PostMenu from './PostMenu';
+import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentSection from './CommentSection';
 import ConfirmDialog from '../ui/ConfirmDialog';
@@ -21,7 +22,7 @@ export default function Post({
   imageUrl = null,
   timestamp,
   content = '',
-  image = null,
+  images = [],
   video = null,
   likes = 0,
   liked = false,
@@ -107,11 +108,7 @@ export default function Post({
           <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
         )}
 
-        {image && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
-            <img src={image} alt={t('post.imageAlt')} className="w-full h-auto object-cover max-h-96" />
-          </div>
-        )}
+        <PostMedia images={images} />
 
         {video && (
           <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">

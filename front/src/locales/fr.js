@@ -116,6 +116,8 @@ const fr = {
       dropHintPhoto: 'ou cliquez sur le bouton Photo pour selectionner un fichier',
       dropHintVideo: 'ou cliquez sur le bouton Video pour selectionner un fichier',
       selectedFile: 'Fichier selectionne:',
+      addImage: 'Ajouter une image',
+      removeImage: 'Retirer l\'image',
       photo: 'Photo',
       video: 'Video',
       emoji: 'Emoji',
