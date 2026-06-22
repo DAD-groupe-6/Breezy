@@ -1,4 +1,4 @@
-import SearchBar from '@/components/SearchBar'
+import SearchBar from '@/components/navigation/SearchBar'
 import ConversationItem from '@/components/messages/ConversationItem'
 
 export default function ConversationList({

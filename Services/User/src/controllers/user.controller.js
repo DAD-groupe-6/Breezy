@@ -46,6 +46,16 @@ async function reportUser(req, res) {
     }
 }
 
+async function getSuggestions(req, res) {
+    try {
+        const { userId, limit } = req.query;
+        const result = await UserService.getSuggestions(userId, limit);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+}
+
 async function searchUsersByPseudo(req, res) {
     try {
         const { pseudo_uniq } = req.query;
@@ -66,4 +76,5 @@ module.exports = {
     deleteUser,
     reportUser,
     searchUsersByPseudo,
+    getSuggestions,
 };

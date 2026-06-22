@@ -5,16 +5,19 @@ import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
-import ProfileHeader from '@/components/profil/ProfileHeader'
-import EditProfileModal from '@/components/profil/EditProfilModal'
+import ProfileHeader from '@/components/profile/ProfileHeader'
+import EditProfileModal from '@/components/profile/EditProfileModal'
+import FollowListModal from '@/components/profile/FollowListModal'
 import Post from '@/components/post/Post'
 import LoadMoreButton from '@/components/post/LoadMoreButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useToast } from '@/hooks/useToast'
 
 export default function ProfileView({ userId, isOwnProfile }) {
     const router = useRouter()
     const { t } = useTranslation()
+    const toast = useToast()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [followersCount, setFollowersCount] = useState(0)
@@ -22,6 +25,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [isFollowing, setIsFollowing] = useState(false)
     const [followPending, setFollowPending] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
+    const [followModalTab, setFollowModalTab] = useState(null)
     const { posts, hasMore, loading: postsLoading, loadMore, removePost } = useUserPosts(userId)
 
     // Id de l'utilisateur connecté (depuis le JWT)
@@ -66,6 +70,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
             setFollowersCount(prev => Math.max(0, prev + (isFollowing ? -1 : 1)))
         } catch (err) {
             // En cas d'échec, on laisse l'état inchangé
+            toast.error(t('toasts.followError'))
         } finally {
             setFollowPending(false)
         }
@@ -105,6 +110,8 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         followPending={followPending}
                         onFollow={handleFollow}
                         onEditProfile={() => setEditOpen(true)}
+                        onShowFollowers={() => setFollowModalTab('followers')}
+                        onShowFollowing={() => setFollowModalTab('following')}
                     />
 
                     <div className="px-[var(--space-md)] py-[var(--space-md)] md:px-[var(--space-lg)]">
@@ -143,6 +150,13 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     onSaved={(updated) => setUser(updated)}
                 />
             )}
+
+            <FollowListModal
+                isOpen={followModalTab !== null}
+                initialTab={followModalTab || 'followers'}
+                onClose={() => setFollowModalTab(null)}
+                userId={userId}
+            />
         </div>
     )
 }

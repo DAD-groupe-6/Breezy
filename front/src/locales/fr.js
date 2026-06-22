@@ -68,6 +68,7 @@ const fr = {
       searching: 'Recherche en cours...',
       noResults: 'Aucun résultat trouvé',
       searchError: 'Erreur lors de la recherche',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',
@@ -151,6 +152,23 @@ const fr = {
       saving: 'Enregistrement...',
       save: 'Enregistrer',
     },
+    followModal: {
+      followers: 'Abonnés',
+      following: 'Abonnements',
+      loading: 'Chargement...',
+      empty: 'Personne pour le moment.',
+      loadError: 'Erreur lors du chargement.',
+      close: 'Fermer',
+    },
+  },
+
+  toasts: {
+    postCreated: 'Post publié',
+    postCreateError: 'Échec de la publication, réessaie',
+    postDeleted: 'Post supprimé',
+    postDeleteError: 'Impossible de supprimer ce post',
+    likeError: 'Action impossible, réessaie',
+    followError: 'Action impossible, réessaie',
   },
 
   comments: {
@@ -159,6 +177,12 @@ const fr = {
     empty: 'Aucun commentaire pour le moment.',
     deleteAria: 'Supprimer le commentaire',
     likeAria: 'Aimer le commentaire',
+    reply: 'Répondre',
+    viewRepliesBefore: 'Voir les',
+    viewRepliesAfter: 'réponses',
+    hideReplies: 'Masquer les réponses',
+    replyingTo: 'Réponse à',
+    cancelReply: 'Annuler la réponse',
   },
 
   post: {
@@ -167,6 +191,13 @@ const fr = {
     report: 'Signaler',
     delete: 'Supprimer',
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
+    deleteConfirm: {
+      title: 'Supprimer le post',
+      message: 'Voulez-vous vraiment supprimer ce post ? Cette action est irréversible.',
+      confirm: 'Supprimer',
+      cancel: 'Annuler',
+      deleting: 'Suppression...',
+    },
     imageAlt: 'Contenu du post',
     commentAria: 'Commenter',
     likeAria: 'Aimer',

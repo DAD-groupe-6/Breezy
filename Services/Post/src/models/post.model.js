@@ -37,6 +37,15 @@ const postSchema = new mongoose.Schema(
             ref: "Post",
             default: null,
         },
+        // Cible d'une réponse : id du commentaire/réponse auquel on répond dans la
+        // sous-conversation (pour la flèche "↳ @pseudo" et un futur "saut au message").
+        // Rempli par le serveur, null pour un commentaire de 1er niveau ou une réponse
+        // directe au commentaire. L'auteur (@pseudo) est résolu à la lecture.
+        reply_to: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Post",
+            default: null,
+        },
         list_tags: {
             type: [String],
             default: [],

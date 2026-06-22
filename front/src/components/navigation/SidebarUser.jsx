@@ -1,4 +1,4 @@
-import UserInfo from './UserInfo'
+import UserInfo from '@/components/user/UserInfo'
 
 export default function SidebarUser({ user }) {
   return (

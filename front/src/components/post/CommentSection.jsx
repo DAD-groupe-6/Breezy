@@ -3,8 +3,16 @@
 import { useTranslation } from '@/hooks/useTranslation';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
+import LoadMoreButton from './LoadMoreButton';
 
-export default function CommentSection({ comments = [], onAddComment, onDelete, onLike }) {
+export default function CommentSection({
+  comments = [],
+  hasMore = false,
+  onLoadMore,
+  onAddComment,
+  onDelete,
+  onLike,
+}) {
   const { t } = useTranslation();
 
   return (
@@ -27,6 +35,8 @@ export default function CommentSection({ comments = [], onAddComment, onDelete, 
             onLike={onLike}
           />
         ))}
+
+        {hasMore && <LoadMoreButton onClick={onLoadMore} />}
       </div>
     </section>
   );

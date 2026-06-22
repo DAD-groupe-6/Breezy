@@ -1,27 +1,21 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
-import { getToken, clearToken } from '@/utils/cookie'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function AuthButtons() {
-    const [isLogged, setIsLogged] = useState(false)
     const router = useRouter()
     const { t } = useTranslation()
-
-    useEffect(() => {
-        setIsLogged(!!getToken())
-    }, [])
+    const { user, logout } = useAuth()
 
     function handleLogout() {
-        clearToken()
-        setIsLogged(false)
+        logout()
         router.push('/login')
     }
 
-    if (isLogged) {
+    if (user) {
         return (
             <button
                 onClick={handleLogout}

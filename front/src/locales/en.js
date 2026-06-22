@@ -68,6 +68,7 @@ const en = {
       searching: 'Searching...',
       noResults: 'No results found',
       searchError: 'Error searching',
+      suggestionsTitle: 'Suggestions',
     },
     messages: {
       title: 'Messages',
@@ -151,6 +152,23 @@ const en = {
       saving: 'Saving...',
       save: 'Save',
     },
+    followModal: {
+      followers: 'Followers',
+      following: 'Following',
+      loading: 'Loading...',
+      empty: 'Nobody yet.',
+      loadError: 'Error while loading.',
+      close: 'Close',
+    },
+  },
+
+  toasts: {
+    postCreated: 'Post published',
+    postCreateError: 'Failed to publish, please try again',
+    postDeleted: 'Post deleted',
+    postDeleteError: 'Unable to delete this post',
+    likeError: 'Action failed, please try again',
+    followError: 'Action failed, please try again',
   },
 
   comments: {
@@ -159,6 +177,12 @@ const en = {
     empty: 'No comments yet.',
     deleteAria: 'Delete comment',
     likeAria: 'Like comment',
+    reply: 'Reply',
+    viewRepliesBefore: 'View',
+    viewRepliesAfter: 'replies',
+    hideReplies: 'Hide replies',
+    replyingTo: 'Replying to',
+    cancelReply: 'Cancel reply',
   },
 
   post: {
@@ -167,6 +191,13 @@ const en = {
     report: 'Report',
     delete: 'Delete',
     deleteError: 'Unable to delete this post. Please try again.',
+    deleteConfirm: {
+      title: 'Delete post',
+      message: 'Do you really want to delete this post? This action is irreversible.',
+      confirm: 'Delete',
+      cancel: 'Cancel',
+      deleting: 'Deleting...',
+    },
     imageAlt: 'Post content',
     commentAria: 'Comment',
     likeAria: 'Like',

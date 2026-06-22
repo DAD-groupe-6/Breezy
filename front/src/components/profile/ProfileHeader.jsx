@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { FaEllipsisH } from 'react-icons/fa';
-import Avatar from '../Avatar';
+import Avatar from '@/components/user/Avatar';
 import Button from '../ui/Button';
 import { useTranslation } from '@/hooks/useTranslation';
 
@@ -19,6 +19,8 @@ export default function ProfileHeader({
   followPending = false,
   onFollow,
   onEditProfile,
+  onShowFollowers,
+  onShowFollowing,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
@@ -116,8 +118,8 @@ export default function ProfileHeader({
           {/* Stats */}
           <div className="flex flex-wrap items-center gap-x-[20px] gap-y-[var(--space-xs)] pt-[var(--space-2xs)]">
             <StatItem value={formatCount(postsCount)} label={t('profile.statPosts')} />
-            <StatItem value={formatCount(followingCount)} label={t('profile.statFollowing')} />
-            <StatItem value={formatCount(followersCount)} label={t('profile.statFollowers')} />
+            <StatItem value={formatCount(followingCount)} label={t('profile.statFollowing')} onClick={onShowFollowing} />
+            <StatItem value={formatCount(followersCount)} label={t('profile.statFollowers')} onClick={onShowFollowers} />
           </div>
         </div>
       </div>
@@ -125,15 +127,32 @@ export default function ProfileHeader({
   );
 }
 
-function StatItem({ value, label }) {
-  return (
-    <div className="flex items-baseline gap-[4px] rounded-[var(--radius-pill)] bg-[var(--color-bg-surface-2)] px-[10px] py-[4px]">
+function StatItem({ value, label, onClick }) {
+  const baseClass =
+    'flex items-baseline gap-[4px] rounded-[var(--radius-pill)] bg-[var(--color-bg-surface-2)] px-[10px] py-[4px]';
+
+  const content = (
+    <>
       <span className="text-sm text-[var(--color-text-primary)] [font-weight:var(--font-weight-display)]">
         {value}
       </span>
       <span className="text-sm text-[var(--color-text-secondary)] [font-weight:var(--font-weight-regular)]">
         {label}
       </span>
-    </div>
+    </>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={`${baseClass} cursor-pointer transition-colors hover:bg-[var(--color-border)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]`}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return <div className={baseClass}>{content}</div>;
 }

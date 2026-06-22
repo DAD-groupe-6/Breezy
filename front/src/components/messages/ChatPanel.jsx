@@ -1,5 +1,5 @@
 import { FiChevronLeft, FiPaperclip, FiPhone, FiSend, FiVideo } from 'react-icons/fi'
-import UserInfo from '@/components/UserInfo'
+import UserInfo from '@/components/user/UserInfo'
 import ChatBubble from '@/components/messages/ChatBubble'
 import { useTranslation } from '@/hooks/useTranslation'
 

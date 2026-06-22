@@ -8,7 +8,7 @@ import { validateLogin } from '@/utils/validation'
 import { useRouter } from 'next/navigation'
 import api from '@/utils/api'
 import { useTranslation } from '@/hooks/useTranslation'
-import { setToken } from '@/utils/cookie'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -17,6 +17,7 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const { t } = useTranslation()
+  const { login } = useAuth()
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -30,7 +31,7 @@ export default function LoginForm() {
     setLoading(true);
     try{
         const { data } = await api.post('/auth/login', { email, password })
-        setToken(data.token)
+        login(data.token)
         router.push('/')
     }catch(err){
         const message = err.response?.data?.message || t('errors.network.login')

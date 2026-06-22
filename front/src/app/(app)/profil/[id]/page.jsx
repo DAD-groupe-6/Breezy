@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import { getToken } from '@/utils/cookie'
-import ProfileView from '@/components/profil/ProfileView'
+import ProfileView from '@/components/profile/ProfileView'
 
 export default function UserProfilPage() {
     const params = useParams()

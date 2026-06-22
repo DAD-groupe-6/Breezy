@@ -1,4 +1,4 @@
-import UserInfo from '@/components/UserInfo'
+import UserInfo from '@/components/user/UserInfo'
 import { useTranslation } from '@/hooks/useTranslation'
 
 export default function ConversationItem({ conversation, active, onSelect }) {

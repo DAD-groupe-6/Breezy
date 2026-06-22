@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import UserInfo from '../UserInfo';
+import UserInfo from '@/components/user/UserInfo';
 import PostMenu from './PostMenu';
 import PostActions from './PostActions';
 import CommentSection from './CommentSection';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
 import { usePostLikes } from '@/hooks/usePostLikes';
 import { useComments } from '@/hooks/useComments';
+import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Post({
@@ -29,18 +31,27 @@ export default function Post({
   onDelete,
 }) {
   const [showComments, setShowComments] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const toast = useToast();
   const { t } = useTranslation();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
 
-  const handleDeletePost = async () => {
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
     try {
       await api.delete(`/post/${postId}`);
+      toast.success(t('toasts.postDeleted'));
+      setConfirmOpen(false);
       onDelete?.(postId);
     } catch (err) {
-      console.error('[Post] Failed to delete post', err);
+      toast.error(t('toasts.postDeleteError'));
+      console.error('[Post] Échec de la suppression du post', err);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -88,7 +99,7 @@ export default function Post({
             isMine={isMine}
             onViewProfile={onViewProfile}
             onReport={handleReportPost}
-            onDelete={handleDeletePost}
+            onDelete={() => setConfirmOpen(true)}
           />
         </div>
 
@@ -119,12 +130,26 @@ export default function Post({
         {showComments && (
           <CommentSection
             comments={commentsHook.list}
+            hasMore={commentsHook.hasMore}
+            onLoadMore={commentsHook.loadMore}
             onAddComment={commentsHook.add}
             onDelete={commentsHook.remove}
             onLike={commentsHook.like}
           />
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title={t('post.deleteConfirm.title')}
+        message={t('post.deleteConfirm.message')}
+        confirmLabel={deleting ? t('post.deleteConfirm.deleting') : t('post.deleteConfirm.confirm')}
+        cancelLabel={t('post.deleteConfirm.cancel')}
+        onConfirm={handleConfirmDelete}
+        onClose={() => { if (!deleting) setConfirmOpen(false); }}
+        loading={deleting}
+        danger
+      />
     </article>
   );
 }
