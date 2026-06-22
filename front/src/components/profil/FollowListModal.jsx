@@ -7,8 +7,6 @@ import ProfileCard from '@/components/profil/ProfileCard'
 import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 
-// Modale listant les abonnés / abonnements d'un profil.
-// Les endpoints ne renvoient que des ids : on récupère ensuite le profil complet de chacun.
 export default function FollowListModal({ isOpen, onClose, userId, initialTab = 'followers' }) {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState(initialTab)
@@ -19,12 +17,10 @@ export default function FollowListModal({ isOpen, onClose, userId, initialTab = 
 
   const myId = getCurrentUserId()
 
-  // Repositionner sur l'onglet demandé à chaque ouverture
   useEffect(() => {
     if (isOpen) setActiveTab(initialTab)
   }, [isOpen, initialTab])
 
-  // Charger la liste de l'onglet actif
   useEffect(() => {
     if (!isOpen) return
     let cancelled = false
@@ -39,7 +35,6 @@ export default function FollowListModal({ isOpen, onClose, userId, initialTab = 
             ? `/user/${userId}/followers`
             : `/user/${userId}/following`
 
-        // Liste de l'onglet + liste des suivis de l'utilisateur connecté (pour l'état des boutons)
         const [listRes, myFollowingRes] = await Promise.all([
           api.get(endpoint),
           myId
@@ -54,7 +49,6 @@ export default function FollowListModal({ isOpen, onClose, userId, initialTab = 
 
         const followingSet = new Set((myFollowingRes.data.following || []).map(String))
 
-        // Récupérer le profil complet de chaque id (on ignore ceux en erreur)
         const profiles = await Promise.all(
           ids.map((id) =>
             api
@@ -113,7 +107,6 @@ export default function FollowListModal({ isOpen, onClose, userId, initialTab = 
           </button>
         </div>
 
-        {/* Corps scrollable */}
         <div className="min-h-[120px] overflow-y-auto">
           {loading && (
             <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
