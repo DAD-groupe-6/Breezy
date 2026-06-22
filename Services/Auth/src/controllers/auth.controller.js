@@ -2,11 +2,12 @@ const AuthService = require("../services/auth.service");
 
 async function register(req, res) {
     try {
-        const { email, password, pseudo_uniq, pseudo } = req.body;
-        const result = await AuthService.register(email, password, pseudo_uniq, pseudo);
+        const { email, password, pseudo_uniq, pseudo, roleId } = req.body;
+        const result = await AuthService.register(email, password, pseudo_uniq, pseudo, roleId, req.user);
         res.status(201).json(result);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        const status = err.message === "Forbidden" ? 403 : 400;
+        res.status(status).json({ message: err.message });
     }
 }
 

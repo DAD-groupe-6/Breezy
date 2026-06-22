@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/database.config");
+const Role = require("./role.model");
 
 const User = sequelize.define("User", {
     id: {
@@ -17,10 +18,13 @@ const User = sequelize.define("User", {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    role: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: "user",
+    roleId: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Role,
+            key: "id",
+        },
+        onDelete: "SET NULL",
     },
 }, {
     tableName: "users",

@@ -1,8 +1,13 @@
 "use client"
 
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import AuthButtons from '@/components/auth/AuthButtons'
+import Button from '@/components/ui/Button'
+import CreateAccountModal from '@/components/auth/CreateAccountModal'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useAuth } from '@/providers/AuthProvider'
+import api from '@/utils/api'
 
 const ROUTE_TITLE_KEYS = {
   '/': 'pages.home.title',
@@ -17,17 +22,56 @@ const ROUTE_TITLE_KEYS = {
 export default function AppTopNavbar() {
   const pathname = usePathname()
   const { t } = useTranslation()
+  const { user, loading } = useAuth()
+  const [canCreateAccount, setCanCreateAccount] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const titleKey = ROUTE_TITLE_KEYS[pathname] || 'nav.home'
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function checkCreateAccountPermission() {
+      if (!user?.roleId) {
+        setCanCreateAccount(false)
+        return
+      }
+
+      try {
+        const { data } = await api.get(`/auth/roles/${user.roleId}/permissions-by-name/create_account`)
+        if (!cancelled) {
+          setCanCreateAccount(Boolean(data?.hasPermission))
+        }
+      } catch {
+        if (!cancelled) {
+          setCanCreateAccount(false)
+        }
+      }
+    }
+
+    if (!loading) {
+      checkCreateAccountPermission()
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [user?.roleId, loading])
 
   return (
     <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-sm)]">
       <div className="flex w-full items-center justify-between px-[var(--space-md)] py-[var(--space-sm)] md:px-[var(--space-lg)]">
         <h1 className="text-lg text-[var(--color-text-title)] [font-weight:var(--font-weight-display)] [letter-spacing:var(--tracking-display)]">{t(titleKey)}</h1>
         <div className="flex items-center gap-[var(--space-sm)]">
+          {canCreateAccount && (
+            <Button onClick={() => setIsModalOpen(true)}>
+              {t('auth.createAccount.button')}
+            </Button>
+          )}
           <AuthButtons />
         </div>
       </div>
+      <CreateAccountModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </header>
   )
 }
