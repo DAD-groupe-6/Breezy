@@ -1,29 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
 
 export default function AuthButtons() {
-    const router = useRouter()
     const { t } = useTranslation()
-    const { user, logout } = useAuth()
-
-    function handleLogout() {
-        logout()
-        router.push('/login')
-    }
+    const { user } = useAuth()
 
     if (user) {
-        return (
-            <button
-                onClick={handleLogout}
-                className="rounded-[var(--radius-pill)] border border-[var(--color-text-title)] px-[var(--space-md)] py-[10px] text-sm text-[var(--color-text-title)] shadow-[var(--shadow-sm)] transition-[background-color,color,box-shadow,transform] duration-200 [font-weight:var(--font-weight-title)] hover:bg-[var(--color-text-title)] hover:text-[var(--color-bg-surface)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] active:scale-[0.99]"
-            >
-                {t('auth.buttons.logout')}
-            </button>
-        )
+        return null
     }
 
     return (
