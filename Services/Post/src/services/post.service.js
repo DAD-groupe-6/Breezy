@@ -228,7 +228,7 @@ async function searchByTag(tag, viewerId, { page, limit } = {}) {
         throw new Error("Tag is required");
     }
     const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
-    const found = await Post.find({ list_tags: tag.trim(), type: "post" })
+    const found = await Post.find({ list_tags: tag.trim().toLowerCase(), type: "post" })
         .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(safeLimit + 1);
