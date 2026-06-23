@@ -22,4 +22,8 @@ async function markAsRead(conversationId, userId) {
     );
 }
 
-module.exports = { createMessage, getMessages, markAsRead };
+async function deleteMessagesByConversation(conversationId) {
+    await Message.deleteMany({ conversationId });
+}
+
+module.exports = { createMessage, getMessages, markAsRead, deleteMessagesByConversation };

@@ -35,14 +35,17 @@ function registerSocketHandlers(io) {
             try {
                 if (!conversationId || !content?.trim()) return;
 
-                await getConversationById(conversationId, userId);
-
+                const conversation = await getConversationById(conversationId, userId);
                 const message = await createMessage(conversationId, userId, content.trim());
 
+                // Notify users already in the conversation room
                 io.to(conversationId).emit("message_received", message);
 
-                // Also notify participants who are not in the room (personal room)
-                io.to(`user:${userId}`).emit("message_sent", message);
+                // Also notify each participant via their personal room
+                // (covers the case where the recipient hasn't joined the room yet)
+                for (const participantId of conversation.participants) {
+                    io.to(`user:${String(participantId)}`).emit("message_received", message);
+                }
             } catch (err) {
                 socket.emit("error", { message: err.message });
             }

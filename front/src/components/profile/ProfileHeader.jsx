@@ -19,7 +19,9 @@ export default function ProfileHeader({
   followPending = false,
   canModerate = false,
   isBanned = false,
+  canMessage = false,
   onFollow,
+  onMessage,
   onEditProfile,
   onShowFollowers,
   onShowFollowing,
@@ -97,6 +99,11 @@ export default function ProfileHeader({
                     style={isBanned ? undefined : { borderColor: '#e11d48', color: '#e11d48' }}
                   >
                     {isBanned ? t('moderation.unban') : t('moderation.ban')}
+                  </Button>
+                )}
+                {canMessage && (
+                  <Button variant="secondary" onClick={onMessage}>
+                    {t('profile.message')}
                   </Button>
                 )}
                 <Button

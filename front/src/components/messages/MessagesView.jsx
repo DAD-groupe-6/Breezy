@@ -1,21 +1,29 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useMessages } from '@/hooks/useMessages'
 import ConversationList from '@/components/messages/ConversationList'
 import ChatPanel from '@/components/messages/ChatPanel'
+import NewConversationModal from '@/components/messages/NewConversationModal'
 
-export default function MessagesView({ conversations }) {
+export default function MessagesView({ initialRecipientId }) {
   const { t } = useTranslation()
+  const [newConvOpen, setNewConvOpen] = useState(false)
+
   const {
     selectedConversation,
     selectedId,
+    messages,
     searchQuery,
     setSearchQuery,
     filteredConversations,
     selectConversation,
+    startNewConversation,
     clearSelection,
-  } = useMessages(conversations)
+    sendMessage,
+    removeConversation,
+  } = useMessages({ initialRecipientId })
 
   const labels = {
     empty: t('pages.messages.empty'),
@@ -23,17 +31,16 @@ export default function MessagesView({ conversations }) {
     noConversationSelected: t('pages.messages.noConversationSelected'),
     messagePlaceholder: t('pages.messages.messagePlaceholder'),
     back: t('pages.messages.backToConversations'),
-    call: t('pages.messages.call'),
-    videoCall: t('pages.messages.videoCall'),
     attach: t('pages.messages.attachFile'),
     send: t('pages.messages.send'),
   }
 
   return (
-    <main className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
-      <div className="flex min-h-full w-full flex-col">
-        <div className="hidden min-h-[calc(100vh-1.5rem)] overflow-hidden border-x border-[var(--color-border)] bg-[var(--color-bg-primary)] sm:flex">
-          <aside className="flex w-[320px] flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
+    <main className="flex h-full flex-col bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
+      <div className="flex h-full w-full flex-col">
+        {/* Desktop */}
+        <div className="hidden flex-1 overflow-hidden border-x border-[var(--color-border)] bg-[var(--color-bg-primary)] sm:flex">
+          <aside className="flex w-[320px] shrink-0 flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] lg:w-[360px]">
             <ConversationList
               searchId="messages-search-desktop"
               searchQuery={searchQuery}
@@ -42,12 +49,20 @@ export default function MessagesView({ conversations }) {
               conversations={filteredConversations}
               selectedId={selectedId}
               onSelect={selectConversation}
+              onDelete={removeConversation}
+              onNewConversation={() => setNewConvOpen(true)}
+
               emptyLabel={labels.empty}
             />
           </aside>
 
           {selectedConversation ? (
-            <ChatPanel conversation={selectedConversation} labels={labels} />
+            <ChatPanel
+              conversation={selectedConversation}
+              messages={messages}
+              onSendMessage={sendMessage}
+              labels={labels}
+            />
           ) : (
             <section className="flex flex-1 items-center justify-center bg-[var(--color-bg-primary)]">
               <p className="text-sm text-[var(--color-text-secondary)]">{labels.noConversationSelected}</p>
@@ -55,7 +70,8 @@ export default function MessagesView({ conversations }) {
           )}
         </div>
 
-        <div className="sm:hidden">
+        {/* Mobile */}
+        <div className="flex flex-1 flex-col overflow-hidden sm:hidden">
           {!selectedConversation ? (
             <ConversationList
               searchId="messages-search-mobile"
@@ -65,19 +81,30 @@ export default function MessagesView({ conversations }) {
               conversations={filteredConversations}
               selectedId={selectedId}
               onSelect={selectConversation}
+              onDelete={removeConversation}
+              onNewConversation={() => setNewConvOpen(true)}
+
               emptyLabel={labels.empty}
             />
           ) : (
             <ChatPanel
               conversation={selectedConversation}
+              messages={messages}
+              onSendMessage={sendMessage}
               onBack={clearSelection}
               showBackButton
               labels={labels}
-              className="min-h-[calc(100vh-5rem)] border-x border-[var(--color-border)]"
+              className="border-x border-[var(--color-border)]"
             />
           )}
         </div>
       </div>
+
+      <NewConversationModal
+        isOpen={newConvOpen}
+        onClose={() => setNewConvOpen(false)}
+        onSelectUser={(userId) => startNewConversation(userId).catch(() => {})}
+      />
     </main>
   )
 }

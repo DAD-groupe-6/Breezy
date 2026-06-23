@@ -26,6 +26,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followersCount, setFollowersCount] = useState(0)
     const [followingCount, setFollowingCount] = useState(0)
     const [isFollowing, setIsFollowing] = useState(false)
+    const [isMutualFollow, setIsMutualFollow] = useState(false)
     const [followPending, setFollowPending] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
     const [followModalTab, setFollowModalTab] = useState(null)
@@ -62,12 +63,16 @@ export default function ProfileView({ userId, isOwnProfile }) {
             .finally(() => setLoading(false))
     }, [userId])
 
-    // Nombre d'abonnements (suivis) du profil affiché
+    // Nombre d'abonnements (suivis) du profil affiché + check follow mutuel
     useEffect(() => {
         api.get(`/user/${userId}/following`)
-            .then(res => setFollowingCount((res.data.following || []).length))
+            .then(res => {
+                const list = res.data.following || []
+                setFollowingCount(list.length)
+                if (myId) setIsMutualFollow(list.map(String).includes(String(myId)))
+            })
             .catch(() => setFollowingCount(0))
-    }, [userId])
+    }, [userId, myId])
 
     // Détermine si l'utilisateur connecté suit déjà ce profil
     useEffect(() => {
@@ -159,6 +164,8 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         canModerate={canModerate && !isOwnProfile}
                         isBanned={isBanned}
                         onFollow={handleFollow}
+                        canMessage={!isOwnProfile && isFollowing && isMutualFollow}
+                        onMessage={() => router.push(`/messages?with=${userId}`)}
                         onEditProfile={() => setEditOpen(true)}
                         onShowFollowers={() => setFollowModalTab('followers')}
                         onShowFollowing={() => setFollowModalTab('following')}

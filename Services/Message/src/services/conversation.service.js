@@ -32,9 +32,17 @@ async function updateLastMessage(conversationId, content) {
     });
 }
 
+async function deleteConversation(conversationId, userId) {
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) throw new Error("Conversation not found");
+    if (!conversation.participants.includes(userId)) throw new Error("Forbidden");
+    await Conversation.findByIdAndDelete(conversationId);
+}
+
 module.exports = {
     getOrCreateConversation,
     getUserConversations,
     getConversationById,
     updateLastMessage,
+    deleteConversation,
 };
