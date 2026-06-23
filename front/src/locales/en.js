@@ -154,6 +154,44 @@ const en = {
       location: 'Location',
       networkError: 'Network error, please try again',
     },
+    errors: {
+      panelTitle: 'Context',
+      401: {
+        title: 'Unauthorized',
+        description: 'You need to sign in to access this page.',
+        secondaryLabel: 'Sign in',
+        panelLine1: '401: authentication is required to continue.',
+        panelLine2: 'Sign in with a valid account to resume browsing.',
+      },
+      403: {
+        title: 'Access denied',
+        description: 'Your account does not have access to this page right now.',
+        secondaryLabel: 'Sign in',
+        panelLine1: '403: the account is banned or does not have the required permissions.',
+        panelLine2: 'Refreshing after an unban may be enough to restore access.',
+      },
+      404: {
+        title: 'Page not found',
+        description: 'The requested page does not exist or has been moved.',
+        secondaryLabel: 'Back to home',
+        panelLine1: '404: the URL is incorrect or the content has been removed.',
+        panelLine2: 'Check the address or return home to keep going.',
+      },
+      429: {
+        title: 'Too many requests',
+        description: 'The server is receiving too many requests. Try again in a moment.',
+        secondaryLabel: 'Try again',
+        panelLine1: '429: the request limit has been reached temporarily.',
+        panelLine2: 'Waiting a few seconds usually lets you retry.',
+      },
+      500: {
+        title: 'Server error',
+        description: 'An internal error is preventing the page from loading.',
+        secondaryLabel: 'Reload page',
+        panelLine1: '500: the server encountered an unexpected problem.',
+        panelLine2: 'Try reloading later if the issue persists.',
+      },
+    },
   },
 
   profile: {

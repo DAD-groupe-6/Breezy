@@ -154,6 +154,44 @@ const fr = {
       location: 'Lieu',
       networkError: 'Erreur réseau, réessaie plus tard',
     },
+    errors: {
+      panelTitle: 'Contexte',
+      401: {
+        title: 'Non autorisé',
+        description: 'Vous devez vous connecter pour accéder à cette page.',
+        secondaryLabel: 'Se connecter',
+        panelLine1: '401 : une authentification est requise pour continuer.',
+        panelLine2: 'Connectez-vous avec un compte valide pour reprendre la navigation.',
+      },
+      403: {
+        title: 'Accès refusé',
+        description: 'Votre compte n’a pas accès à cette page pour le moment.',
+        secondaryLabel: 'Se connecter',
+        panelLine1: '403 : le compte est banni ou ne possède pas les droits requis.',
+        panelLine2: 'Rafraîchir la page après un déban peut suffire à rétablir l’accès.',
+      },
+      404: {
+        title: 'Page introuvable',
+        description: 'La page demandée n’existe pas ou a été déplacée.',
+        secondaryLabel: 'Retour à l’accueil',
+        panelLine1: '404 : l’URL est incorrecte ou le contenu a été supprimé.',
+        panelLine2: 'Vérifiez l’adresse ou revenez à l’accueil pour repartir.',
+      },
+      429: {
+        title: 'Trop de requêtes',
+        description: 'Le serveur reçoit trop de demandes. Réessayez dans quelques instants.',
+        secondaryLabel: 'Réessayer',
+        panelLine1: '429 : la limite de requêtes a été dépassée temporairement.',
+        panelLine2: 'Attendre quelques secondes permet généralement de réessayer.',
+      },
+      500: {
+        title: 'Erreur serveur',
+        description: 'Une erreur interne empêche le chargement de la page.',
+        secondaryLabel: 'Recharger la page',
+        panelLine1: '500 : le serveur a rencontré un problème inattendu.',
+        panelLine2: 'Rechargez la page un peu plus tard si le problème persiste.',
+      },
+    },
   },
 
   profile: {
