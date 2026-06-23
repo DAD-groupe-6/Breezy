@@ -1,60 +1,56 @@
 const axios = require("axios");
 const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
+const { parsePage, slicePage } = require("../utils/pagination.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
-const DEFAULT_LIMIT = 20;
+const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 
-async function getRecommendedPosts(userId, { limit } = {}) {
-    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
+async function getRecommendedPosts(userId, { limit, page } = {}) {
+    const { safeLimit, skip } = parsePage({ limit, page }, DEFAULT_LIMIT, MAX_LIMIT);
 
-    try {
-        const followingResponse = await axios.get(
-            `${USER_SERVICE_URL}/api/v1/user/${userId}/following`,
-            { headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET }, timeout: 5000 }
-        );
-        const followingUsers = followingResponse.data.following || [];
+    const followingResponse = await axios.get(
+        `${USER_SERVICE_URL}/api/v1/user/${userId}/following`,
+        { headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET }, timeout: 5000 }
+    );
+    const followingUsers = followingResponse.data.following || [];
+    const followedUserIds = followingUsers.map(String);
+    const excludedIds = [...followedUserIds, String(userId)];
 
-        // 1. Posts des comptes suivis (que de vrais posts, pas les commentaires)
-        let posts = [];
-        if (followingUsers.length > 0) {
-            posts = await Post.find({
-                type: "post",
-                id_user: { $in: followingUsers.map(String) },
-            })
-                .sort({ createdAt: -1, _id: -1 })
-                .limit(safeLimit);
-        }
+    // Nombre total de posts des comptes suivis (nécessaire pour calculer le skip du complément)
+    const followedCount = followedUserIds.length > 0
+        ? await Post.countDocuments({ type: "post", id_user: { $in: followedUserIds } })
+        : 0;
 
-        // 2. Complement avec d'autres comptes si on n'a pas atteint la limite
-        if (posts.length < safeLimit) {
-            const followedIds = [...followingUsers.map(String), String(userId)];
-            const randomPosts = await Post.find({
-                type: "post",
-                id_user: { $nin: followedIds },
-            })
-                .sort({ createdAt: -1, _id: -1 })
-                .limit(safeLimit - posts.length);
-            posts = [...posts, ...randomPosts];
-        }
+    let posts = [];
 
-        return { posts: posts.map((post) => toView(post, userId)) };
-    } catch (err) {
-        // Utilisateur inconnu cote user-service : on renvoie un feed generique
-        if (err.response?.status === 404) {
-            const posts = await Post.find({
-                type: "post",
-                id_user: { $nin: [String(userId)] },
-            })
-                .sort({ createdAt: -1, _id: -1 })
-                .limit(safeLimit);
-            return { posts: posts.map((post) => toView(post, userId)) };
-        }
-        throw new Error(`Failed to fetch recommendations: ${err.message}`);
+    // 1. Posts des comptes suivis (paginés)
+    if (followedUserIds.length > 0 && skip < followedCount) {
+        posts = await Post.find({ type: "post", id_user: { $in: followedUserIds } })
+            .sort({ createdAt: -1, _id: -1 })
+            .skip(skip)
+            .limit(safeLimit + 1);
     }
+
+    // 2. Complément avec d'autres posts si la page n'est pas pleine
+    if (posts.length <= safeLimit) {
+        const followedOnPage = Math.min(posts.length, safeLimit);
+        const complementSkip = Math.max(0, skip - followedCount);
+        const complementLimit = safeLimit - followedOnPage + 1;
+
+        const complement = await Post.find({ type: "post", id_user: { $nin: excludedIds } })
+            .sort({ createdAt: -1, _id: -1 })
+            .skip(complementSkip)
+            .limit(complementLimit);
+
+        posts = [...posts.slice(0, safeLimit), ...complement];
+    }
+
+    const { items, hasMore } = slicePage(posts, safeLimit);
+    return { posts: items.map((post) => toView(post, userId)), hasMore };
 }
 
 module.exports = {

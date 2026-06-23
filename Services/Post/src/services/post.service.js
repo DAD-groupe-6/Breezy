@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
 const { extractTags } = require("../utils/tags.util");
+const { parsePage, slicePage } = require("../utils/pagination.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
@@ -159,9 +160,7 @@ async function addComment(targetId, userId, content) {
 // OU réponses d'un commentaire : même mécanique). Calqué sur getUserPosts.
 async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     await getPostById(parentId); // 404 si le parent n'existe pas
-    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
-    const safePage = Math.max(Number(page) || 1, 1);
-    const skip = (safePage - 1) * safeLimit;
+    const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
     // Réponses : "asc" (chronologique, nouvelles en bas) ; commentaires : "desc" (récents en haut).
     const sortDir = order === "asc" ? 1 : -1;
 
@@ -170,8 +169,7 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
         .skip(skip)
         .limit(safeLimit + 1);
 
-    const hasMore = found.length > safeLimit;
-    const pageComments = hasMore ? found.slice(0, safeLimit) : found;
+    const { items: pageComments, hasMore } = slicePage(found, safeLimit);
 
     // Résout l'auteur des cibles "reply_to" (-> id_user) en UNE requête, pour
     // afficher "↳ @pseudo" sans surcoût côté front.
@@ -205,48 +203,42 @@ async function deleteComment(parentId, commentId, userId, canModerate = false) {
 }
 
 // Recherche
-async function searchByContent(keywords, viewerId) {
+async function searchByContent(keywords, viewerId, { page, limit } = {}) {
     if (!keywords || !keywords.trim()) {
         throw new Error("Keywords are required");
     }
-    // Créer une regex pour chercher les mots-clés (insensible à la casse)
+    const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
     const regex = new RegExp(keywords, "i");
-    const posts = await Post.find({
-        content: regex,
-        type: "post",
-    }).sort({ createdAt: -1 }).limit(10);
-    return posts.map((post) => toView(post, viewerId));
-}
-
-async function searchByTag(tag, viewerId) {
-    if (!tag || !tag.trim()) {
-        throw new Error("Tag is required");
-    }
-    const trimmedTag = tag.trim();
-    const posts = await Post.find({
-        list_tags: trimmedTag,
-        type: "post",
-    }).sort({ createdAt: -1 }).limit(10);
-    return posts.map((post) => toView(post, viewerId));
-}
-
-async function getUserPosts(userId, { page, limit } = {}) {
-    const safeLimit = Math.min(Number(limit) || DEFAULT_LIMIT, MAX_LIMIT);
-    const safePage = Math.max(Number(page) || 1, 1);
-    const skip = (safePage - 1) * safeLimit;
-
-    const posts = await Post.find({ id_user: String(userId), type: "post" })
+    const found = await Post.find({ content: regex, type: "post" })
         .sort({ createdAt: -1, _id: -1 })
         .skip(skip)
         .limit(safeLimit + 1);
+    const { items, hasMore } = slicePage(found, safeLimit);
+    return { posts: items.map((post) => toView(post, viewerId)), hasMore };
+}
 
-    const hasMore = posts.length > safeLimit;
-    const pagePosts = hasMore ? posts.slice(0, safeLimit) : posts;
+async function searchByTag(tag, viewerId, { page, limit } = {}) {
+    if (!tag || !tag.trim()) {
+        throw new Error("Tag is required");
+    }
+    const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
+    const found = await Post.find({ list_tags: tag.trim(), type: "post" })
+        .sort({ createdAt: -1, _id: -1 })
+        .skip(skip)
+        .limit(safeLimit + 1);
+    const { items, hasMore } = slicePage(found, safeLimit);
+    return { posts: items.map((post) => toView(post, viewerId)), hasMore };
+}
 
-    return {
-        posts: pagePosts.map((post) => toView(post, userId)),
-        hasMore,
-    };
+async function getUserPosts(userId, { page, limit } = {}) {
+    const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
+    const query = { id_user: String(userId), type: "post" };
+    const [found, total] = await Promise.all([
+        Post.find(query).sort({ createdAt: -1, _id: -1 }).skip(skip).limit(safeLimit + 1),
+        Post.countDocuments(query),
+    ]);
+    const { items, hasMore } = slicePage(found, safeLimit);
+    return { posts: items.map((post) => toView(post, userId)), hasMore, total };
 }
 
 module.exports = {

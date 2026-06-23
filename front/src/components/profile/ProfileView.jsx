@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { jwtDecode } from 'jwt-decode'
 import api from '@/utils/api'
@@ -9,7 +9,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader'
 import EditProfileModal from '@/components/profile/EditProfileModal'
 import FollowListModal from '@/components/profile/FollowListModal'
 import Post from '@/components/post/Post'
-import LoadMoreButton from '@/components/post/LoadMoreButton'
+import ScrollToTopButton from '@/components/post/ScrollToTopButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
@@ -26,7 +26,19 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followPending, setFollowPending] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
     const [followModalTab, setFollowModalTab] = useState(null)
-    const { posts, hasMore, loading: postsLoading, loadMore, removePost } = useUserPosts(userId)
+    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId)
+    const sentinelRef = useRef(null)
+
+    useEffect(() => {
+        const sentinel = sentinelRef.current
+        if (!sentinel) return
+        const observer = new IntersectionObserver(
+            ([entry]) => { if (entry.isIntersecting && hasMore && !postsLoading) loadMore() },
+            { threshold: 0.1 }
+        )
+        observer.observe(sentinel)
+        return () => observer.disconnect()
+    }, [hasMore, postsLoading, loadMore])
 
     // Id de l'utilisateur connecté (depuis le JWT)
     const token = getToken()
@@ -103,6 +115,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         username={user.pseudo_uniq}
                         bio={user.bio}
                         imageUrl={user.img_profile}
+                        postsCount={postsCount}
                         followersCount={followersCount}
                         followingCount={followingCount}
                         isOwnProfile={isOwnProfile}
@@ -136,7 +149,9 @@ export default function ProfileView({ userId, isOwnProfile }) {
                             </p>
                         )}
 
-                        {hasMore && <LoadMoreButton onClick={loadMore} />}
+                        <div ref={sentinelRef} className="py-2 text-center text-sm text-[var(--color-text-secondary)]">
+                            {postsLoading && t('common.loading')}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,6 +165,8 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     onSaved={(updated) => setUser(updated)}
                 />
             )}
+
+            <ScrollToTopButton onReset={resetPosts} />
 
             <FollowListModal
                 isOpen={followModalTab !== null}

@@ -2,9 +2,10 @@ const RecommendationService = require("../services/recommendation.service");
 
 async function getRecommendedPosts(req, res) {
     try {
-        const { limit } = req.query;
+        const { limit, page } = req.query;
         const result = await RecommendationService.getRecommendedPosts(req.user.id, {
             limit,
+            page,
         });
         res.status(200).json(result);
     } catch (err) {
