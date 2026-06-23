@@ -69,12 +69,33 @@ async function searchUsersByPseudo(req, res) {
     }
 }
 
+async function banUser(req, res) {
+    try {
+        const { durationDays } = req.body;
+        const result = await UserService.banUser(req.params.id, durationDays ?? null);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
+async function unbanUser(req, res) {
+    try {
+        const result = await UserService.unbanUser(req.params.id);
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(404).json({ message: err.message });
+    }
+}
+
 module.exports = {
     createUser,
     getUser,
     updateUser,
     deleteUser,
     reportUser,
+    banUser,
+    unbanUser,
     searchUsersByPseudo,
     getSuggestions,
 };

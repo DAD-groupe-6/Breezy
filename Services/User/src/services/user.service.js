@@ -111,12 +111,33 @@ async function searchUsersByPseudo(pseudo_uniq) {
     });
     return users;
 }
+async function banUser(id_user, durationDays) {
+    const user = await User.findByPk(id_user);
+    if (!user) throw new Error("User not found");
+    const bannedUntil = durationDays === null
+        ? new Date('9999-12-31')
+        : new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000);
+    user.banned_until = bannedUntil;
+    await user.save();
+    return { id_user: user.id_user, banned_until: user.banned_until };
+}
+
+async function unbanUser(id_user) {
+    const user = await User.findByPk(id_user);
+    if (!user) throw new Error("User not found");
+    user.banned_until = null;
+    await user.save();
+    return { id_user: user.id_user, banned_until: null };
+}
+
 module.exports = {
     createUser,
     getUser,
     updateUser,
     deleteUser,
     reportUser,
+    banUser,
+    unbanUser,
     searchUsersByPseudo,
     getSuggestions,
 };

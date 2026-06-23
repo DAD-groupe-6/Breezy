@@ -179,6 +179,26 @@ const en = {
     postDeleteError: 'Unable to delete this post',
     likeError: 'Action failed, please try again',
     followError: 'Action failed, please try again',
+    banSuccess: 'User banned successfully',
+    unbanSuccess: 'Ban lifted successfully',
+    banError: 'Error while banning user',
+    unbanError: 'Error while lifting ban',
+  },
+
+  moderation: {
+    ban: 'Ban',
+    unban: 'Lift ban',
+    banUser: 'Ban this user',
+    banAuthor: 'Ban author',
+    selectDuration: 'Choose ban duration',
+    duration1d: '1 day',
+    duration7d: '7 days',
+    duration30d: '30 days',
+    duration90d: '90 days',
+    permanent: 'Permanent',
+    banConfirm: 'Ban',
+    cancel: 'Cancel',
+    banning: 'Banning...',
   },
 
   comments: {

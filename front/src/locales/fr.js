@@ -179,6 +179,26 @@ const fr = {
     postDeleteError: 'Impossible de supprimer ce post',
     likeError: 'Action impossible, réessaie',
     followError: 'Action impossible, réessaie',
+    banSuccess: 'Utilisateur banni avec succès',
+    unbanSuccess: 'Ban levé avec succès',
+    banError: 'Erreur lors du bannissement',
+    unbanError: 'Erreur lors de la levée du ban',
+  },
+
+  moderation: {
+    ban: 'Bannir',
+    unban: 'Lever le ban',
+    banUser: 'Bannir cet utilisateur',
+    banAuthor: "Bannir l'auteur",
+    selectDuration: 'Choisir la durée du ban',
+    duration1d: '1 jour',
+    duration7d: '7 jours',
+    duration30d: '30 jours',
+    duration90d: '90 jours',
+    permanent: 'Permanent',
+    banConfirm: 'Bannir',
+    cancel: 'Annuler',
+    banning: 'Bannissement...',
   },
 
   comments: {

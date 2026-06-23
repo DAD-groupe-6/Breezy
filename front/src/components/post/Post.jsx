@@ -12,6 +12,8 @@ import { usePostLikes } from '@/hooks/usePostLikes';
 import { useComments } from '@/hooks/useComments';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
+import BanModal from '@/components/moderation/BanModal';
 
 export default function Post({
   postId,
@@ -33,12 +35,16 @@ export default function Post({
   const [showComments, setShowComments] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banPending, setBanPending] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
+  const { user: currentUser } = useAuth();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
+  const canModerate = currentUser?.roleName === 'administrateur' || currentUser?.roleName === 'moderateur';
 
   const handleConfirmDelete = async () => {
     setDeleting(true);
@@ -64,6 +70,19 @@ export default function Post({
       }
     } catch (err) {
       console.error('[Post] Failed to report post', err);
+    }
+  };
+
+  const handleBanAuthor = async (durationDays) => {
+    setBanPending(true);
+    try {
+      await api.post(`/user/${authorId}/ban`, { durationDays });
+      toast.success(t('toasts.banSuccess'));
+      setBanModalOpen(false);
+    } catch {
+      toast.error(t('toasts.banError'));
+    } finally {
+      setBanPending(false);
     }
   };
 
@@ -97,9 +116,11 @@ export default function Post({
 
           <PostMenu
             isMine={isMine}
+            canModerate={canModerate}
             onViewProfile={onViewProfile}
             onReport={handleReportPost}
             onDelete={() => setConfirmOpen(true)}
+            onBanAuthor={() => setBanModalOpen(true)}
           />
         </div>
 
@@ -149,6 +170,13 @@ export default function Post({
         onClose={() => { if (!deleting) setConfirmOpen(false); }}
         loading={deleting}
         danger
+      />
+
+      <BanModal
+        isOpen={banModalOpen}
+        onConfirm={handleBanAuthor}
+        onClose={() => setBanModalOpen(false)}
+        loading={banPending}
       />
     </article>
   );
