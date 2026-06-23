@@ -61,7 +61,8 @@ export function useUserPosts(userId) {
   }, [fetchPage])
 
   const loadMore = () => fetchPage(page + 1)
+  const refresh = () => fetchPage(1)
   const removePost = (id) => setPosts((prev) => prev.filter((p) => p.postId !== id))
 
-  return { posts, hasMore, loading, loadMore, removePost }
+  return { posts, hasMore, loading, loadMore, refresh, removePost }
 }

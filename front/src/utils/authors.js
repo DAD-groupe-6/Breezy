@@ -2,6 +2,15 @@ import api from '@/utils/api'
 
 const cache = {}
 
+export function cacheAuthor(authorId, data) {
+  if (authorId == null || !data) return
+  cache[authorId] = data
+}
+
+export function invalidateAuthor(authorId) {
+  delete cache[authorId]
+}
+
 export async function resolveAuthor(authorId) {
   if (cache[authorId]) return cache[authorId]
   try {

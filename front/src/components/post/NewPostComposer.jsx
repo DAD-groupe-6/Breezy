@@ -5,9 +5,9 @@ import { useRouter } from 'next/navigation'
 import { FiImage, FiVideo, FiX } from 'react-icons/fi'
 import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
-import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
+import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 import Avatar from '@/components/user/Avatar'
 import Button from '@/components/ui/Button'
 
@@ -18,25 +18,13 @@ export default function NewPostComposer() {
   const router = useRouter()
   const { t } = useTranslation()
   const toast = useToast()
+  const { profile } = useCurrentProfile()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFiles, setSelectedFiles] = useState([])
   const [loading, setLoading] = useState(false)
-  const [author, setAuthor] = useState(null)
   const imageInputRef = useRef(null)
   const videoInputRef = useRef(null)
-
-  useEffect(() => {
-    const userId = getCurrentUserId()
-    if (!userId) {
-      setAuthor(null)
-      return
-    }
-
-    api.get(`/user/${userId}`)
-      .then((res) => setAuthor(res.data))
-      .catch(() => setAuthor(null))
-  }, [])
 
   // Aperçus locaux des fichiers choisis (avant upload). On libère les URLs au changement.
   const previews = useMemo(
@@ -129,7 +117,7 @@ export default function NewPostComposer() {
         <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4 md:p-6">
           <div className="flex items-start gap-3">
             <div className="shrink-0">
-              <Avatar imageUrl={author?.img_profile || null} size={44} />
+              <Avatar imageUrl={profile?.img_profile || null} size={44} />
             </div>
 
             <div className="w-full">

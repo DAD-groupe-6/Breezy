@@ -154,6 +154,7 @@ const en = {
     optionsAriaLabel: 'Profile options',
     editModal: {
       title: 'Edit profile',
+      changePhoto: 'Change photo',
       pseudoLabel: 'Display name',
       bioLabel: 'Bio',
       pseudoInvalid:

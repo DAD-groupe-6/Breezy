@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import api from '@/utils/api'
 import { useTranslation } from '@/hooks/useTranslation'
+import Avatar from '@/components/user/Avatar'
 
 const NAME_REGEX = /^[\p{L}\p{N} _-]+$/u
 
@@ -10,15 +11,29 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
     const { t } = useTranslation()
     const [pseudo, setPseudo] = useState('')
     const [bio, setBio] = useState('')
+    const [avatarFile, setAvatarFile] = useState(null)
+    const [avatarPreview, setAvatarPreview] = useState(null)
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState(null)
+    const fileInputRef = useRef(null)
 
     useEffect(() => {
         if (user) {
             setPseudo(user.pseudo || '')
             setBio(user.bio || '')
+            setAvatarFile(null)
         }
     }, [user, isOpen])
+
+    useEffect(() => {
+        if (!avatarFile) {
+            setAvatarPreview(null)
+            return
+        }
+        const url = URL.createObjectURL(avatarFile)
+        setAvatarPreview(url)
+        return () => URL.revokeObjectURL(url)
+    }, [avatarFile])
 
     if (!isOpen) return null
 
@@ -33,15 +48,25 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
         validationMessage = t('profile.editModal.pseudoRequired')
     }
 
+    const handleAvatarChange = (e) => {
+        const file = e.target.files?.[0]
+        if (file && file.type.startsWith('image/')) setAvatarFile(file)
+        e.target.value = '' // permet de re-sélectionner le même fichier
+    }
+
     const handleSave = async () => {
         if (!isValid) return
         setSaving(true)
         setError(null)
         try {
-            const { data } = await api.put(`/user/${user.id_user}`, {
-                pseudo: trimmedPseudo,
-                bio: bio.trim(),
-            })
+            const payload = { pseudo: trimmedPseudo, bio: bio.trim() }
+            if (avatarFile) {
+                const formData = new FormData()
+                formData.append('image', avatarFile)
+                const { data: media } = await api.post('/media', formData)
+                payload.img_profile = media.url
+            }
+            const { data } = await api.put(`/user/${user.id_user}`, payload)
             onSaved?.(data)
             onClose()
         } catch (err) {
@@ -60,6 +85,25 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 <h2 className="text-lg font-bold mb-4" style={{ color: 'var(--color-text-title)' }}>
                     {t('profile.editModal.title')}
                 </h2>
+
+                <div className="flex flex-col items-center gap-2 mb-4">
+                    <Avatar imageUrl={avatarPreview || user?.img_profile || null} size={88} />
+                    <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="text-sm font-semibold cursor-pointer"
+                        style={{ color: 'var(--color-text-title)' }}
+                    >
+                        {t('profile.editModal.changePhoto')}
+                    </button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarChange}
+                    />
+                </div>
 
                 <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
                     {t('profile.editModal.pseudoLabel')}

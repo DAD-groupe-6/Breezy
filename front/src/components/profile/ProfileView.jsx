@@ -11,13 +11,16 @@ import FollowListModal from '@/components/profile/FollowListModal'
 import Post from '@/components/post/Post'
 import LoadMoreButton from '@/components/post/LoadMoreButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
+import { cacheAuthor } from '@/utils/authors'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
+import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 
 export default function ProfileView({ userId, isOwnProfile }) {
     const router = useRouter()
     const { t } = useTranslation()
     const toast = useToast()
+    const { setProfile } = useCurrentProfile()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [followersCount, setFollowersCount] = useState(0)
@@ -26,7 +29,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followPending, setFollowPending] = useState(false)
     const [editOpen, setEditOpen] = useState(false)
     const [followModalTab, setFollowModalTab] = useState(null)
-    const { posts, hasMore, loading: postsLoading, loadMore, removePost } = useUserPosts(userId)
+    const { posts, hasMore, loading: postsLoading, loadMore, refresh: refreshPosts, removePost } = useUserPosts(userId)
 
     // Id de l'utilisateur connecté (depuis le JWT)
     const token = getToken()
@@ -147,7 +150,15 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     isOpen={editOpen}
                     onClose={() => setEditOpen(false)}
                     user={user}
-                    onSaved={(updated) => setUser(updated)}
+                    onSaved={(updated) => {
+                        setUser(updated)
+                        // Mon propre profil a changé → on resynchronise la sidebar / le composer.
+                        if (isOwnProfile) setProfile(updated)
+                        // Le cache des auteurs (utilisé par les avatars des posts) doit refléter
+                        // la nouvelle img_profile, sinon les posts gardent l'ancienne photo.
+                        cacheAuthor(updated.id_user, updated)
+                        refreshPosts()
+                    }}
                 />
             )}
 
