@@ -17,10 +17,14 @@ export default function ProfileHeader({
   isOwnProfile = false,
   isFollowing = false,
   followPending = false,
+  canModerate = false,
+  isBanned = false,
   onFollow,
   onEditProfile,
   onShowFollowers,
   onShowFollowing,
+  onBan,
+  onUnban,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
@@ -84,14 +88,25 @@ export default function ProfileHeader({
                 )}
               </div>
             ) : (
-              /* Bouton Suivre pour le visiteur */
-              <Button
-                variant={isFollowing ? 'secondary' : 'primary'}
-                onClick={onFollow}
-                disabled={followPending}
-              >
-                {isFollowing ? t('profile.following') : t('profile.follow')}
-              </Button>
+              /* Boutons visiteur : Suivre + éventuellement Bannir */
+              <div className="flex items-center gap-[var(--space-xs)]">
+                {canModerate && (
+                  <Button
+                    variant="secondary"
+                    onClick={isBanned ? onUnban : onBan}
+                    style={isBanned ? undefined : { borderColor: '#e11d48', color: '#e11d48' }}
+                  >
+                    {isBanned ? t('moderation.unban') : t('moderation.ban')}
+                  </Button>
+                )}
+                <Button
+                  variant={isFollowing ? 'secondary' : 'primary'}
+                  onClick={onFollow}
+                  disabled={followPending}
+                >
+                  {isFollowing ? t('profile.following') : t('profile.follow')}
+                </Button>
+              </div>
             )}
           </div>
         </div>

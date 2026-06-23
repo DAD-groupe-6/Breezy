@@ -13,5 +13,7 @@ router.get("/:id", optionalAuthenticate, requirePermission("view_profile"), User
 router.put("/:id", optionalAuthenticate, requirePermission("view_profile"), UserController.updateUser);
 router.delete("/:id", optionalAuthenticate, requirePermission("moderate_users"), UserController.deleteUser);
 router.post("/:id/report", optionalAuthenticate, requirePermission("report_content"), UserController.reportUser);
+router.post("/:id/ban",    optionalAuthenticate, requirePermission("moderate_users"), UserController.banUser);
+router.post("/:id/unban",  optionalAuthenticate, requirePermission("moderate_users"), UserController.unbanUser);
 
 module.exports = router;
