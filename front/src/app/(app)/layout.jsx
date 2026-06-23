@@ -8,7 +8,7 @@ export default function AppLayout({ children }) {
       <Sidebar />
       <main className="flex flex-1 flex-col bg-[var(--color-bg-primary)] pb-16 md:pb-0">
         <AppTopNavbar />
-        <div className="flex-1">{children}</div>
+        <div className="min-h-0 flex-1">{children}</div>
       </main>
       <NavbarMobile />
     </div>

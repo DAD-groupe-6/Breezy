@@ -1,4 +1,5 @@
 const Conversation = require("../models/conversation.model");
+const Message = require("../models/message.model");
 
 async function getOrCreateConversation(userId, recipientId) {
     const sorted = [userId, recipientId].sort();
@@ -15,7 +16,19 @@ async function getOrCreateConversation(userId, recipientId) {
 }
 
 async function getUserConversations(userId) {
-    return Conversation.find({ participants: userId }).sort({ lastMessageAt: -1 });
+    const conversations = await Conversation.find({ participants: userId })
+        .sort({ lastMessageAt: -1 });
+
+    return Promise.all(
+        conversations.map(async (conv) => {
+            const unreadCount = await Message.countDocuments({
+                conversationId: conv._id,
+                senderId: { $ne: userId },
+                readAt: null,
+            });
+            return { ...conv.toObject(), unreadCount };
+        })
+    );
 }
 
 async function getConversationById(conversationId, userId) {

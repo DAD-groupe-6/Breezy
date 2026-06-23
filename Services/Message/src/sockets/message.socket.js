@@ -1,5 +1,5 @@
 const { verifyToken } = require("../utils/jwt.util");
-const { createMessage } = require("../services/message.service");
+const { createMessage, markAsRead } = require("../services/message.service");
 const { getConversationById } = require("../services/conversation.service");
 const logger = require("../logger");
 
@@ -19,16 +19,39 @@ function registerSocketHandlers(io) {
         const userId = String(socket.user.id);
         logger.info(`User ${userId} connected via WebSocket`);
 
-        // Each user joins their personal room to receive notifications
         socket.join(`user:${userId}`);
 
         socket.on("join_conversation", (conversationId) => {
             socket.join(conversationId);
             logger.info(`User ${userId} joined conversation ${conversationId}`);
+
+            // Notifie les autres participants que ce user a lu la conversation
+            socket.to(conversationId).emit("messages_read", {
+                conversationId,
+                readAt: new Date(),
+            });
         });
 
         socket.on("leave_conversation", (conversationId) => {
             socket.leave(conversationId);
+        });
+
+        // Marque les messages reçus comme lus alors que la conversation est
+        // déjà ouverte (un message arrivé en direct n'est plus "non lu") et
+        // notifie l'expéditeur pour basculer ses messages en ✓✓.
+        socket.on("mark_read", async ({ conversationId }) => {
+            try {
+                if (!conversationId) return;
+                await getConversationById(conversationId, userId);
+                await markAsRead(conversationId, userId);
+
+                socket.to(conversationId).emit("messages_read", {
+                    conversationId,
+                    readAt: new Date(),
+                });
+            } catch (err) {
+                socket.emit("error", { message: err.message });
+            }
         });
 
         socket.on("send_message", async ({ conversationId, content }) => {
@@ -38,11 +61,8 @@ function registerSocketHandlers(io) {
                 const conversation = await getConversationById(conversationId, userId);
                 const message = await createMessage(conversationId, userId, content.trim());
 
-                // Notify users already in the conversation room
                 io.to(conversationId).emit("message_received", message);
 
-                // Also notify each participant via their personal room
-                // (covers the case where the recipient hasn't joined the room yet)
                 for (const participantId of conversation.participants) {
                     io.to(`user:${String(participantId)}`).emit("message_received", message);
                 }

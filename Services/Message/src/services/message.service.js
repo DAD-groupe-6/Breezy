@@ -9,8 +9,11 @@ async function createMessage(conversationId, senderId, content) {
 
 async function getMessages(conversationId, page = 1, limit = 50) {
     const skip = (page - 1) * limit;
+    // Tri décroissant : la page 1 renvoie les messages les plus récents, les
+    // pages suivantes les plus anciens (scroll infini inversé). Le front
+    // ré-inverse chaque page pour un affichage chronologique.
     return Message.find({ conversationId })
-        .sort({ createdAt: 1 })
+        .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
 }

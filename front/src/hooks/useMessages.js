@@ -29,12 +29,15 @@ function formatTime(dateStr) {
   return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
 }
 
+const MESSAGES_PAGE_SIZE = 50
+
 function normalizeMessage(msg, myId) {
   return {
     id: msg._id,
     from: String(msg.senderId) === String(myId) ? 'me' : 'them',
     text: msg.content,
     time: formatTime(msg.createdAt),
+    readAt: msg.readAt || null,
   }
 }
 
@@ -52,6 +55,7 @@ async function enrichConversation(conv, myId) {
     preview: conv.lastMessage || '',
     time: formatTime(conv.lastMessageAt),
     recipientId: otherId,
+    unreadCount: conv.unreadCount || 0,
   }
 }
 
@@ -68,16 +72,19 @@ export function useMessages({ initialRecipientId } = {}) {
   const [conversations, setConversations] = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [messages, setMessages] = useState([])
-  const [searchQuery, setSearchQuery] = useState('')
   const [loadingConversations, setLoadingConversations] = useState(true)
   const [loadingMessages, setLoadingMessages] = useState(false)
+  const [hasMoreMessages, setHasMoreMessages] = useState(false)
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
 
   const socketRef = useRef(null)
   const selectedIdRef = useRef(null)
   const myIdRef = useRef(myId)
   myIdRef.current = myId
+  const messagesPageRef = useRef(1)
+  const loadingOlderRef = useRef(false)
 
-  // Load conversations on mount
+  // Chargement des conversations au montage
   useEffect(() => {
     if (!myId) return
     setLoadingConversations(true)
@@ -91,44 +98,72 @@ export function useMessages({ initialRecipientId } = {}) {
       .finally(() => setLoadingConversations(false))
   }, [myId])
 
-  // Socket.io connection
+  // Connexion socket.io
   useEffect(() => {
     if (!token) return
     const socket = createMessageSocket()
 
     socket.on('message_received', (msg) => {
       const normalized = normalizeMessage(msg, myIdRef.current)
+      const isActive = selectedIdRef.current && String(msg.conversationId) === String(selectedIdRef.current)
+      const isFromMe = normalized.from === 'me'
 
-      // Append to messages if this is the active conversation (deduplicate)
-      if (selectedIdRef.current && String(msg.conversationId) === String(selectedIdRef.current)) {
+      // Ajouter aux messages si la conv est active (déduplique)
+      if (isActive) {
         setMessages((prev) => {
           if (prev.some((m) => m.id === normalized.id)) return prev
           return [...prev, normalized]
         })
+
+        // La conversation est déjà ouverte : le message est lu immédiatement.
+        // On le signale au serveur (mise à jour BDD + accusé de lecture pour
+        // l'expéditeur) sans attendre un rechargement de la page.
+        if (!isFromMe) {
+          socket.emit('mark_read', { conversationId: msg.conversationId })
+        }
       }
 
-      // Update preview or add new conversation to list
+      // Mettre à jour l'aperçu et le compteur de non-lus
       setConversations((prev) => {
         const exists = prev.some((c) => String(c.id) === String(msg.conversationId))
         if (!exists) {
-          // New conversation received — fetch and add it
           getConversation(msg.conversationId)
             .then(async (res) => {
               const enriched = await enrichConversation(res.data, myIdRef.current)
               setConversations((prev2) => {
                 if (prev2.some((c) => String(c.id) === String(enriched.id))) return prev2
-                return [{ ...enriched, preview: msg.content, time: formatTime(msg.createdAt) }, ...prev2]
+                return [{
+                  ...enriched,
+                  preview: msg.content,
+                  time: formatTime(msg.createdAt),
+                  unreadCount: isFromMe ? 0 : 1,
+                }, ...prev2]
               })
             })
             .catch(() => {})
           return prev
         }
-        return prev.map((c) =>
-          String(c.id) === String(msg.conversationId)
-            ? { ...c, preview: msg.content, time: formatTime(msg.createdAt) }
-            : c
-        )
+        return prev.map((c) => {
+          if (String(c.id) !== String(msg.conversationId)) return c
+          return {
+            ...c,
+            preview: msg.content,
+            time: formatTime(msg.createdAt),
+            // N'incrémente le compteur que si le message vient de l'autre et que la conv n'est pas active
+            unreadCount: (!isFromMe && !isActive) ? (c.unreadCount || 0) + 1 : c.unreadCount,
+          }
+        })
       })
+    })
+
+    // Quand l'autre participant ouvre la conversation → mes messages sont lus → passer à ✓✓
+    socket.on('messages_read', ({ conversationId }) => {
+      if (String(conversationId) === String(selectedIdRef.current)) {
+        const readAt = new Date().toISOString()
+        setMessages((prev) =>
+          prev.map((m) => (m.from === 'me' && !m.readAt ? { ...m, readAt } : m))
+        )
+      }
     })
 
     socketRef.current = socket
@@ -144,13 +179,24 @@ export function useMessages({ initialRecipientId } = {}) {
     selectedIdRef.current = id
     setMessages([])
     setLoadingMessages(true)
+    messagesPageRef.current = 1
+    setHasMoreMessages(false)
+
+    // Réinitialiser le compteur non-lus localement
+    setConversations((prev) =>
+      prev.map((c) => String(c.id) === id ? { ...c, unreadCount: 0 } : c)
+    )
 
     socketRef.current?.emit('join_conversation', conversationId)
 
-    fetchMessages(conversationId)
+    fetchMessages(conversationId, 1)
       .then((res) => {
-        const msgs = (res.data || []).map((m) => normalizeMessage(m, myIdRef.current))
+        const batch = res.data || []
+        // Le back renvoie la page la plus récente (ordre décroissant) → on
+        // ré-inverse pour afficher du plus ancien au plus récent.
+        const msgs = batch.map((m) => normalizeMessage(m, myIdRef.current)).reverse()
         setMessages(msgs)
+        setHasMoreMessages(batch.length === MESSAGES_PAGE_SIZE)
       })
       .catch(() => setMessages([]))
       .finally(() => setLoadingMessages(false))
@@ -158,7 +204,36 @@ export function useMessages({ initialRecipientId } = {}) {
     markAsRead(conversationId).catch(() => {})
   }, [])
 
-  // Auto-open conversation when ?with= is provided
+  // Charge la page suivante (messages plus anciens) et les ajoute en tête
+  const loadOlderMessages = useCallback(async () => {
+    const conversationId = selectedIdRef.current
+    if (!conversationId || loadingOlderRef.current) return
+    loadingOlderRef.current = true
+    setLoadingOlderMessages(true)
+
+    const nextPage = messagesPageRef.current + 1
+    try {
+      const res = await fetchMessages(conversationId, nextPage)
+      const batch = res.data || []
+      const older = batch.map((m) => normalizeMessage(m, myIdRef.current)).reverse()
+      if (older.length > 0) {
+        setMessages((prev) => {
+          const existing = new Set(prev.map((m) => m.id))
+          const deduped = older.filter((m) => !existing.has(m.id))
+          return [...deduped, ...prev]
+        })
+        messagesPageRef.current = nextPage
+      }
+      setHasMoreMessages(batch.length === MESSAGES_PAGE_SIZE)
+    } catch {
+      // on conserve l'état courant en cas d'échec
+    } finally {
+      loadingOlderRef.current = false
+      setLoadingOlderMessages(false)
+    }
+  }, [])
+
+  // Auto-ouverture depuis ?with=
   useEffect(() => {
     if (!initialRecipientId || !myId) return
     startConversation(initialRecipientId)
@@ -207,15 +282,6 @@ export function useMessages({ initialRecipientId } = {}) {
     setMessages([])
   }, [])
 
-  const normalizedQuery = searchQuery.trim().toLowerCase()
-
-  const filteredConversations = useMemo(() => {
-    if (!normalizedQuery) return conversations
-    return conversations.filter((c) =>
-      `${c.name} ${c.preview}`.toLowerCase().includes(normalizedQuery)
-    )
-  }, [conversations, normalizedQuery])
-
   const selectedConversation = useMemo(
     () => conversations.find((c) => String(c.id) === String(selectedId)) ?? null,
     [conversations, selectedId]
@@ -226,14 +292,15 @@ export function useMessages({ initialRecipientId } = {}) {
     selectedId,
     selectedConversation,
     messages,
-    searchQuery,
-    setSearchQuery,
-    filteredConversations,
+    filteredConversations: conversations,
     selectConversation,
     startNewConversation,
     clearSelection,
     sendMessage,
     removeConversation,
+    loadOlderMessages,
+    hasMoreMessages,
+    loadingOlderMessages,
     loadingConversations,
     loadingMessages,
   }
