@@ -37,6 +37,7 @@ export default function Post({
   const [deleting, setDeleting] = useState(false);
   const [banModalOpen, setBanModalOpen] = useState(false);
   const [banPending, setBanPending] = useState(false);
+  const [isAuthorBanned, setIsAuthorBanned] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
@@ -77,12 +78,23 @@ export default function Post({
     setBanPending(true);
     try {
       await api.post(`/user/${authorId}/ban`, { durationDays });
+      setIsAuthorBanned(true);
       toast.success(t('toasts.banSuccess'));
       setBanModalOpen(false);
     } catch {
       toast.error(t('toasts.banError'));
     } finally {
       setBanPending(false);
+    }
+  };
+
+  const handleUnbanAuthor = async () => {
+    try {
+      await api.post(`/user/${authorId}/unban`);
+      setIsAuthorBanned(false);
+      toast.success(t('toasts.unbanSuccess'));
+    } catch {
+      toast.error(t('toasts.unbanError'));
     }
   };
 
@@ -117,10 +129,12 @@ export default function Post({
           <PostMenu
             isMine={isMine}
             canModerate={canModerate}
+            isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
             onReport={handleReportPost}
             onDelete={() => setConfirmOpen(true)}
             onBanAuthor={() => setBanModalOpen(true)}
+            onUnbanAuthor={handleUnbanAuthor}
           />
         </div>
 
