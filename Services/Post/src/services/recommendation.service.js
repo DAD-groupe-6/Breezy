@@ -2,6 +2,7 @@ const axios = require("axios");
 const Post = require("../models/post.model");
 const { toView } = require("../utils/postView");
 const { parsePage, slicePage } = require("../utils/pagination.util");
+const { likedPostIds } = require("../utils/likes.util");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
@@ -50,7 +51,8 @@ async function getRecommendedPosts(userId, { limit, page } = {}) {
     }
 
     const { items, hasMore } = slicePage(posts, safeLimit);
-    return { posts: items.map((post) => toView(post, userId)), hasMore };
+    const likedSet = await likedPostIds(items.map((p) => p._id), userId);
+    return { posts: items.map((post) => toView(post, likedSet.has(String(post._id)))), hasMore };
 }
 
 module.exports = {
