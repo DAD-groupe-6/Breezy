@@ -3,9 +3,9 @@
 import { FiCheck, FiX, FiInfo } from 'react-icons/fi'
 
 const TYPES = {
-  success: { Icon: FiCheck, title: 'Succès', color: '#22C55E' },
-  error: { Icon: FiX, title: 'Erreur', color: '#F43F5E' },
-  info: { Icon: FiInfo, title: 'Info', color: '#3B82F6' },
+  success: { Icon: FiCheck, title: 'Succès', color: 'var(--color-status-success)' },
+  error: { Icon: FiX, title: 'Erreur', color: 'var(--color-status-error)' },
+  info: { Icon: FiInfo, title: 'Info', color: 'var(--color-status-info)' },
 }
 
 function ToastItem({ toast, onClose }) {
@@ -20,7 +20,7 @@ function ToastItem({ toast, onClose }) {
         className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full"
         style={{ backgroundColor: color }}
       >
-        <Icon size={22} strokeWidth={3} color="#FFFFFF" />
+        <Icon size={22} strokeWidth={3} color="var(--color-status-on-status)" />
       </span>
 
       <div className="flex-1 min-w-0">

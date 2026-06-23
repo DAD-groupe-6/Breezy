@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/providers/LanguageProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
 
@@ -17,9 +18,11 @@ export default function RootLayout({ children }) {
     <html lang="fr" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="h-full">
         <AuthProvider>
-          <LanguageProvider>
-            <ToastProvider>{children}</ToastProvider>
-          </LanguageProvider>
+          <ThemeProvider>
+            <LanguageProvider>
+              <ToastProvider>{children}</ToastProvider>
+            </LanguageProvider>
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>
