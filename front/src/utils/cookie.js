@@ -24,6 +24,28 @@ export function setLang(lang) {
   document.cookie = `${LOCALE_COOKIE}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`
 }
 
+// ============= THEME COOKIE =============
+const THEME_COOKIE = 'breezy-theme'
+
+export function getTheme() {
+  if (typeof document === 'undefined') return null
+  const nameEQ = THEME_COOKIE + '='
+  const cookies = document.cookie.split(';')
+  for (let cookie of cookies) {
+    cookie = cookie.trim()
+    if (cookie.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(cookie.substring(nameEQ.length))
+    }
+  }
+  return null
+}
+
+export function setTheme(theme) {
+  if (typeof document === 'undefined') return
+  const value = encodeURIComponent(theme)
+  document.cookie = `${THEME_COOKIE}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`
+}
+
 // ============= AUTH COOKIE =============
 export function getToken() {
   if (typeof document === 'undefined') return null
