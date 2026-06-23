@@ -1,46 +1,33 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import api from '@/utils/api'
 import Post from '@/components/post/Post'
-import { timeAgo } from '@/utils/time'
-import { resolveAuthor } from '@/utils/authors'
+import ScrollToTopButton from '@/components/post/ScrollToTopButton'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
+import { useRecommendedPosts } from '@/hooks/useRecommendedPosts'
+import { timeAgo } from '@/utils/time'
 
 export default function Home() {
   const router = useRouter()
   const { t, locale } = useTranslation()
   const { user, loading } = useAuth()
-  const [posts, setPosts] = useState([])
-  const [feedLoading, setFeedLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const loadPosts = useCallback(async () => {
-    if (!user?.id) return
-
-    setFeedLoading(true)
-    setError(null)
-    try {
-      const { data } = await api.get(`/post/recommendations/${user.id}`)
-      const enriched = await Promise.all(
-        data.posts.map(async (post) => ({
-          ...post,
-          author: await resolveAuthor(post.id_user),
-        }))
-      )
-      setPosts(enriched)
-    } catch (err) {
-      setError(err.response?.data?.message || t('pages.home.loadError'))
-    } finally {
-      setFeedLoading(false)
-    }
-  }, [user?.id, t])
+  const { posts, hasMore, loading: feedLoading, loadMore, reset, removePost } = useRecommendedPosts(user?.id)
+  const sentinelRef = useRef(null)
 
   useEffect(() => {
-    loadPosts()
-  }, [loadPosts])
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasMore && !feedLoading) loadMore()
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasMore, feedLoading, loadMore])
 
   if (loading) {
     return (
@@ -55,7 +42,7 @@ export default function Home() {
   return (
     <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
       <section className="mx-auto w-full max-w-3xl px-4 py-4">
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+        <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
           {posts.map((post) => (
             <Post
               key={post._id}
@@ -71,28 +58,24 @@ export default function Home() {
               liked={post.likedByMe}
               comments={post.commentsCount}
               onViewProfile={() => router.push(`/profil/${post.id_user}`)}
-              onReport={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
-              onDelete={(id) => setPosts((prev) => prev.filter((p) => p._id !== id))}
+              onReport={removePost}
+              onDelete={removePost}
             />
           ))}
 
-            {loading && (
-                <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
-              {t('pages.home.loading')}
-                </p>
-            )}
-
-            {!loading && error && (
-                <p className="px-4 py-6 text-center text-sm text-rose-500">{error}</p>
-            )}
-
-          {!loading && !error && posts.length === 0 && (
+          {!feedLoading && posts.length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
               {t('pages.home.empty')}
             </p>
           )}
+
+          <div ref={sentinelRef} className="py-2 text-center text-sm text-[var(--color-text-secondary)]">
+            {feedLoading && t('common.loading')}
+          </div>
         </div>
       </section>
+
+      <ScrollToTopButton onReset={reset} />
     </section>
   )
 }
