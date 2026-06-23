@@ -15,6 +15,8 @@ export default function Badge({
     )
   }
 
+  if (!children && !dot) return null
+
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${className}`}
