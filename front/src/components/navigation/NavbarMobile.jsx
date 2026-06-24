@@ -7,7 +7,7 @@ import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus, FaCog } from "re
 import Badge from "@/components/ui/Badge";
 import { useTranslation } from "@/hooks/useTranslation";
 
-export default function NavbarMobile() {
+export default function NavbarMobile({ forceShow = false }) {
   const pathname = usePathname();
   const { t } = useTranslation();
   const [visible, setVisible] = useState(true);
@@ -43,6 +43,10 @@ export default function NavbarMobile() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Sur /messages la barre est rendue depuis la liste des conversations
+  // (avec forceShow) pour ne pas l'afficher par-dessus le fil de discussion.
+  if (!forceShow && pathname === '/messages') return null
 
   return (
     <nav className={`fixed bottom-[var(--space-md)] left-[var(--space-md)] right-[var(--space-md)] z-50 flex h-16 items-center justify-around rounded-[var(--radius-pill)] border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg-surface)_78%,transparent)] shadow-[var(--shadow-lg)] backdrop-blur-xl transition-transform duration-300 sm:hidden ${visible ? "translate-y-0" : "translate-y-32"}`}>

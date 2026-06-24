@@ -91,6 +91,9 @@ const en = {
       videoCall: 'Video call',
       attachFile: 'Attach file',
       send: 'Send',
+      newConversation: 'New conversation',
+      noMutualFollowers: 'No mutual followers yet.',
+      deleteConversation: 'Delete conversation',
     },
     notifications: {
       title: 'Notifications',
@@ -200,6 +203,7 @@ const en = {
     statFollowers: 'Followers',
     follow: 'Follow',
     following: 'Following',
+    message: 'Message',
     editProfile: 'Edit profile',
     changePhoto: 'Change profile picture',
     optionsAriaLabel: 'Profile options',
