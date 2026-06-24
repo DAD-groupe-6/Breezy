@@ -53,7 +53,9 @@ export default function NewPostComposer() {
     try {
       await api.post('/post', { content })
       toast.success(t('toasts.postCreated'))
-      router.push('/')
+      setContent('')
+      setMediaType(null)
+      setSelectedFile(null)
     } catch (err) {
       toast.error(err.response?.data?.message || t('toasts.postCreateError'))
     } finally {
