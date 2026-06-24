@@ -188,9 +188,15 @@ export default function ProfileView({ userId, isOwnProfile }) {
                             </p>
                         )}
 
-                        <div ref={sentinelRef} className="py-2 text-center text-sm text-[var(--color-text-secondary)]">
-                            {postsLoading && t('common.loading')}
-                        </div>
+                        {(postsLoading || hasMore) && (
+                            <div
+                                ref={sentinelRef}
+                                className={`${postsLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
+                                aria-hidden={!postsLoading}
+                            >
+                                {postsLoading ? t('common.loading') : null}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

@@ -69,9 +69,15 @@ export default function Home() {
             </p>
           )}
 
-          <div ref={sentinelRef} className="py-2 text-center text-sm text-[var(--color-text-secondary)]">
-            {feedLoading && t('common.loading')}
-          </div>
+          {(feedLoading || hasMore) && (
+            <div
+              ref={sentinelRef}
+              className={`${feedLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
+              aria-hidden={!feedLoading}
+            >
+              {feedLoading ? t('common.loading') : null}
+            </div>
+          )}
         </div>
       </section>
 
