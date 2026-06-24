@@ -37,6 +37,7 @@ function normalizeMessage(msg, myId) {
     from: String(msg.senderId) === String(myId) ? 'me' : 'them',
     text: msg.content,
     time: formatTime(msg.createdAt),
+    createdAt: msg.createdAt,
     readAt: msg.readAt || null,
   }
 }

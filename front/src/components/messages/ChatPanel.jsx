@@ -6,6 +6,17 @@ import Avatar from '@/components/user/Avatar'
 import ChatBubble from '@/components/messages/ChatBubble'
 import { useTranslation } from '@/hooks/useTranslation'
 
+// Deux messages appartiennent au même groupe s'ils viennent du même expéditeur
+// et sont espacés de moins de 5 minutes.
+const GROUP_GAP_MS = 5 * 60 * 1000
+function sameGroup(prev, next) {
+  if (!prev || !next || prev.from !== next.from) return false
+  const prevTime = new Date(prev.createdAt).getTime()
+  const nextTime = new Date(next.createdAt).getTime()
+  if (Number.isNaN(prevTime) || Number.isNaN(nextTime)) return false
+  return nextTime - prevTime < GROUP_GAP_MS
+}
+
 export default function ChatPanel({
   conversation,
   messages = [],
@@ -130,7 +141,7 @@ export default function ChatPanel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6"
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6"
       >
         <div ref={topSentinelRef} className="h-px" />
         {loadingOlderMessages && (
@@ -138,8 +149,13 @@ export default function ChatPanel({
             {t('common.loading')}
           </p>
         )}
-        {messages.map((message) => (
-          <ChatBubble key={message.id} {...message} />
+        {messages.map((message, i) => (
+          <ChatBubble
+            key={message.id}
+            {...message}
+            isFirstInGroup={!sameGroup(messages[i - 1], message)}
+            isLastInGroup={!sameGroup(message, messages[i + 1])}
+          />
         ))}
       </div>
 
