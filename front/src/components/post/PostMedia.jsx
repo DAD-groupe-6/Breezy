@@ -39,7 +39,7 @@ export default function PostMedia({ images = [] }) {
             <button
               type="button"
               onClick={(e) => go(e, -1)}
-              aria-label="Image précédente"
+              aria-label={t('post.lightbox.prev')}
               className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
             >
               <FiChevronLeft size={20} />
@@ -47,7 +47,7 @@ export default function PostMedia({ images = [] }) {
             <button
               type="button"
               onClick={(e) => go(e, 1)}
-              aria-label="Image suivante"
+              aria-label={t('post.lightbox.next')}
               className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70"
             >
               <FiChevronRight size={20} />
