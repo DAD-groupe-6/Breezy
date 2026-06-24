@@ -3,7 +3,6 @@
 import { useMemo } from 'react'
 import { useTheme } from '@/hooks/useTheme'
 import { useTranslation } from '@/hooks/useTranslation'
-import Badge from '@/components/ui/Badge'
 
 export default function ThemeSelector() {
     const { theme, setTheme, availableThemes } = useTheme()
@@ -35,27 +34,8 @@ export default function ThemeSelector() {
         ].filter((group) => group.themes.length > 0)
     }, [availableThemes, t])
 
-    const currentThemeGroup = useMemo(() => {
-        if (lightThemes.includes(theme)) return t('pages.settings.themeGroupLight')
-        if (darkThemes.includes(theme)) return t('pages.settings.themeGroupDark')
-        return ''
-    }, [theme, t])
-
     return (
         <div className="w-full">
-            <Badge
-                className="mb-2"
-                style={{
-                    backgroundColor: 'var(--color-bg-surface-2)',
-                }}
-                dot
-            >
-                <span style={{ color: 'var(--color-text-secondary)' }}>{t('pages.settings.currentTheme')}</span>
-                <span>·</span>
-                <span>{currentThemeGroup}</span>
-                <span>·</span>
-                <span>{themeLabels[theme] || theme}</span>
-            </Badge>
             <select
                 value={theme}
                 onChange={(e) => setTheme(e.target.value)}
