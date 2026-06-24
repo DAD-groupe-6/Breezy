@@ -44,7 +44,7 @@ function normalizeMessage(msg, myId) {
 
 async function enrichConversation(conv, myId) {
   const otherId = conv.participants.find((p) => String(p) !== String(myId))
-  let otherUser = { pseudo: 'Utilisateur', img_profile: null }
+  let otherUser = { pseudo: 'Utilisateur', pseudo_uniq: null, img_profile: null }
   try {
     const r = await api.get(`/user/${otherId}`)
     otherUser = r.data
@@ -52,6 +52,7 @@ async function enrichConversation(conv, myId) {
   return {
     id: conv._id,
     name: otherUser.pseudo,
+    username: otherUser.pseudo_uniq,
     imageUrl: otherUser.img_profile,
     preview: conv.lastMessage || '',
     time: formatTime(conv.lastMessageAt),

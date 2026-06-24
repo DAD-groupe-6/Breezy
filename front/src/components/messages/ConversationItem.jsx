@@ -4,11 +4,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 
 export default function ConversationItem({ conversation, active, onSelect, onDelete }) {
   const { t } = useTranslation()
-  const username =
-    conversation.name
-      ?.trim()
-      .toLowerCase()
-      .replace(/\s+/g, '.') || t('common.unknownHandle')
+  const username = conversation.username || t('common.unknownHandle')
 
   const hasUnread = conversation.unreadCount > 0
 
