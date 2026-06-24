@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Badge from '@/components/ui/Badge'
 
 export default function SidebarNavItem({ href, label, Icon, badge, isActive }) {
   const linkClass = isActive
@@ -13,6 +14,7 @@ export default function SidebarNavItem({ href, label, Icon, badge, isActive }) {
     >
       <Icon size={20} className="shrink-0" />
       <span>{label}</span>
+      {badge > 0 && <span className="ml-auto"><Badge count={badge} /></span>}
     </Link>
   )
 }

@@ -70,7 +70,7 @@ export default function NewPostComposer() {
       toast.success(t('toasts.postCreated'))
       setContent('')
       setMediaType(null)
-      setSelectedFile(null)
+      setSelectedFiles([])
     } catch (err) {
       toast.error(err.response?.data?.message || t('toasts.postCreateError'))
     } finally {

@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useMessages } from '@/hooks/useMessages'
+import { useMessagesBadge } from '@/providers/MessagesProvider'
 import ConversationList from '@/components/messages/ConversationList'
 import ChatPanel from '@/components/messages/ChatPanel'
 import NewConversationModal from '@/components/messages/NewConversationModal'
 
 export default function MessagesView({ initialRecipientId }) {
   const { t } = useTranslation()
+  const { setUnreadCount, setActive } = useMessagesBadge()
   const [newConvOpen, setNewConvOpen] = useState(false)
 
   // La messagerie occupe exactement la hauteur du viewport : les messages
@@ -52,6 +54,16 @@ export default function MessagesView({ initialRecipientId }) {
     hasMoreMessages,
     loadingOlderMessages,
   } = useMessages({ initialRecipientId })
+
+  // Tant que /messages est ouverte, elle pilote le badge avec le total exact
+  // de non-lus (le socket global cesse alors d'incrémenter de son côté).
+  useEffect(() => {
+    setActive(true)
+    return () => setActive(false)
+  }, [setActive])
+  useEffect(() => {
+    setUnreadCount(filteredConversations.reduce((sum, c) => sum + (c.unreadCount || 0), 0))
+  }, [filteredConversations, setUnreadCount])
 
   const labels = {
     empty: t('pages.messages.empty'),
