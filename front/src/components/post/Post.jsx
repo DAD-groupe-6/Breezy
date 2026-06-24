@@ -37,6 +37,8 @@ export default function Post({
   const [showComments, setShowComments] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const [banModalOpen, setBanModalOpen] = useState(false);
   const [banPending, setBanPending] = useState(false);
   const [isAuthorBanned, setIsAuthorBanned] = useState(false);
@@ -66,15 +68,19 @@ export default function Post({
     }
   };
 
-  const handleReportPost = async () => {
+  const handleConfirmReport = async () => {
+    setReporting(true);
     try {
       const { data } = await api.post(`/post/${postId}/report`);
       if (data?.deleted) {
         onReport?.(postId);
         onDelete?.(postId);
       }
+      setReportOpen(false);
     } catch (err) {
       console.error('[Post] Failed to report post', err);
+    } finally {
+      setReporting(false);
     }
   };
 
@@ -135,7 +141,7 @@ export default function Post({
             canModerate={canModerate}
             isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
-            onReport={handleReportPost}
+            onReport={() => setReportOpen(true)}
             onDelete={() => setConfirmOpen(true)}
             onBanAuthor={() => setBanModalOpen(true)}
             onUnbanAuthor={handleUnbanAuthor}
@@ -183,6 +189,18 @@ export default function Post({
         onConfirm={handleConfirmDelete}
         onClose={() => { if (!deleting) setConfirmOpen(false); }}
         loading={deleting}
+        danger
+      />
+
+      <ConfirmDialog
+        isOpen={reportOpen}
+        title={t('post.reportConfirm.title')}
+        message={t('post.reportConfirm.message')}
+        confirmLabel={t('post.reportConfirm.confirm')}
+        cancelLabel={t('post.reportConfirm.cancel')}
+        onConfirm={handleConfirmReport}
+        onClose={() => { if (!reporting) setReportOpen(false); }}
+        loading={reporting}
         danger
       />
 

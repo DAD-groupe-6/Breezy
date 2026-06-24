@@ -140,6 +140,18 @@ const fr = {
       logout: 'Se déconnecter',
       deleteAccount: 'Supprimer mon compte',
       deleteConfirm: 'Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.',
+      logoutConfirm: {
+        title: 'Se déconnecter',
+        message: 'Voulez-vous vraiment vous déconnecter ?',
+        confirm: 'Se déconnecter',
+        cancel: 'Annuler',
+      },
+      deleteAccountConfirm: {
+        title: 'Supprimer mon compte',
+        message: 'Voulez-vous vraiment supprimer votre compte ? Cette action est irréversible.',
+        confirm: 'Supprimer',
+        cancel: 'Annuler',
+      },
     },
     newPost: {
       back: "Retour à l'accueil",
@@ -280,6 +292,12 @@ const fr = {
     optionsAria: "Plus d'options",
     viewProfile: 'Voir le profil',
     report: 'Signaler',
+    reportConfirm: {
+      title: 'Signaler ce post',
+      message: 'Voulez-vous vraiment signaler ce post ? Les modérateurs en seront informés.',
+      confirm: 'Signaler',
+      cancel: 'Annuler',
+    },
     delete: 'Supprimer',
     deleteError: 'Impossible de supprimer ce post. Réessaie.',
     deleteConfirm: {

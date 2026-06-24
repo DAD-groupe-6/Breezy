@@ -140,6 +140,18 @@ const en = {
       logout: 'Log out',
       deleteAccount: 'Delete my account',
       deleteConfirm: 'Do you really want to delete your account? This action is irreversible.',
+      logoutConfirm: {
+        title: 'Log out',
+        message: 'Do you really want to log out?',
+        confirm: 'Log out',
+        cancel: 'Cancel',
+      },
+      deleteAccountConfirm: {
+        title: 'Delete my account',
+        message: 'Do you really want to delete your account? This action is irreversible.',
+        confirm: 'Delete',
+        cancel: 'Cancel',
+      },
     },
     newPost: {
       back: 'Back to home',
@@ -280,6 +292,12 @@ const en = {
     optionsAria: 'More options',
     viewProfile: 'View profile',
     report: 'Report',
+    reportConfirm: {
+      title: 'Report this post',
+      message: 'Do you really want to report this post? Moderators will be notified.',
+      confirm: 'Report',
+      cancel: 'Cancel',
+    },
     delete: 'Delete',
     deleteError: 'Unable to delete this post. Please try again.',
     deleteConfirm: {
