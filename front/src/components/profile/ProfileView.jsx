@@ -143,7 +143,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
         <div className="min-h-screen bg-[var(--color-bg-primary)]">
             <div className="mx-auto w-full max-w-3xl px-4 py-4">
                 <div
-                    className="overflow-hidden bg-[var(--color-bg-surface)] md:mx-auto md:max-w-2xl md:rounded-[var(--radius-xl)] md:border md:border-[var(--color-border)] md:shadow-[var(--shadow-md)]"
+                    className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-md)] md:mx-auto md:max-w-2xl"
                 >
                     <ProfileHeader
                         displayName={user.pseudo}
