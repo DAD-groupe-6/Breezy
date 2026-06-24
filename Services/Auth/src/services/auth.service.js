@@ -99,4 +99,25 @@ async function login(email, password) {
     return { token };
 }
 
-module.exports = { register, login, assertUserNotBanned };
+async function deleteAccount(userId) {
+    const user = await User.findByPk(userId);
+    if (!user) throw new Error("User not found");
+
+    try {
+        await axios.delete(`${USER_SERVICE_URL}/api/v1/user/${userId}`, {
+            headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+            timeout: 5000,
+        });
+    } catch (err) {
+        if (err.response?.status !== 404) {
+            console.error(
+                `[deleteAccount] Échec suppression du profil User ${userId}: ${err.message}`
+            );
+        }
+    }
+
+    await user.destroy();
+    return { id: String(userId) };
+}
+
+module.exports = { register, login, assertUserNotBanned, deleteAccount };

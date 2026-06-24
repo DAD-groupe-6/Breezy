@@ -45,4 +45,14 @@ async function validate(req, res) {
     return res.status(200).json({ message: "Token is valid" });
 }
 
-module.exports = { register, login, logout, validate };
+async function deleteAccount(req, res) {
+    try {
+        const result = await AuthService.deleteAccount(req.user.id);
+        res.status(200).json(result);
+    } catch (err) {
+        const status = err.message === "User not found" ? 404 : 400;
+        res.status(status).json({ message: err.message });
+    }
+}
+
+module.exports = { register, login, logout, validate, deleteAccount };
