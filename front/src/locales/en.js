@@ -289,6 +289,11 @@ const en = {
       deleting: 'Deleting...',
     },
     imageAlt: 'Post content',
+    lightbox: {
+      close: 'Close',
+      prev: 'Previous image',
+      next: 'Next image',
+    },
     commentAria: 'Comment',
     likeAria: 'Like',
   },

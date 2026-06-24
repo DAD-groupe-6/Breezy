@@ -289,6 +289,11 @@ const fr = {
       deleting: 'Suppression...',
     },
     imageAlt: 'Contenu du post',
+    lightbox: {
+      close: 'Fermer',
+      prev: 'Image précédente',
+      next: 'Image suivante',
+    },
     commentAria: 'Commenter',
     likeAria: 'Aimer',
   },

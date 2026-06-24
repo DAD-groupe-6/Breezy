@@ -2,8 +2,10 @@
 
 import { useEffect, useCallback } from 'react'
 import { FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export default function ImageLightbox({ images, index, onChange, onClose }) {
+  const { t } = useTranslation()
   const count = images.length
 
   const goPrev = useCallback(
@@ -46,7 +48,7 @@ export default function ImageLightbox({ images, index, onChange, onClose }) {
       <button
         type="button"
         onClick={onClose}
-        aria-label="Fermer"
+        aria-label={t('post.lightbox.close')}
         className="absolute top-4 right-4 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
       >
         <FiX size={24} />
@@ -56,7 +58,7 @@ export default function ImageLightbox({ images, index, onChange, onClose }) {
         <button
           type="button"
           onClick={goPrev}
-          aria-label="Image précédente"
+          aria-label={t('post.lightbox.prev')}
           className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
         >
           <FiChevronLeft size={28} />
@@ -74,7 +76,7 @@ export default function ImageLightbox({ images, index, onChange, onClose }) {
         <button
           type="button"
           onClick={goNext}
-          aria-label="Image suivante"
+          aria-label={t('post.lightbox.next')}
           className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/50 p-2 text-white hover:bg-black/70"
         >
           <FiChevronRight size={28} />
