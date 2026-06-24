@@ -45,16 +45,19 @@ services:
 
   db-post:
     image: mongo:latest
+    command: ["mongod", "--quiet"]
     volumes:
       - mongo_post_data:/data/db
     healthcheck:
       test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/post_db --quiet"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 12
+      retries: 5
+      start_period: 10s
 
   db-media:
     image: mongo:latest
+    command: ["mongod", "--quiet"]
     volumes:
       - mongo_media_data:/data/db
 
@@ -70,13 +73,15 @@ services:
 
   db-notification:
     image: mongo:latest
+    command: ["mongod", "--quiet"]
     volumes:
       - mongo_notification_data:/data/db
     healthcheck:
       test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/notification_db --quiet"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 12
+      retries: 5
+      start_period: 10s
 
   # --- LE FRONT ---
   front:
@@ -151,13 +156,15 @@ services:
 
   db-message:
     image: mongo:latest
+    command: ["mongod", "--quiet"]
     volumes:
       - mongo_message_data:/data/db
     healthcheck:
       test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/message_db --quiet"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 12
+      retries: 5
+      start_period: 10s
 
   service-message:
     build:
