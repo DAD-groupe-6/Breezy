@@ -3,8 +3,14 @@ const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal
 const ROLE_PERMISSIONS = {
     visiteur:       ["create_account"],
     utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content"],
-    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+};
+
+// Indique si le rôle donné possède la permission demandée.
+const hasPermission = (role, permissionName) => {
+    const permissions = ROLE_PERMISSIONS[role] || [];
+    return permissions.includes(permissionName);
 };
 
 const requirePermission = (permissionName) => (req, res, next) => {
@@ -12,12 +18,11 @@ const requirePermission = (permissionName) => (req, res, next) => {
         return next();
     }
     const role = req.user?.role || "visiteur";
-    const permissions = ROLE_PERMISSIONS[role] || [];
-    if (!permissions.includes(permissionName)) {
+    if (!hasPermission(role, permissionName)) {
         const status = req.user ? 403 : 401;
         return res.status(status).json({ error: "Insufficient permissions" });
     }
     next();
 };
 
-module.exports = { requirePermission };
+module.exports = { requirePermission, hasPermission };

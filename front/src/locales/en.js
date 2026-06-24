@@ -112,6 +112,7 @@ const en = {
       notFound: 'Profile not found',
       loadMore: 'Load more',
       noPosts: 'No posts yet.',
+      postsHidden: 'This profile\'s posts are not visible.',
     },
     settings: {
       title: 'Settings',

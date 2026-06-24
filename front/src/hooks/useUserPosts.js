@@ -7,7 +7,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 // Nombre de posts récupérés par tranche (pagination serveur)
 const PAGE_SIZE = 5
 
-export function useUserPosts(userId) {
+export function useUserPosts(userId, enabled = true) {
   const { t, locale } = useTranslation()
   const [posts, setPosts] = useState([])
   const [page, setPage] = useState(1)
@@ -58,10 +58,16 @@ export function useUserPosts(userId) {
     [userId, mapPost]
   )
 
-  // Première tranche au changement de profil
+  // Première tranche au changement de profil (seulement si l'affichage est autorisé)
   useEffect(() => {
+    if (!enabled) {
+      setPosts([])
+      setHasMore(false)
+      setTotal(0)
+      return
+    }
     fetchPage(1)
-  }, [fetchPage])
+  }, [fetchPage, enabled])
 
   const loadMore = () => fetchPage(page + 1)
   const reset = useCallback(() => { setPosts([]); fetchPage(1) }, [fetchPage])

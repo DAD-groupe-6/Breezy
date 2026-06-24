@@ -24,6 +24,7 @@ const permissionsList = [
     { name: "follow_user", description: "Fx9. Suivre ou être suivi" },
     { name: "view_profile", description: "Fx10. Profil utilisateur avec informations de base" },
     { name: "list_user_posts", description: "Fx11. Liste des messages publiés sur le profil" },
+    { name: "list_others_posts", description: "Fx11b. Affichage des posts sous le profil d'autres utilisateurs" },
     { name: "add_tags", description: "Fx12. Ajout de tags aux messages" },
     { name: "search_tags", description: "Fx13. Recherche de posts via des tags" },
     { name: "report_content", description: "Fx20. Signalement de contenu inapproprié" },
@@ -33,8 +34,8 @@ const permissionsList = [
 const rolePermissionsMap = {
     visiteur:       ["create_account"],
     utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content"],
-    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
+    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
 };
 
 async function seedDatabase() {

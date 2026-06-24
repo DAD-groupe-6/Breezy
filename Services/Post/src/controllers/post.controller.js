@@ -1,4 +1,5 @@
 const PostService = require("../services/post.service");
+const { hasPermission } = require("../middlewares/permission.middleware");
 
 function statusFor(message) {
     switch (message) {
@@ -43,8 +44,10 @@ async function getPost(req, res) {
 
 async function getUserPosts(req, res) {
     try {
-        const role = req.user?.role;
-        if (role === "utilisateur" && String(req.user.id) !== String(req.params.userId)) {
+        // Consulter le profil d'un autre utilisateur exige la permission `list_others_posts` ;
+        // sur son propre profil, `list_user_posts` (déjà vérifiée par la route) suffit.
+        const isOwnProfile = String(req.user?.id) === String(req.params.userId);
+        if (!isOwnProfile && !hasPermission(req.user?.role, "list_others_posts")) {
             return res.status(403).json({ message: "You can only view your own posts" });
         }
         const { page, limit } = req.query;

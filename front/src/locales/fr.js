@@ -112,6 +112,7 @@ const fr = {
       notFound: 'Profil introuvable',
       loadMore: 'Charger plus',
       noPosts: 'Aucun post pour le moment.',
+      postsHidden: 'Les posts de ce profil ne sont pas visibles.',
     },
     settings: {
       title: 'Paramètres',

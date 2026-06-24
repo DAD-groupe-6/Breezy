@@ -16,6 +16,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
 import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 import { useAuth } from '@/providers/AuthProvider'
+import { hasPermission } from '@/utils/permissions'
 import BanModal from '@/components/moderation/BanModal'
 
 export default function ProfileView({ userId, isOwnProfile }) {
@@ -35,7 +36,10 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followModalTab, setFollowModalTab] = useState(null)
     const [banModalOpen, setBanModalOpen] = useState(false)
     const [banPending, setBanPending] = useState(false)
-    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId)
+    // Un utilisateur standard ne voit les posts que sur son propre profil ;
+    // consulter ceux d'un autre profil requiert la permission `list_others_posts`.
+    const canViewPosts = isOwnProfile || hasPermission(currentUser?.roleName, 'list_others_posts')
+    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId, canViewPosts)
     const sentinelRef = useRef(null)
 
     useEffect(() => {
@@ -62,7 +66,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const token = getToken()
     const myId = token ? String(jwtDecode(token).id) : null
 
-    const canModerate = currentUser?.roleName === 'administrateur' || currentUser?.roleName === 'moderateur'
+    const canModerate = hasPermission(currentUser?.roleName, 'moderate_users')
     const isBanned = Boolean(user?.banned_until && new Date(user.banned_until) > new Date())
 
     useEffect(() => {
@@ -191,32 +195,38 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         </h2>
                     </div>
 
-                    <div>
-                        {posts.map((post) => (
-                            <Post
-                                key={post.postId}
-                                {...post}
-                                onViewProfile={() => router.push(`/profil/${post.authorId}`)}
-                                onDelete={removePost}
-                            />
-                        ))}
+                    {canViewPosts ? (
+                        <div>
+                            {posts.map((post) => (
+                                <Post
+                                    key={post.postId}
+                                    {...post}
+                                    onViewProfile={() => router.push(`/profil/${post.authorId}`)}
+                                    onDelete={removePost}
+                                />
+                            ))}
 
-                        {!postsLoading && posts.length === 0 && (
-                            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
-                                {t('pages.profil.noPosts')}
-                            </p>
-                        )}
+                            {!postsLoading && posts.length === 0 && (
+                                <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                                    {t('pages.profil.noPosts')}
+                                </p>
+                            )}
 
-                        {(postsLoading || hasMore) && (
-                            <div
-                                ref={sentinelRef}
-                                className={`${postsLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
-                                aria-hidden={!postsLoading}
-                            >
-                                {postsLoading ? t('common.loading') : null}
-                            </div>
-                        )}
-                    </div>
+                            {(postsLoading || hasMore) && (
+                                <div
+                                    ref={sentinelRef}
+                                    className={`${postsLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
+                                    aria-hidden={!postsLoading}
+                                >
+                                    {postsLoading ? t('common.loading') : null}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                            {t('pages.profil.postsHidden')}
+                        </p>
+                    )}
                 </div>
             </div>
 
