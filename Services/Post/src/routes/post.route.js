@@ -1,27 +1,39 @@
 const express = require("express");
 const router = express.Router();
 const PostController = require("../controllers/post.controller");
-const { optionalAuthenticate } = require("../middlewares/auth.middleware");
+const { authenticate } = require("../middlewares/auth.middleware");
 const { requirePermission } = require("../middlewares/permission.middleware");
 
 // Recherche et routes spécifiques avant les routes dynamiques `/:id`.
-router.get("/search", optionalAuthenticate, requirePermission("search_tags"), PostController.search);
-router.get("/user/:userId", optionalAuthenticate, requirePermission("list_user_posts"), PostController.getUserPosts);
+router.get("/search", authenticate({ optional: true }), requirePermission("search_tags"), PostController.search);
+router.get("/search/content", authenticate({ optional: true }), requirePermission("search_tags"), (req, res) => {
+	if (!req.query.q && req.query.keywords) {
+		req.query.q = req.query.keywords;
+	}
+	req.query.kind = req.query.kind || "content";
+	return PostController.search(req, res);
+});
+router.get("/search/tags/:tag", authenticate({ optional: true }), requirePermission("search_tags"), (req, res) => {
+	req.query.q = req.query.q || `#${req.params.tag}`;
+	req.query.kind = req.query.kind || "tag";
+	return PostController.search(req, res);
+});
+router.get("/user/:userId", authenticate({ optional: true }), requirePermission("list_user_posts"), PostController.getUserPosts);
 
-router.get("/:id", optionalAuthenticate, requirePermission("view_profile_posts"), PostController.getPost);
+router.get("/:id", authenticate({ optional: true }), requirePermission("view_profile_posts"), PostController.getPost);
 
-router.post("/", optionalAuthenticate, requirePermission("publish_post"), PostController.createPost);
-router.delete("/:id", optionalAuthenticate, requirePermission("publish_post"), PostController.deletePost);
-router.post("/:id/report", optionalAuthenticate, requirePermission("report_content"), PostController.reportPost);
+router.post("/", authenticate({ optional: true }), requirePermission("publish_post"), PostController.createPost);
+router.delete("/:id", authenticate({ optional: true }), requirePermission("publish_post"), PostController.deletePost);
+router.post("/:id/report", authenticate({ optional: true }), requirePermission("report_content"), PostController.reportPost);
 
-router.post("/:id/like", optionalAuthenticate, requirePermission("like_post"), PostController.likePost);
-router.delete("/:id/like", optionalAuthenticate, requirePermission("like_post"), PostController.unlikePost);
+router.post("/:id/like", authenticate({ optional: true }), requirePermission("like_post"), PostController.likePost);
+router.delete("/:id/like", authenticate({ optional: true }), requirePermission("like_post"), PostController.unlikePost);
 
-router.post("/:id/comments", optionalAuthenticate, requirePermission("reply_post"), PostController.addComment);
-router.get("/:id/comments", optionalAuthenticate, requirePermission("view_profile_posts"), PostController.listComments);
-router.delete("/:id/comments/:commentId", optionalAuthenticate, requirePermission("reply_post"), PostController.deleteComment);
+router.post("/:id/comments", authenticate({ optional: true }), requirePermission("reply_post"), PostController.addComment);
+router.get("/:id/comments", authenticate({ optional: true }), requirePermission("view_profile_posts"), PostController.listComments);
+router.delete("/:id/comments/:commentId", authenticate({ optional: true }), requirePermission("reply_post"), PostController.deleteComment);
 
-router.post("/:id/comments/:commentId/like", optionalAuthenticate, requirePermission("like_post"), PostController.likeComment);
-router.delete("/:id/comments/:commentId/like", optionalAuthenticate, requirePermission("like_post"), PostController.unlikeComment);
+router.post("/:id/comments/:commentId/like", authenticate({ optional: true }), requirePermission("like_post"), PostController.likeComment);
+router.delete("/:id/comments/:commentId/like", authenticate({ optional: true }), requirePermission("like_post"), PostController.unlikeComment);
 
 module.exports = router;

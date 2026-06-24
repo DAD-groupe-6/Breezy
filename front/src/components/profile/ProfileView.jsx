@@ -23,7 +23,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const { t } = useTranslation()
     const toast = useToast()
     const { setProfile } = useCurrentProfile()
-    const { user: currentUser } = useAuth()
+    const { hasPermission } = useAuth()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [followersCount, setFollowersCount] = useState(0)
@@ -35,7 +35,10 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [followModalTab, setFollowModalTab] = useState(null)
     const [banModalOpen, setBanModalOpen] = useState(false)
     const [banPending, setBanPending] = useState(false)
-    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId)
+    // Un utilisateur standard ne voit les posts que sur son propre profil ;
+    // consulter ceux d'un autre profil requiert la permission `list_others_posts`.
+    const canViewPosts = isOwnProfile || hasPermission('list_others_posts')
+    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId, canViewPosts)
     const sentinelRef = useRef(null)
 
     useEffect(() => {
@@ -62,7 +65,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const token = getToken()
     const myId = token ? String(jwtDecode(token).id) : null
 
-    const canModerate = currentUser?.roleName === 'administrateur' || currentUser?.roleName === 'moderateur'
+    const canModerate = hasPermission('moderate_users')
     const isBanned = Boolean(user?.banned_until && new Date(user.banned_until) > new Date())
 
     useEffect(() => {
@@ -176,7 +179,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         canModerate={canModerate && !isOwnProfile}
                         isBanned={isBanned}
                         onFollow={handleFollow}
-                        canMessage={!isOwnProfile && isFollowing && isMutualFollow}
+                        canMessage={!isOwnProfile && isFollowing && isMutualFollow && hasPermission('private_messages')}
                         onMessage={() => router.push(`/messages?with=${userId}`)}
                         onEditProfile={() => setEditOpen(true)}
                         onShowFollowers={() => setFollowModalTab('followers')}
@@ -191,32 +194,38 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         </h2>
                     </div>
 
-                    <div>
-                        {posts.map((post) => (
-                            <Post
-                                key={post.postId}
-                                {...post}
-                                onViewProfile={() => router.push(`/profil/${post.authorId}`)}
-                                onDelete={removePost}
-                            />
-                        ))}
+                    {canViewPosts ? (
+                        <div>
+                            {posts.map((post) => (
+                                <Post
+                                    key={post.postId}
+                                    {...post}
+                                    onViewProfile={() => router.push(`/profil/${post.authorId}`)}
+                                    onDelete={removePost}
+                                />
+                            ))}
 
-                        {!postsLoading && posts.length === 0 && (
-                            <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
-                                {t('pages.profil.noPosts')}
-                            </p>
-                        )}
+                            {!postsLoading && posts.length === 0 && (
+                                <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                                    {t('pages.profil.noPosts')}
+                                </p>
+                            )}
 
-                        {(postsLoading || hasMore) && (
-                            <div
-                                ref={sentinelRef}
-                                className={`${postsLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
-                                aria-hidden={!postsLoading}
-                            >
-                                {postsLoading ? t('common.loading') : null}
-                            </div>
-                        )}
-                    </div>
+                            {(postsLoading || hasMore) && (
+                                <div
+                                    ref={sentinelRef}
+                                    className={`${postsLoading ? 'py-2' : 'h-px'} text-center text-sm text-[var(--color-text-secondary)]`}
+                                    aria-hidden={!postsLoading}
+                                >
+                                    {postsLoading ? t('common.loading') : null}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <p className="px-4 py-6 text-center text-sm text-[var(--color-text-secondary)]">
+                            {t('pages.profil.postsHidden')}
+                        </p>
+                    )}
                 </div>
             </div>
 

@@ -86,17 +86,18 @@ export default function Post({
   const [deleting, setDeleting] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
   const [banModalOpen, setBanModalOpen] = useState(false);
   const [banPending, setBanPending] = useState(false);
   const [isAuthorBanned, setIsAuthorBanned] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { hasPermission } = useAuth();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
-  const canModerate = currentUser?.roleName === 'administrateur' || currentUser?.roleName === 'moderateur';
+  const canModerate = hasPermission('moderate_users');
 
   const handleConfirmDelete = async () => {
     setDeleting(true);
@@ -119,12 +120,22 @@ export default function Post({
     setReporting(true);
     try {
       const { data } = await api.post(`/post/${postId}/report`);
+      setReported(true);
+      setReportOpen(false);
       if (data?.deleted) {
         onReport?.(postId);
         onDelete?.(postId);
+      } else {
+        toast.success(t('toasts.postReported'));
       }
-      setReportOpen(false);
     } catch (err) {
+      if (err.response?.data?.message === 'Already reported') {
+        setReported(true);
+        setReportOpen(false);
+        toast.info(t('toasts.alreadyReported'));
+      } else {
+        toast.error(t('toasts.reportError'));
+      }
       console.error('[Post] Failed to report post', err);
     } finally {
       setReporting(false);
@@ -194,6 +205,7 @@ export default function Post({
             canModerate={canModerate}
             isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
+            alreadyReported={reported}
             onReport={() => setReportOpen(true)}
             onDelete={() => setConfirmOpen(true)}
             onBanAuthor={() => setBanModalOpen(true)}

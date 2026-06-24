@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback } from 'rea
 import { jwtDecode } from 'jwt-decode'
 import { getToken, setToken, clearToken } from '@/utils/cookie'
 import { disconnectSocket } from '@/utils/socket'
+import api from '@/utils/api'
 
 const AuthContext = createContext(null)
 
@@ -24,12 +25,42 @@ function userFromToken(token) {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  // Permissions du rôle, récupérées depuis le service Auth (source unique de vérité).
+  // permsLoaded évite un "flash" : tant que ce n'est pas chargé, on ne montre rien de conditionné.
+  const [permissions, setPermissions] = useState([])
+  const [permsLoaded, setPermsLoaded] = useState(false)
 
   // Au démarrage : lit le token déjà présent (session persistée).
   useEffect(() => {
     setUser(userFromToken(getToken()))
     setLoading(false)
   }, [])
+
+  // À chaque changement de rôle : (re)charge la liste des permissions depuis Auth.
+  useEffect(() => {
+    let cancelled = false
+    const roleId = user?.roleId
+
+    if (roleId === null || roleId === undefined) {
+      setPermissions([])
+      setPermsLoaded(true)
+      return
+    }
+
+    setPermsLoaded(false)
+    api.get(`/auth/roles/${roleId}/permissions`)
+      .then(({ data }) => { if (!cancelled) setPermissions(data?.permissions || []) })
+      .catch(() => { if (!cancelled) setPermissions([]) })
+      .finally(() => { if (!cancelled) setPermsLoaded(true) })
+
+    return () => { cancelled = true }
+  }, [user?.roleId])
+
+  // Vrai uniquement si la permission est explicitement accordée au rôle courant.
+  const hasPermission = useCallback(
+    (permissionName) => permissions.includes(permissionName),
+    [permissions]
+  )
 
   // Connexion : pose le cookie ET met à jour l'état tout de suite (sans rechargement).
   const login = useCallback((token) => {
@@ -46,7 +77,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, permissions, permsLoaded, hasPermission }}>
       {children}
     </AuthContext.Provider>
   )

@@ -8,23 +8,28 @@ import Badge from "@/components/ui/Badge";
 import { useTranslation } from "@/hooks/useTranslation";
 import { useNotifications } from "@/providers/NotificationsProvider";
 import { useMessagesBadge } from "@/providers/MessagesProvider";
+import { useAuth } from "@/providers/AuthProvider";
 
 export default function NavbarMobile({ forceShow = false }) {
   const pathname = usePathname();
   const { t } = useTranslation();
   const { unreadCount } = useNotifications();
   const { unreadCount: messagesUnread } = useMessagesBadge();
+  const { hasPermission, permsLoaded } = useAuth();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const accumulatedDown = useRef(0);
+
+  // Visible tant que les permissions ne sont pas chargées (évite un flash) ou si accordée.
+  const canSee = (permission) => !permission || !permsLoaded || hasPermission(permission);
 
   const navItems = [
     { href: "/", icon: FaHome, labelKey: "nav.home" },
     { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer" },
     { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: unreadCount },
-    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: messagesUnread },
+    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: messagesUnread, permission: "private_messages" },
     { href: "/profil", icon: FaUser, labelKey: "nav.profil" },
-  ];
+  ].filter((item) => canSee(item.permission));
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,13 +80,15 @@ export default function NavbarMobile({ forceShow = false }) {
         );
       })}
 
-      <Link
-        href="/nouvelle-publication"
-        aria-label={t('nav.createPost')}
-        className="flex h-full flex-1 flex-col items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-text-secondary)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
-      >
-        <FaPlus size={24} />
-      </Link>
+      {canSee('publish_post') && (
+        <Link
+          href="/nouvelle-publication"
+          aria-label={t('nav.createPost')}
+          className="flex h-full flex-1 flex-col items-center justify-center rounded-[var(--radius-pill)] text-[var(--color-text-secondary)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
+        >
+          <FaPlus size={24} />
+        </Link>
+      )}
 
       <Link
         href="/settings"
