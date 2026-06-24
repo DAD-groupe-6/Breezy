@@ -11,8 +11,9 @@ function userFromToken(token) {
   if (!token) return null
   try {
     const decoded = jwtDecode(token)
-    const roleId = decoded.roleId ?? decoded.role ?? null
-    return { id: decoded.id, roleId, role: roleId }
+    const roleId = decoded.roleId ?? null
+    const roleName = decoded.role ?? null
+    return { id: decoded.id, roleId, role: roleId, roleName }
   } catch (err) {
     console.error('Invalid token:', err)
     return null

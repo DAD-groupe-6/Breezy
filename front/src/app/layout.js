@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/providers/LanguageProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { CurrentProfileProvider } from "@/providers/CurrentProfileProvider";
 import { ToastProvider } from "@/providers/ToastProvider";
@@ -19,9 +20,11 @@ export default function RootLayout({ children }) {
       <body className="h-full">
         <AuthProvider>
           <CurrentProfileProvider>
-            <LanguageProvider>
-              <ToastProvider>{children}</ToastProvider>
-            </LanguageProvider>
+            <ThemeProvider>
+                <LanguageProvider>
+                  <ToastProvider>{children}</ToastProvider>
+                </LanguageProvider>
+            </ThemeProvider>
           </CurrentProfileProvider>
         </AuthProvider>
       </body>

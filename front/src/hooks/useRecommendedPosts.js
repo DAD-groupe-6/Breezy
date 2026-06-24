@@ -4,33 +4,22 @@ import { resolveAuthor } from '@/utils/authors'
 import { timeAgo } from '@/utils/time'
 import { useTranslation } from '@/hooks/useTranslation'
 
-// Nombre de posts récupérés par tranche (pagination serveur)
-const PAGE_SIZE = 5
+const PAGE_SIZE = 10
 
-export function useUserPosts(userId) {
+export function useRecommendedPosts(userId) {
   const { t, locale } = useTranslation()
   const [posts, setPosts] = useState([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [total, setTotal] = useState(0)
 
   const mapPost = useCallback(
     async (post) => {
       const author = await resolveAuthor(post.id_user)
       return {
-        postId: post._id,
-        authorId: post.id_user,
-        displayName: author?.pseudo || t('common.unknownUser'),
-        username: author?.pseudo_uniq || t('common.unknownHandle'),
-        imageUrl: author?.img_profile || null,
+        ...post,
+        author,
         timestamp: timeAgo(post.createdAt, t, locale),
-        content: post.content,
-        images: post.images,
-        video: post.video || null,
-        likes: post.nb_like,
-        liked: post.likedByMe,
-        comments: post.commentsCount,
       }
     },
     [t, locale]
@@ -38,18 +27,18 @@ export function useUserPosts(userId) {
 
   const fetchPage = useCallback(
     async (p) => {
+      if (!userId) return
       setLoading(true)
       try {
-        const { data } = await api.get(`/post/user/${userId}`, {
+        const { data } = await api.get(`/post/recommendations/${userId}`, {
           params: { page: p, limit: PAGE_SIZE },
         })
         const mapped = await Promise.all(data.posts.map(mapPost))
         setPosts((prev) => (p === 1 ? mapped : [...prev, ...mapped]))
         setHasMore(data.hasMore)
-        setTotal(data.total ?? 0)
         setPage(p)
       } catch (err) {
-        console.error('[useUserPosts] Échec du chargement des posts', err)
+        console.error('[useRecommendedPosts] Échec du chargement', err)
         if (p === 1) setPosts([])
       } finally {
         setLoading(false)
@@ -58,14 +47,19 @@ export function useUserPosts(userId) {
     [userId, mapPost]
   )
 
-  // Première tranche au changement de profil
   useEffect(() => {
     fetchPage(1)
   }, [fetchPage])
 
   const loadMore = () => fetchPage(page + 1)
-  const reset = useCallback(() => { setPosts([]); fetchPage(1) }, [fetchPage])
-  const removePost = (id) => setPosts((prev) => prev.filter((p) => p.postId !== id))
 
-  return { posts, hasMore, loading, loadMore, reset, removePost, total }
+  // Recharge depuis la page 1 (ex. : bouton "retour en haut")
+  const reset = useCallback(() => {
+    setPosts([])
+    fetchPage(1)
+  }, [fetchPage])
+
+  const removePost = (id) => setPosts((prev) => prev.filter((p) => p._id !== id))
+
+  return { posts, hasMore, loading, loadMore, reset, removePost }
 }

@@ -5,7 +5,7 @@ import { FaEllipsisH } from 'react-icons/fa';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export default function PostMenu({ isMine, onViewProfile, onReport, onDelete }) {
+export default function PostMenu({ isMine, canModerate, isAuthorBanned, onViewProfile, onReport, onDelete, onBanAuthor, onUnbanAuthor }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -94,6 +94,23 @@ export default function PostMenu({ isMine, onViewProfile, onReport, onDelete }) 
           >
             {t('post.report')}
           </button>
+          {canModerate && !isMine && (
+            isAuthorBanned ? (
+              <button
+                className={`${itemClass} font-semibold border-t border-[var(--color-border)] text-rose-600 hover:bg-[var(--color-bg-surface-2)]`}
+                onClick={() => { setOpen(false); onUnbanAuthor?.(); }}
+              >
+                {t('moderation.unban')}
+              </button>
+            ) : (
+              <button
+                className={`${itemClass} font-semibold border-t border-[var(--color-border)] bg-rose-600 text-white hover:bg-rose-700`}
+                onClick={() => { setOpen(false); onBanAuthor?.(); }}
+              >
+                {t('moderation.banAuthor')}
+              </button>
+            )
+          )}
           {isMine && (
             <button
               className={`${itemClass} text-rose-600 border-t border-[var(--color-border)]`}

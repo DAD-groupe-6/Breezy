@@ -48,7 +48,9 @@ async function getUserPosts(req, res) {
             return res.status(403).json({ message: "You can only view your own posts" });
         }
         const { page, limit } = req.query;
-        const result = await PostService.getUserPosts(req.params.userId, { page, limit });
+        // req.params.userId = l'auteur du profil visité ; req.user.id = le viewer connecté.
+        // Les deux sont distincts : sinon likedByMe serait calculé pour l'auteur, pas pour moi.
+        const result = await PostService.getUserPosts(req.params.userId, req.user.id, { page, limit });
         res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
@@ -160,9 +162,9 @@ async function unlikeComment(req, res) {
 // Recherche
 async function searchByContent(req, res) {
     try {
-        const { keywords } = req.query;
-        const posts = await PostService.searchByContent(keywords, req.user.id);
-        res.status(200).json(posts);
+        const { keywords, page, limit } = req.query;
+        const result = await PostService.searchByContent(keywords, req.user.id, { page, limit });
+        res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }
@@ -171,8 +173,9 @@ async function searchByContent(req, res) {
 async function searchByTag(req, res) {
     try {
         const { tag } = req.params;
-        const posts = await PostService.searchByTag(tag, req.user.id);
-        res.status(200).json(posts);
+        const { page, limit } = req.query;
+        const result = await PostService.searchByTag(tag, req.user.id, { page, limit });
+        res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }

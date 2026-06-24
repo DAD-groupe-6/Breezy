@@ -1,11 +1,12 @@
 'use client'
 
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useMemo } from 'react'
 import fr from '@/locales/fr'
 import en from '@/locales/en'
 import { getLang, setLang } from '@/utils/cookie'
 
 const LOCALES = { fr, en }
+const VALID_LOCALES = ['fr', 'en']
 
 const LanguageContext = createContext(null)
 
@@ -17,20 +18,20 @@ function detectBrowserLanguage() {
   if (typeof navigator === 'undefined') return 'fr'
   const lang = navigator.language || navigator.userLanguage || 'fr'
   const shortLang = lang.split('-')[0]
-  return shortLang === 'en' ? 'en' : 'fr'
+  return VALID_LOCALES.includes(shortLang) ? shortLang : 'fr'
 }
 
 export function LanguageProvider({ children }) {
   const [locale, setLocaleState] = useState(() => {
     const saved = getLang()
-    if (saved === 'fr' || saved === 'en') {
+    if (VALID_LOCALES.includes(saved)) {
       return saved
     }
     return detectBrowserLanguage()
   })
 
   const setLocale = useCallback((lang) => {
-    if (lang !== 'fr' && lang !== 'en') return
+    if (!VALID_LOCALES.includes(lang)) return
     setLang(lang)
     setLocaleState(lang)
   }, [])
@@ -44,8 +45,10 @@ export function LanguageProvider({ children }) {
     [locale]
   )
 
+  const contextValue = useMemo(() => ({ locale, setLocale, t }), [locale, setLocale, t])
+
   return (
-    <LanguageContext.Provider value={{ locale, setLocale, t }}>
+    <LanguageContext.Provider value={contextValue}>
       {children}
     </LanguageContext.Provider>
   )

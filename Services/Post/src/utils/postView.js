@@ -1,8 +1,5 @@
-const { likeStats } = require("./likes.util");
-
-// Transforme un document Post (post OU commentaire) en objet exposé par l'API.
-// Un commentaire est un post de type "response" : il utilise donc la même vue.
-function toView(post, viewerId) {
+// Transforme un document Post (post ou commentaire) en objet exposé par l'API.
+function toView(post, likedByMe = false) {
     return {
         _id: post._id,
         id_user: post.id_user,
@@ -17,7 +14,8 @@ function toView(post, viewerId) {
         createdAt: post.createdAt,
         updatedAt: post.updatedAt,
         commentsCount: post.commentsCount,
-        ...likeStats(post.likes, viewerId),
+        nb_like: post.nb_like,
+        likedByMe,
     };
 }
 

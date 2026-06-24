@@ -19,9 +19,9 @@ const postSchema = new mongoose.Schema(
             type: String,
             default: null,
         },
-        likes: {
-            type: [String],
-            default: [],
+        nb_like: {
+            type: Number,
+            default: 0,
         },
         nb_signalement: {
             type: Number,
@@ -62,6 +62,7 @@ const postSchema = new mongoose.Schema(
 );
 
 postSchema.index({ parent_id: 1, createdAt: -1 });
+
 postSchema.index({ type: 1, _id: -1 });
 
 module.exports = mongoose.model("Post", postSchema);

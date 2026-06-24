@@ -5,10 +5,12 @@ import InputField from '@/components/ui/InputField'
 import Button from '@/components/ui/Button'
 import { validateRegister } from '@/utils/validation'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useToast } from '@/hooks/useToast'
 import api from '@/utils/api'
 
 export default function CreateAccountModal({ isOpen, onClose }) {
   const { t } = useTranslation()
+  const toast = useToast()
   const [username, setUsername] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [roleId, setRoleId] = useState('')
@@ -18,7 +20,6 @@ export default function CreateAccountModal({ isOpen, onClose }) {
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
 
   useEffect(() => {
     if (!isOpen) return
@@ -41,7 +42,6 @@ export default function CreateAccountModal({ isOpen, onClose }) {
       setConfirm('')
       setErrors({})
       setLoading(false)
-      setSuccess('')
     }
   }, [isOpen])
 
@@ -92,7 +92,6 @@ export default function CreateAccountModal({ isOpen, onClose }) {
 
     setErrors({})
     setLoading(true)
-    setSuccess('')
 
     try {
       await api.post('/auth/register', {
@@ -102,7 +101,8 @@ export default function CreateAccountModal({ isOpen, onClose }) {
         pseudo: displayName,
         roleId,
       })
-      setSuccess(t('auth.createAccount.success'))
+      toast.success(t('auth.createAccount.success'))
+      onClose?.()
     } catch (err) {
       const message = err.response?.data?.message || t('errors.network.register')
       setErrors({ general: message })
@@ -114,7 +114,7 @@ export default function CreateAccountModal({ isOpen, onClose }) {
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={!loading ? onClose : undefined}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4" onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose?.() }}>
       <div
         role="dialog"
         aria-modal="true"
@@ -128,7 +128,6 @@ export default function CreateAccountModal({ isOpen, onClose }) {
         </div>
 
         {errors.general && <p className="mb-3 text-sm text-red-500">{errors.general}</p>}
-        {success && <p className="mb-3 text-sm text-emerald-600">{success}</p>}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <InputField

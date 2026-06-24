@@ -3,6 +3,7 @@
 import { useTranslation } from '@/hooks/useTranslation'
 import SettingsCard from '@/components/settings/SettingsCard'
 import LanguageSelector from '@/components/settings/LanguageSelector'
+import ThemeSelector from '@/components/settings/ThemeSelector'
 import AccountActions from '@/components/settings/AccountActions'
 
 export default function SettingsPage() {
@@ -23,6 +24,13 @@ export default function SettingsPage() {
                         description={t('pages.settings.languageDescription')}
                     >
                         <LanguageSelector />
+                    </SettingsCard>
+
+                    <SettingsCard
+                        title={t('pages.settings.themeSection')}
+                        description={t('pages.settings.themeDescription')}
+                    >
+                        <ThemeSelector />
                     </SettingsCard>
 
                     <SettingsCard
