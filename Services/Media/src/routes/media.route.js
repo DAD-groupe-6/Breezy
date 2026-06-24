@@ -4,17 +4,32 @@ const MediaController = require("../controllers/media.controllers");
 const GridFsStorage = require("../storage/gridfs.storage");
 const { ALLOWED_TYPES } = require("../services/media.service");
 const { authenticate } = require("../middlewares/auth.middleware");
+const { roleHasPermission } = require("../middlewares/permission.middleware");
 
 const router = express.Router();
 
 const upload = multer({
     storage: new GridFsStorage(),
     limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo
-    fileFilter: (req, file, cb) => {
+    // Le contrôle de permission a lieu ici, AVANT l'écriture en base :
+    // une vidéo exige `add_videos` (Fx19), tout autre média `add_images` (Fx18).
+    fileFilter: async (req, file, cb) => {
         if (!ALLOWED_TYPES.includes(file.mimetype)) {
             return cb(new Error("Invalid file type"));
         }
-        cb(null, true);
+        const permission = file.mimetype.startsWith("video/") ? "add_videos" : "add_images";
+        try {
+            if (!(await roleHasPermission(req.user?.roleId, permission))) {
+                const err = new Error("Insufficient permissions");
+                err.status = 403;
+                return cb(err);
+            }
+            cb(null, true);
+        } catch {
+            const err = new Error("Permission service unavailable");
+            err.status = 503;
+            cb(err);
+        }
     },
 });
 

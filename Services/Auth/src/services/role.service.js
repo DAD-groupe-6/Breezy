@@ -1,4 +1,4 @@
-const { Role, Permission, RolePermission } = require("../models");
+const { Role, Permission, RolePermission, User } = require("../models");
 const { Op } = require("sequelize");
 
 async function listRoles() {
@@ -48,4 +48,14 @@ async function checkPermissionByName(roleId, permissionName) {
     }
 }
 
-module.exports = { listRoles, checkPermission, checkPermissionByName };
+// Comme checkPermissionByName, mais en partant d'un userId : on résout son rôle puis sa permission.
+// Utile aux services qui ne connaissent qu'un userId (ex: Notification → rôle du destinataire).
+async function checkPermissionByUserId(userId, permissionName) {
+    const user = await User.findByPk(userId, { attributes: ["id", "roleId"] });
+    if (!user) {
+        throw new Error("User not found");
+    }
+    return checkPermissionByName(user.roleId, permissionName);
+}
+
+module.exports = { listRoles, checkPermission, checkPermissionByName, checkPermissionByUserId };

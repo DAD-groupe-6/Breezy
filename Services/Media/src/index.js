@@ -20,7 +20,7 @@ app.use("/api/v1/media", mediaRoutes);
 
 app.use((err, req, res, next) => {
     logger.error(`Upload failed: ${err.message}`);
-    const status = err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+    const status = err.status || (err.code === "LIMIT_FILE_SIZE" ? 413 : 400);
     res.status(status).json({ message: err.message });
 });
 
