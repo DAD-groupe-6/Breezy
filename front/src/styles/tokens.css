@@ -340,6 +340,7 @@
    --color-accent-soft: var(--color-light-accent-soft);
    --color-accent-hover: var(--color-light-accent-hover);
    --color-focus-ring: var(--color-light-focus-ring);
+   --color-like-hover-bg: rgba(244, 63, 94, 0.2);
 
    /* Raccourcis sémantiques pour l'élévation */
    --elevation-1: var(--elevation-light-1);

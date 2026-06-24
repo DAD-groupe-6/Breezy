@@ -19,10 +19,10 @@ export default function LikeButton({
       type="button"
       onClick={onClick}
       aria-label={label}
-      className={`flex items-center gap-0.5 group transition-colors ${liked ? 'text-rose-500' : 'text-[var(--color-text-secondary)] hover:text-rose-500'}`}
+      className={`group flex items-center gap-0.5 transition-colors ${liked ? 'text-rose-500' : 'text-[var(--color-text-secondary)] hover:text-rose-500'}`}
     >
       {withWrapper ? (
-        <div className={`rounded-full p-1.5 transition-colors ${liked ? 'bg-rose-100/60' : 'group-hover:bg-rose-100/60'}`}>
+        <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-like-hover-bg)] group-active:bg-[var(--color-like-hover-bg)]">
           {heart}
         </div>
       ) : (
