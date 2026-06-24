@@ -11,6 +11,7 @@ router.get("/validate",  authenticate(), AuthController.validate);
 router.delete("/account", authenticate(), AuthController.deleteAccount);
 
 router.get("/roles", RoleController.listRoles);
+router.get("/roles/:roleId/permissions", RoleController.getRolePermissions);
 router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermission);
 router.get("/roles/:roleId/permissions-by-name/:permissionName", RoleController.checkPermissionByName);
 router.get("/users/:userId/permissions-by-name/:permissionName", RoleController.checkPermissionByUserId);

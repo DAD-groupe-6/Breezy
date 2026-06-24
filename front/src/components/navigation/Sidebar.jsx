@@ -8,20 +8,26 @@ import CurrentUser from "@/components/user/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
 import { useNotifications } from '@/providers/NotificationsProvider'
 import { useMessagesBadge } from '@/providers/MessagesProvider'
+import { useAuth } from '@/providers/AuthProvider'
 
 export default function Sidebar({ user = null }) {
   const pathname = usePathname()
   const { t } = useTranslation()
   const { unreadCount } = useNotifications()
   const { unreadCount: messagesUnread } = useMessagesBadge()
+  const { hasPermission, permsLoaded } = useAuth()
+
+  // Visible si aucune permission requise, ou tant que les permissions ne sont pas
+  // chargées (évite un flash), ou si la permission est effectivement accordée.
+  const canSee = (permission) => !permission || !permsLoaded || hasPermission(permission)
 
   const NAV_ITEMS = [
     { href: '/',              label: t('nav.home'),          Icon: FiHome          },
     { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
     { href: '/notifications', label: t('nav.notifications'), Icon: FiBell, badge: unreadCount },
-    { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: messagesUnread },
+    { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: messagesUnread, permission: 'private_messages' },
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
-  ]
+  ].filter((item) => canSee(item.permission))
 
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 overflow-y-auto border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-sm)] py-[var(--space-lg)] shadow-[var(--shadow-sm)] sm:flex sm:flex-col">
@@ -41,13 +47,15 @@ export default function Sidebar({ user = null }) {
         ))}
       </nav>
 
-      <Link
-        href="/nouvelle-publication"
-        className="mt-[var(--space-md)] flex w-full items-center justify-center gap-[var(--space-xs)] rounded-[var(--radius-pill)] border border-transparent bg-[var(--color-text-title)] px-[var(--space-md)] py-[10px] text-sm text-[var(--color-bg-surface)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-200 [font-weight:var(--font-weight-title)] hover:bg-[var(--color-accent-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] active:scale-[0.99]"
-      >
-        <FiEdit size={16} className="shrink-0" />
-        <span>{t('nav.newPost')}</span>
-      </Link>
+      {canSee('publish_post') && (
+        <Link
+          href="/nouvelle-publication"
+          className="mt-[var(--space-md)] flex w-full items-center justify-center gap-[var(--space-xs)] rounded-[var(--radius-pill)] border border-transparent bg-[var(--color-text-title)] px-[var(--space-md)] py-[10px] text-sm text-[var(--color-bg-surface)] shadow-[var(--shadow-sm)] transition-[background-color,box-shadow,transform] duration-200 [font-weight:var(--font-weight-title)] hover:bg-[var(--color-accent-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)] active:scale-[0.99]"
+        >
+          <FiEdit size={16} className="shrink-0" />
+          <span>{t('nav.newPost')}</span>
+        </Link>
+      )}
 
         <div className="mt-auto pt-[var(--space-md)]">
             <div className="rounded-[var(--radius-lg)] border border-transparent p-[var(--space-sm)] transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--color-border)] hover:bg-[var(--color-accent-soft)] hover:shadow-[var(--shadow-sm)]">

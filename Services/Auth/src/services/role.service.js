@@ -48,6 +48,17 @@ async function checkPermissionByName(roleId, permissionName) {
     }
 }
 
+// Liste les noms de permissions d'un rôle. Utilisé par le front pour piloter l'affichage.
+async function getRolePermissions(roleId) {
+    const role = await Role.findByPk(roleId, {
+        include: [{ model: Permission, as: "permissions", attributes: ["name"], through: { attributes: [] } }],
+    });
+    if (!role) {
+        throw new Error("Role not found");
+    }
+    return role.permissions.map((p) => p.name);
+}
+
 // Comme checkPermissionByName, mais en partant d'un userId : on résout son rôle puis sa permission.
 // Utile aux services qui ne connaissent qu'un userId (ex: Notification → rôle du destinataire).
 async function checkPermissionByUserId(userId, permissionName) {
@@ -58,4 +69,4 @@ async function checkPermissionByUserId(userId, permissionName) {
     return checkPermissionByName(user.roleId, permissionName);
 }
 
-module.exports = { listRoles, checkPermission, checkPermissionByName, checkPermissionByUserId };
+module.exports = { listRoles, getRolePermissions, checkPermission, checkPermissionByName, checkPermissionByUserId };

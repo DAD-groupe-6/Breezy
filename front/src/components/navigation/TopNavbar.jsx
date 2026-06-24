@@ -1,13 +1,12 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { usePathname } from 'next/navigation'
 import AuthButtons from '@/components/auth/AuthButtons'
 import Button from '@/components/ui/Button'
 import CreateAccountModal from '@/components/auth/CreateAccountModal'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
-import api from '@/utils/api'
 
 const ROUTE_TITLE_KEYS = {
   '/': 'pages.home.title',
@@ -22,41 +21,11 @@ const ROUTE_TITLE_KEYS = {
 export default function AppTopNavbar() {
   const pathname = usePathname()
   const { t } = useTranslation()
-  const { user, loading } = useAuth()
-  const [canCreateAccount, setCanCreateAccount] = useState(false)
+  const { hasPermission } = useAuth()
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const titleKey = ROUTE_TITLE_KEYS[pathname] || 'nav.home'
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function checkCreateAccountPermission() {
-      if (!user?.roleId) {
-        setCanCreateAccount(false)
-        return
-      }
-
-      try {
-        const { data } = await api.get(`/auth/roles/${user.roleId}/permissions-by-name/create_account`)
-        if (!cancelled) {
-          setCanCreateAccount(Boolean(data?.hasPermission))
-        }
-      } catch {
-        if (!cancelled) {
-          setCanCreateAccount(false)
-        }
-      }
-    }
-
-    if (!loading) {
-      checkCreateAccountPermission()
-    }
-
-    return () => {
-      cancelled = true
-    }
-  }, [user?.roleId, loading])
+  const canCreateAccount = hasPermission('create_account')
 
   return (
     <header className="sticky top-0 z-10 border-b border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-sm)]">

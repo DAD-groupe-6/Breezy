@@ -52,6 +52,22 @@ async function checkPermissionByName(req, res) {
     }
 }
 
+async function getRolePermissions(req, res) {
+    try {
+        const { roleId } = req.params;
+
+        if (!roleId) {
+            return res.status(400).json({ message: "roleId is required" });
+        }
+
+        const permissions = await RoleService.getRolePermissions(parseInt(roleId));
+        res.status(200).json({ permissions });
+    } catch (err) {
+        const status = err.message === "Role not found" ? 404 : 500;
+        res.status(status).json({ message: err.message });
+    }
+}
+
 async function checkPermissionByUserId(req, res) {
     try {
         const { userId, permissionName } = req.params;
@@ -74,4 +90,4 @@ async function checkPermissionByUserId(req, res) {
     }
 }
 
-module.exports = { listRoles, checkPermission, checkPermissionByName, checkPermissionByUserId };
+module.exports = { listRoles, getRolePermissions, checkPermission, checkPermissionByName, checkPermissionByUserId };

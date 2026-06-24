@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslation } from '@/hooks/useTranslation'
+import { useAuth } from '@/providers/AuthProvider'
 import SettingsCard from '@/components/settings/SettingsCard'
 import LanguageSelector from '@/components/settings/LanguageSelector'
 import ThemeSelector from '@/components/settings/ThemeSelector'
@@ -8,6 +9,7 @@ import AccountActions from '@/components/settings/AccountActions'
 
 export default function SettingsPage() {
     const { t } = useTranslation()
+    const { hasPermission } = useAuth()
 
     return (
         <div className="min-h-screen bg-[var(--color-bg-primary)] px-4 py-8">
@@ -19,19 +21,23 @@ export default function SettingsPage() {
                 }}
             >
                 <div className="flex flex-col gap-5">
-                    <SettingsCard
-                        title={t('pages.settings.languageSection')}
-                        description={t('pages.settings.languageDescription')}
-                    >
-                        <LanguageSelector />
-                    </SettingsCard>
+                    {hasPermission('multi_language') && (
+                        <SettingsCard
+                            title={t('pages.settings.languageSection')}
+                            description={t('pages.settings.languageDescription')}
+                        >
+                            <LanguageSelector />
+                        </SettingsCard>
+                    )}
 
-                    <SettingsCard
-                        title={t('pages.settings.themeSection')}
-                        description={t('pages.settings.themeDescription')}
-                    >
-                        <ThemeSelector />
-                    </SettingsCard>
+                    {hasPermission('custom_theme') && (
+                        <SettingsCard
+                            title={t('pages.settings.themeSection')}
+                            description={t('pages.settings.themeDescription')}
+                        >
+                            <ThemeSelector />
+                        </SettingsCard>
+                    )}
 
                     <SettingsCard
                         title={t('pages.settings.accountSection')}
