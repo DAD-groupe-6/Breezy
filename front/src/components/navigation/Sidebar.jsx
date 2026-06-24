@@ -6,15 +6,17 @@ import { FiHome, FiCompass, FiBell, FiMessageSquare, FiEdit, FiSettings } from '
 import SidebarNavItem from './SidebarNavItem'
 import CurrentUser from "@/components/user/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
+import { useNotifications } from '@/providers/NotificationsProvider'
 
 export default function Sidebar({ user = null }) {
   const pathname = usePathname()
   const { t } = useTranslation()
+  const { unreadCount } = useNotifications()
 
   const NAV_ITEMS = [
     { href: '/',              label: t('nav.home'),          Icon: FiHome          },
     { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
-    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell,         },
+    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell, badge: unreadCount },
     { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare },
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
   ]
