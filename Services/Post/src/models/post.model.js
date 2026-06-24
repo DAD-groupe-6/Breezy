@@ -15,6 +15,10 @@ const postSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+        video: {
+            type: String,
+            default: null,
+        },
         likes: {
             type: [String],
             default: [],
@@ -37,10 +41,6 @@ const postSchema = new mongoose.Schema(
             ref: "Post",
             default: null,
         },
-        // Cible d'une réponse : id du commentaire/réponse auquel on répond dans la
-        // sous-conversation (pour la flèche "↳ @pseudo" et un futur "saut au message").
-        // Rempli par le serveur, null pour un commentaire de 1er niveau ou une réponse
-        // directe au commentaire. L'auteur (@pseudo) est résolu à la lecture.
         reply_to: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Post",
@@ -50,8 +50,7 @@ const postSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
-        // Compteur dénormalisé : nombre de commentaires (posts "response" enfants).
-        // Mis à jour avec $inc à chaque ajout/suppression de commentaire.
+
         commentsCount: {
             type: Number,
             default: 0,
@@ -62,9 +61,7 @@ const postSchema = new mongoose.Schema(
     }
 );
 
-// Index pour lister rapidement les commentaires d'un post (find par parent_id, tri par date)
 postSchema.index({ parent_id: 1, createdAt: -1 });
-// Index pour filtrer rapidement le feed sur les vrais posts (type: "post")
 postSchema.index({ type: 1, _id: -1 });
 
 module.exports = mongoose.model("Post", postSchema);

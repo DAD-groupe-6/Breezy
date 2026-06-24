@@ -2,28 +2,51 @@ const MediaService = require("../services/media.service");
 const logger = require("../logger");
 
 async function upload(req, res) {
-    try {
-        const id = await MediaService.uploadImage(req.file);
-        res.status(201).json({ id: String(id), url: `/api/v1/media/${id}` });
-    } catch (err) {
-        logger.error(`Upload failed: ${err.message}`);
-        res.status(400).json({ message: err.message });
+    if (!req.file) {
+        return res.status(400).json({ message: "No file provided" });
     }
+    res.status(201).json({
+        id: String(req.file.id),
+        url: `/api/v1/media/${req.file.id}`,
+    });
 }
 
 async function getOne(req, res) {
     try {
         const fileInfo = await MediaService.getFileInfo(req.params.id);
+        const total = fileInfo.length;
 
         res.set("Content-Type", fileInfo.contentType);
         res.set("Cache-Control", "public, max-age=31536000"); // cache 1 an
+        res.set("Accept-Ranges", "bytes");
 
-        const readStream = MediaService.getReadStream(req.params.id);
+        const range = req.headers.range;
 
-        readStream.on("error", () => {
-            res.status(404).json({ message: "File not found" });
+        if (!range) {
+            res.set("Content-Length", total);
+            const readStream = MediaService.getReadStream(req.params.id);
+            readStream.on("error", () => res.destroy());
+            return readStream.pipe(res);
+        }
+
+        const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+        const start = match && match[1] !== "" ? parseInt(match[1], 10) : 0;
+        const end = match && match[2] !== "" ? parseInt(match[2], 10) : total - 1;
+
+        if (!match || isNaN(start) || isNaN(end) || start > end || end >= total) {
+            res.set("Content-Range", `bytes */${total}`);
+            return res.status(416).end();
+        }
+
+        res.status(206);
+        res.set("Content-Range", `bytes ${start}-${end}/${total}`);
+        res.set("Content-Length", end - start + 1);
+
+        const readStream = MediaService.getReadStream(req.params.id, {
+            start,
+            end: end + 1,
         });
-
+        readStream.on("error", () => res.destroy());
         readStream.pipe(res);
     } catch (err) {
         res.status(404).json({ message: err.message });

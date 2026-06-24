@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import api from '@/utils/api'
+import { deleteMedia } from '@/utils/media'
 import { useTranslation } from '@/hooks/useTranslation'
 import Avatar from '@/components/user/Avatar'
 
@@ -67,6 +68,9 @@ export default function EditProfileModal({ isOpen, onClose, user, onSaved }) {
                 payload.img_profile = media.url
             }
             const { data } = await api.put(`/user/${user.id_user}`, payload)
+            if (avatarFile && user.img_profile) {
+                deleteMedia(user.img_profile)
+            }
             onSaved?.(data)
             onClose()
         } catch (err) {

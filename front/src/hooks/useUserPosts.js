@@ -26,6 +26,7 @@ export function useUserPosts(userId) {
         timestamp: timeAgo(post.createdAt, t, locale),
         content: post.content,
         images: post.images,
+        video: post.video || null,
         likes: post.nb_like,
         liked: post.likedByMe,
         comments: post.commentsCount,

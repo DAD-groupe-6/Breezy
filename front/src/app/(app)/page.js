@@ -67,6 +67,7 @@ export default function Home() {
               timestamp={timeAgo(post.createdAt, t, locale)}
               content={post.content}
               images={post.images}
+              video={post.video}
               likes={post.nb_like}
               liked={post.likedByMe}
               comments={post.commentsCount}

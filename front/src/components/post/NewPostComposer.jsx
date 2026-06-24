@@ -35,9 +35,9 @@ export default function NewPostComposer() {
 
   const canPublish = useMemo(
     () =>
-      (content.trim().length > 0 || (mediaType === 'photo' && selectedFiles.length > 0)) &&
+      (content.trim().length > 0 || selectedFiles.length > 0) &&
       content.length <= MAX_LENGTH,
-    [content, mediaType, selectedFiles]
+    [content, selectedFiles]
   )
 
   async function handlePublish() {
@@ -49,8 +49,9 @@ export default function NewPostComposer() {
 
     setLoading(true)
     try {
-      // On uploade chaque photo au service Media, puis on rattache les URLs au post.
+      // On uploade chaque média au service Media, puis on rattache les URLs au post.
       let images = []
+      let video = null
       if (mediaType === 'photo' && selectedFiles.length) {
         images = await Promise.all(
           selectedFiles.map((file) => {
@@ -59,8 +60,13 @@ export default function NewPostComposer() {
             return api.post('/media', formData).then((res) => res.data.url)
           })
         )
+      } else if (mediaType === 'video' && selectedFiles.length) {
+        const formData = new FormData()
+        formData.append('image', selectedFiles[0])
+        const { data } = await api.post('/media', formData)
+        video = data.url
       }
-      await api.post('/post', { content, images })
+      await api.post('/post', { content, images, video })
       toast.success(t('toasts.postCreated'))
       router.push('/')
     } catch (err) {

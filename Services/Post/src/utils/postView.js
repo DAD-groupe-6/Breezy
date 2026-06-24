@@ -8,6 +8,7 @@ function toView(post, viewerId) {
         id_user: post.id_user,
         content: post.content,
         images: post.images || [],
+        video: post.video || null,
         type: post.type,
         parent_id: post.parent_id,
         reply_to: post.reply_to,

@@ -1,30 +1,16 @@
 const mongoose = require("mongoose");
 const { getBucket } = require("../config/database.config");
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const ALLOWED_TYPES = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "video/mp4",
+];
 
-function uploadImage(file) {
-    return new Promise((resolve, reject) => {
-        if (!file) return reject(new Error("No file provided"));
-        if (!ALLOWED_TYPES.includes(file.mimetype)) {
-            return reject(new Error("Invalid file type"));
-        }
 
-        const bucket = getBucket();
-
-        const uploadStream = bucket.openUploadStream(file.originalname, {
-            contentType: file.mimetype,
-        });
-
-        uploadStream.end(file.buffer);
-
-        uploadStream.on("finish", () => {
-            resolve(uploadStream.id);
-        });
-        uploadStream.on("error", (err) => {
-            reject(err);
-        });
-    });
+function openUploadStream(filename, contentType) {
+    return getBucket().openUploadStream(filename, { contentType });
 }
 
 async function getFileInfo(id) {
@@ -42,9 +28,10 @@ async function getFileInfo(id) {
     return files[0];
 }
 
-function getReadStream(id) {
+
+function getReadStream(id, options = {}) {
     const bucket = getBucket();
-    return bucket.openDownloadStream(new mongoose.Types.ObjectId(id));
+    return bucket.openDownloadStream(new mongoose.Types.ObjectId(id), options);
 }
 
 async function deleteImage(id) {
@@ -56,4 +43,10 @@ async function deleteImage(id) {
     return { id };
 }
 
-module.exports = { uploadImage, getFileInfo, getReadStream, deleteImage };
+module.exports = {
+    ALLOWED_TYPES,
+    openUploadStream,
+    getFileInfo,
+    getReadStream,
+    deleteImage,
+};

@@ -24,8 +24,8 @@ function statusFor(message) {
 // Posts
 async function createPost(req, res) {
     try {
-        const { content, images } = req.body;
-        const post = await PostService.createPost(req.user.id, content, images);
+        const { content, images, video } = req.body;
+        const post = await PostService.createPost(req.user.id, content, images, video);
         res.status(201).json(post);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
