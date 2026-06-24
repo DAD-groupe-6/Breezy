@@ -91,6 +91,9 @@ const fr = {
       videoCall: 'Appel vidéo',
       attachFile: 'Joindre un fichier',
       send: 'Envoyer',
+      newConversation: 'Nouvelle conversation',
+      noMutualFollowers: 'Aucun abonné mutuel pour le moment.',
+      deleteConversation: 'Supprimer la conversation',
     },
     notifications: {
       title: 'Notifications',
@@ -202,6 +205,7 @@ const fr = {
     statFollowers: 'Followers',
     follow: 'Suivre',
     following: 'Abonné',
+    message: 'Message',
     editProfile: 'Modifier le profil',
     changePhoto: 'Changer la photo de profil',
     optionsAriaLabel: 'Options du profil',
