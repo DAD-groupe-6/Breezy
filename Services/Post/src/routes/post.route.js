@@ -5,8 +5,7 @@ const { optionalAuthenticate } = require("../middlewares/auth.middleware");
 const { requirePermission } = require("../middlewares/permission.middleware");
 
 // Recherche et routes spécifiques avant les routes dynamiques `/:id`.
-router.get("/search/content", optionalAuthenticate, requirePermission("search_tags"), PostController.searchByContent);
-router.get("/search/tags/:tag", optionalAuthenticate, requirePermission("search_tags"), PostController.searchByTag);
+router.get("/search", optionalAuthenticate, requirePermission("search_tags"), PostController.search);
 router.get("/user/:userId", optionalAuthenticate, requirePermission("list_user_posts"), PostController.getUserPosts);
 
 router.get("/:id", optionalAuthenticate, requirePermission("view_profile_posts"), PostController.getPost);
