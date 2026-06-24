@@ -126,6 +126,7 @@ const fr = {
       themeGroupDark: 'Thèmes sombres',
       themeLight: 'Clair',
       themeDark: 'Sombre',
+      themeDiscord: 'Discord',
       themeGaming: 'Gaming',
       themeNeon: 'Neon',
       themeOcean: 'Ocean',

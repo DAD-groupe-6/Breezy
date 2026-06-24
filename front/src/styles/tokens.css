@@ -58,6 +58,35 @@
 
 
   /* ==========================================================================
+     THEME: DISCORD (Anthracite bleuté + Accent blurple)
+     Thème sombre inspiré du thème dark par défaut de Discord.
+     ========================================================================== */
+
+  /* Arrière-plans & Surfaces */
+  --color-discord-bg-primary: #313338;     /* Fond principal proche du canvas Discord */
+  --color-discord-bg-surface: #2B2D31;     /* Cartes et panneaux */
+  --color-discord-bg-surface-2: #232428;   /* Zones imbriquées et hover */
+
+  /* Bordures */
+  --color-discord-border: #1E1F22;         /* Séparateurs sombres subtils */
+
+  /* Typographie & Contenu */
+  --color-discord-text-title: #5865F2;     /* Blurple Discord */
+  --color-discord-text-primary: #F2F3F5;   /* Texte principal clair */
+  --color-discord-text-secondary: #B5BAC1; /* Texte secondaire */
+
+  /* Etats interactifs */
+  --color-discord-accent-soft: rgba(88, 101, 242, 0.16);
+  --color-discord-accent-hover: #6D79F8;
+  --color-discord-focus-ring: rgba(88, 101, 242, 0.28);
+
+  /* Elevation */
+  --elevation-discord-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --elevation-discord-2: 0 12px 32px rgba(0, 0, 0, 0.36);
+  --elevation-discord-3: 0 22px 56px rgba(0, 0, 0, 0.44);
+
+
+  /* ==========================================================================
      THEME: GAMING (Noir profond + Vert néon)
      Thème inspiré des PC gamer et du style gaming.
      ========================================================================== */
@@ -334,6 +363,23 @@
    --elevation-1: var(--elevation-dark-1);
    --elevation-2: var(--elevation-dark-2);
    --elevation-3: var(--elevation-dark-3);
+   color-scheme: dark;
+}
+
+:root[data-theme='discord'] {
+   --color-bg-primary: var(--color-discord-bg-primary);
+   --color-bg-surface: var(--color-discord-bg-surface);
+   --color-bg-surface-2: var(--color-discord-bg-surface-2);
+   --color-border: var(--color-discord-border);
+   --color-text-title: var(--color-discord-text-title);
+   --color-text-primary: var(--color-discord-text-primary);
+   --color-text-secondary: var(--color-discord-text-secondary);
+   --color-accent-soft: var(--color-discord-accent-soft);
+   --color-accent-hover: var(--color-discord-accent-hover);
+   --color-focus-ring: var(--color-discord-focus-ring);
+   --elevation-1: var(--elevation-discord-1);
+   --elevation-2: var(--elevation-discord-2);
+   --elevation-3: var(--elevation-discord-3);
    color-scheme: dark;
 }
 

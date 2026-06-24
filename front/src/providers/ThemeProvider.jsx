@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useCallback, useEffect, useMemo } 
 import { getTheme, setTheme } from '@/utils/cookie'
 
 const ThemeContext = createContext(null)
-const VALID_THEMES = ['light', 'dark', 'gaming', 'neon', 'ocean', 'minty', 'sunset', 'forest', 'berry', 'lavender']
+const VALID_THEMES = ['light', 'dark', 'discord', 'gaming', 'neon', 'ocean', 'minty', 'sunset', 'forest', 'berry', 'lavender']
 
 function detectBrowserTheme() {
   if (typeof window === 'undefined') return 'light'

@@ -11,6 +11,7 @@ export default function ThemeSelector() {
     const themeLabels = useMemo(() => ({
         light: t('pages.settings.themeLight'),
         dark: t('pages.settings.themeDark'),
+        discord: t('pages.settings.themeDiscord'),
         gaming: t('pages.settings.themeGaming'),
         neon: t('pages.settings.themeNeon'),
         ocean: t('pages.settings.themeOcean'),
@@ -22,7 +23,7 @@ export default function ThemeSelector() {
     }), [t])
 
     const lightThemes = ['light', 'minty', 'sunset', 'forest', 'berry', 'lavender']
-    const darkThemes = ['dark', 'gaming', 'neon', 'ocean']
+    const darkThemes = ['dark', 'discord', 'gaming', 'neon', 'ocean']
 
     const groupedThemes = useMemo(() => {
         const availableLightThemes = lightThemes.filter((themeName) => availableThemes.includes(themeName))

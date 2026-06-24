@@ -126,6 +126,7 @@ const en = {
       themeGroupDark: 'Dark themes',
       themeLight: 'Light',
       themeDark: 'Dark',
+      themeDiscord: 'Discord',
       themeGaming: 'Gaming',
       themeNeon: 'Neon',
       themeOcean: 'Ocean',

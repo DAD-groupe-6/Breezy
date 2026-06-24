@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation'
 const THEME_LABEL_KEYS = {
   light: 'themeLight',
   dark: 'themeDark',
+  discord: 'themeDiscord',
   gaming: 'themeGaming',
   neon: 'themeNeon',
   ocean: 'themeOcean',
