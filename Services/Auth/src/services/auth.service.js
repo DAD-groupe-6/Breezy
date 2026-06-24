@@ -3,6 +3,7 @@ const { hashPassword, comparePassword } = require("../utils/bcrypt.util");
 const { generateToken } = require("../utils/jwt.util");
 const { User, Role } = require("../models");
 const { checkPermissionByName } = require("./role.service");
+const logger = require("../logger");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
@@ -110,7 +111,7 @@ async function deleteAccount(userId) {
         });
     } catch (err) {
         if (err.response?.status !== 404) {
-            console.error(
+            logger.error(
                 `[deleteAccount] Échec suppression du profil User ${userId}: ${err.message}`
             );
         }
