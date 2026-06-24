@@ -69,4 +69,136 @@ async function checkPermissionByUserId(userId, permissionName) {
     return checkPermissionByName(user.roleId, permissionName);
 }
 
-module.exports = { listRoles, getRolePermissions, checkPermission, checkPermissionByName, checkPermissionByUserId };
+// =====================================================================
+//  Administration RBAC (réservé à la permission `manage_roles`)
+// =====================================================================
+
+// Rôles "noyau" : on interdit leur suppression/renommage pour ne pas casser le seed
+// ni la logique métier des services (qui raisonnent par nom de permission, pas de rôle).
+const CORE_ROLES = ["visiteur", "utilisateur", "moderateur", "administrateur"];
+
+// Renvoie un rôle avec ses permissions (id + nom + description).
+async function getRoleDetailed(roleId) {
+    return Role.findByPk(roleId, {
+        attributes: ["id", "name", "description"],
+        include: [{ model: Permission, as: "permissions", attributes: ["id", "name", "description"], through: { attributes: [] } }],
+    });
+}
+
+// Liste tous les rôles (y compris visiteur) avec leurs permissions. Utilisé par la page d'admin.
+async function listRolesDetailed() {
+    return Role.findAll({
+        attributes: ["id", "name", "description"],
+        include: [{ model: Permission, as: "permissions", attributes: ["id", "name", "description"], through: { attributes: [] } }],
+        order: [["id", "ASC"]],
+    });
+}
+
+async function listPermissions() {
+    return Permission.findAll({
+        attributes: ["id", "name", "description"],
+        order: [["id", "ASC"]],
+    });
+}
+
+// Convertit une liste de noms de permissions en instances (erreur si l'une est inconnue).
+async function resolvePermissions(names) {
+    if (!Array.isArray(names)) return [];
+    const unique = [...new Set(names)];
+    if (unique.length === 0) return [];
+    const perms = await Permission.findAll({ where: { name: unique } });
+    if (perms.length !== unique.length) {
+        throw new Error("Unknown permission");
+    }
+    return perms;
+}
+
+async function createRole({ name, description, permissions }) {
+    if (!name || !name.trim()) throw new Error("Role name is required");
+    const clean = name.trim();
+    if (await Role.findOne({ where: { name: clean } })) throw new Error("Role already exists");
+
+    const role = await Role.create({ name: clean, description: description || null });
+    if (permissions !== undefined) {
+        await role.setPermissions(await resolvePermissions(permissions));
+    }
+    return getRoleDetailed(role.id);
+}
+
+// requesterRoleId : rôle de l'admin qui édite, pour éviter qu'il ne se retire son propre accès.
+async function updateRole(roleId, { name, description, permissions }, requesterRoleId) {
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error("Role not found");
+
+    if (name !== undefined && name.trim() && name.trim() !== role.name) {
+        if (CORE_ROLES.includes(role.name)) throw new Error("Cannot rename a core role");
+        if (await Role.findOne({ where: { name: name.trim() } })) throw new Error("Role already exists");
+        role.name = name.trim();
+    }
+    if (description !== undefined) role.description = description;
+    await role.save();
+
+    if (permissions !== undefined) {
+        // Garde-fou anti-verrouillage : un admin ne peut pas retirer `manage_roles` à son propre rôle.
+        if (Number(roleId) === Number(requesterRoleId) && !permissions.includes("manage_roles")) {
+            throw new Error("Cannot remove your own admin access");
+        }
+        await role.setPermissions(await resolvePermissions(permissions));
+    }
+    return getRoleDetailed(role.id);
+}
+
+async function deleteRole(roleId) {
+    const role = await Role.findByPk(roleId);
+    if (!role) throw new Error("Role not found");
+    if (CORE_ROLES.includes(role.name)) throw new Error("Cannot delete a core role");
+    if (await User.count({ where: { roleId } }) > 0) throw new Error("Role has assigned users");
+    await role.destroy();
+}
+
+async function createPermission({ name, description }) {
+    if (!name || !name.trim()) throw new Error("Permission name is required");
+    const clean = name.trim();
+    if (await Permission.findOne({ where: { name: clean } })) throw new Error("Permission already exists");
+    return Permission.create({ name: clean, description: description || null });
+}
+
+async function updatePermission(permissionId, { name, description }) {
+    const permission = await Permission.findByPk(permissionId);
+    if (!permission) throw new Error("Permission not found");
+
+    if (name !== undefined && name.trim() && name.trim() !== permission.name) {
+        // La permission `manage_roles` ne peut pas être renommée : la perdre verrouillerait l'admin.
+        if (permission.name === "manage_roles") throw new Error("Cannot rename the admin permission");
+        if (await Permission.findOne({ where: { name: name.trim() } })) throw new Error("Permission already exists");
+        permission.name = name.trim();
+    }
+    if (description !== undefined) permission.description = description;
+    await permission.save();
+    return permission;
+}
+
+async function deletePermission(permissionId) {
+    const permission = await Permission.findByPk(permissionId);
+    if (!permission) throw new Error("Permission not found");
+    if (permission.name === "manage_roles") throw new Error("Cannot delete the admin permission");
+    // Les liens role_permissions sont retirés en cascade (onDelete: CASCADE).
+    await permission.destroy();
+}
+
+module.exports = {
+    listRoles,
+    getRolePermissions,
+    checkPermission,
+    checkPermissionByName,
+    checkPermissionByUserId,
+    // Administration RBAC
+    listRolesDetailed,
+    listPermissions,
+    createRole,
+    updateRole,
+    deleteRole,
+    createPermission,
+    updatePermission,
+    deletePermission,
+};

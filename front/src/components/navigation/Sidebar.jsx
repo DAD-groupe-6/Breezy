@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FiHome, FiCompass, FiBell, FiMessageSquare, FiEdit, FiSettings } from 'react-icons/fi'
+import { FiHome, FiCompass, FiBell, FiMessageSquare, FiEdit, FiSettings, FiShield } from 'react-icons/fi'
 import SidebarNavItem from './SidebarNavItem'
 import CurrentUser from "@/components/user/CurrentUser";
 import { useTranslation } from '@/hooks/useTranslation'
@@ -26,8 +26,11 @@ export default function Sidebar({ user = null }) {
     { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
     { href: '/notifications', label: t('nav.notifications'), Icon: FiBell, badge: unreadCount },
     { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: messagesUnread, permission: 'private_messages' },
+    { href: '/admin',         label: t('nav.admin'),         Icon: FiShield, permission: 'manage_roles', strict: true },
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },
-  ].filter((item) => canSee(item.permission))
+    // strict: lien sensible (admin) → affiché seulement quand la permission est confirmée,
+    // jamais pendant le chargement, contrairement aux autres entrées.
+  ].filter((item) => (item.strict ? permsLoaded && hasPermission(item.permission) : canSee(item.permission)))
 
   return (
     <aside className="sticky top-0 hidden h-screen w-60 shrink-0 overflow-y-auto border-r border-[var(--color-border)] bg-[var(--color-bg-surface)] px-[var(--space-sm)] py-[var(--space-lg)] shadow-[var(--shadow-sm)] sm:flex sm:flex-col">

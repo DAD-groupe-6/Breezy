@@ -1,11 +1,13 @@
 'use client'
 
+import Link from 'next/link'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
 import SettingsCard from '@/components/settings/SettingsCard'
 import LanguageSelector from '@/components/settings/LanguageSelector'
 import ThemeSelector from '@/components/settings/ThemeSelector'
 import AccountActions from '@/components/settings/AccountActions'
+import Button from '@/components/ui/Button'
 
 export default function SettingsPage() {
     const { t } = useTranslation()
@@ -36,6 +38,17 @@ export default function SettingsPage() {
                             description={t('pages.settings.themeDescription')}
                         >
                             <ThemeSelector />
+                        </SettingsCard>
+                    )}
+
+                    {hasPermission('manage_roles') && (
+                        <SettingsCard
+                            title={t('pages.settings.adminSection')}
+                            description={t('pages.settings.adminDescription')}
+                        >
+                            <Link href="/admin">
+                                <Button>{t('pages.settings.adminLink')}</Button>
+                            </Link>
                         </SettingsCard>
                     )}
 

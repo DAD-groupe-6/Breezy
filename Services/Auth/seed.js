@@ -37,13 +37,14 @@ const permissionsList = [
     { name: "moderate_users", description: "Fx21. Suspension ou bannissement des utilisateurs" },
     { name: "multi_language", description: "Fx22. Interface multi-langues" },
     { name: "custom_theme", description: "Fx23. Thème personnalisé" },
+    { name: "manage_roles", description: "Administration des rôles et des permissions" },
 ];
 
 const rolePermissionsMap = {
     visiteur:       ["create_account", "custom_theme"],
     utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "notify_mentions", "notify_likes", "notify_followers", "private_messages", "add_images", "add_videos", "report_content", "multi_language", "custom_theme"],
     moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "notify_mentions", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "notify_mentions", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
+    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "notify_mentions", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme", "manage_roles"],
 };
 
 async function seedDatabase() {

@@ -3,6 +3,7 @@ const router = express.Router();
 const AuthController = require("../controllers/auth.controller");
 const RoleController = require("../controllers/role.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
+const { requirePermission } = require("../middlewares/permission.middleware");
 
 router.post("/register", authenticate({ optional: true }), AuthController.register);
 router.post("/login",    AuthController.login);
@@ -15,5 +16,18 @@ router.get("/roles/:roleId/permissions", RoleController.getRolePermissions);
 router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermission);
 router.get("/roles/:roleId/permissions-by-name/:permissionName", RoleController.checkPermissionByName);
 router.get("/users/:userId/permissions-by-name/:permissionName", RoleController.checkPermissionByUserId);
+
+// --- Administration RBAC (réservé à la permission `manage_roles`) ---
+const adminGuard = [authenticate(), requirePermission("manage_roles")];
+
+router.get("/admin/roles", ...adminGuard, RoleController.adminListRoles);
+router.post("/admin/roles", ...adminGuard, RoleController.adminCreateRole);
+router.put("/admin/roles/:roleId", ...adminGuard, RoleController.adminUpdateRole);
+router.delete("/admin/roles/:roleId", ...adminGuard, RoleController.adminDeleteRole);
+
+router.get("/admin/permissions", ...adminGuard, RoleController.adminListPermissions);
+router.post("/admin/permissions", ...adminGuard, RoleController.adminCreatePermission);
+router.put("/admin/permissions/:permissionId", ...adminGuard, RoleController.adminUpdatePermission);
+router.delete("/admin/permissions/:permissionId", ...adminGuard, RoleController.adminDeletePermission);
 
 module.exports = router;
