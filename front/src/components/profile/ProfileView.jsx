@@ -49,6 +49,15 @@ export default function ProfileView({ userId, isOwnProfile }) {
         return () => observer.disconnect()
     }, [hasMore, postsLoading, loadMore])
 
+    useEffect(() => {
+        if (!isOwnProfile) return
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('onboarding')) {
+            setEditOpen(true)
+            window.history.replaceState(null, '', '/profil')
+        }
+    }, [isOwnProfile])
+
     // Id de l'utilisateur connecté (depuis le JWT)
     const token = getToken()
     const myId = token ? String(jwtDecode(token).id) : null

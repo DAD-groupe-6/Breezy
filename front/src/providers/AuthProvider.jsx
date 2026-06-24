@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { jwtDecode } from 'jwt-decode'
 import { getToken, setToken, clearToken } from '@/utils/cookie'
+import { disconnectSocket } from '@/utils/socket'
 
 const AuthContext = createContext(null)
 
@@ -36,8 +37,10 @@ export function AuthProvider({ children }) {
     setUser(userFromToken(token))
   }, [])
 
-  // Déconnexion : efface le cookie et l'état.
+  // Déconnexion : ferme le socket (sinon il reste dans la room de l'ancien user),
+  // efface le cookie et l'état.
   const logout = useCallback(() => {
+    disconnectSocket()
     clearToken()
     setUser(null)
   }, [])

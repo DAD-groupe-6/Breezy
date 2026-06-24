@@ -1,4 +1,5 @@
 const { User, Follow } = require("../models/user.model");
+const { publishEvent } = require("../messaging/publisher");
 
 async function addFollow(follower_id, following_id) {
     const follower = await User.findByPk(follower_id);
@@ -29,6 +30,11 @@ async function addFollow(follower_id, following_id) {
 
     following.nb_followers += 1;
     await following.save();
+
+    publishEvent("user.followed", {
+        recipientId: String(following_id),
+        actorId: String(follower_id),
+    });
 
     return { message: "Follow added successfully", follow: newFollow };
 }

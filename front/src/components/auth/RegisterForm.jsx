@@ -8,6 +8,7 @@ import { validateRegister } from '@/utils/validation'
 import { useRouter } from 'next/navigation';
 import api from '@/utils/api';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
 
 export default function RegisterForm() {
   const [username, setUsername] = useState('');
@@ -19,6 +20,7 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { t } = useTranslation();
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -36,7 +38,13 @@ export default function RegisterForm() {
             pseudo_uniq: username,
             pseudo: displayName
         })
-        router.push('/login')
+        try {
+            const { data } = await api.post('/auth/login', { email, password })
+            login(data.token)
+            router.push('/profil?onboarding=1')
+        } catch {
+            router.push('/login')
+        }
     }catch(err){
         const message = err.response?.data?.message || t('errors.network.register')
         setErrors({ general: message })
