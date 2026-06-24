@@ -257,6 +257,10 @@ const fr = {
     unbanSuccess: 'Ban levé avec succès',
     banError: 'Erreur lors du bannissement',
     unbanError: 'Erreur lors de la levée du ban',
+    deleteAccountError: 'Échec de la suppression du compte, réessaie',
+    postReported: 'Post signalé',
+    alreadyReported: 'Tu as déjà signalé ce post',
+    reportError: 'Échec du signalement, réessaie',
   },
 
   moderation: {

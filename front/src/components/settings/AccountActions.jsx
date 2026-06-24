@@ -4,14 +4,18 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useAuth } from '@/providers/AuthProvider'
+import { useToast } from '@/hooks/useToast'
+import api from '@/utils/api'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 
 export default function AccountActions() {
     const { t } = useTranslation()
     const router = useRouter()
     const { logout } = useAuth()
+    const toast = useToast()
     const [logoutOpen, setLogoutOpen] = useState(false)
     const [deleteOpen, setDeleteOpen] = useState(false)
+    const [deleting, setDeleting] = useState(false)
 
     const handleLogout = () => {
         logout()
@@ -19,9 +23,16 @@ export default function AccountActions() {
     }
 
     const handleDelete = async () => {
-        // À brancher plus tard sur l'API de suppression de compte.
-        logout()
-        router.push('/register')
+        setDeleting(true)
+        try {
+            await api.delete('/auth/account')
+            logout()
+            router.push('/register')
+        } catch (err) {
+            console.error('[AccountActions] Échec de la suppression du compte', err)
+            toast.error(t('toasts.deleteAccountError'))
+            setDeleting(false)
+        }
     }
 
     return (
@@ -62,7 +73,8 @@ export default function AccountActions() {
                 confirmLabel={t('pages.settings.deleteAccountConfirm.confirm')}
                 cancelLabel={t('pages.settings.deleteAccountConfirm.cancel')}
                 onConfirm={handleDelete}
-                onClose={() => setDeleteOpen(false)}
+                onClose={() => { if (!deleting) setDeleteOpen(false) }}
+                loading={deleting}
                 danger
             />
         </div>

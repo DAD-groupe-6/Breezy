@@ -257,6 +257,10 @@ const en = {
     unbanSuccess: 'Ban lifted successfully',
     banError: 'Error while banning user',
     unbanError: 'Error while lifting ban',
+    deleteAccountError: 'Failed to delete account, please try again',
+    postReported: 'Post reported',
+    alreadyReported: 'You already reported this post',
+    reportError: 'Failed to report, please try again',
   },
 
   moderation: {

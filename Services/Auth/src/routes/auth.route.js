@@ -8,6 +8,7 @@ router.post("/register", optionalAuthenticate, AuthController.register);
 router.post("/login",    AuthController.login);
 router.post("/logout",   AuthController.logout);
 router.get("/validate",  authenticate, AuthController.validate);
+router.delete("/account", authenticate, AuthController.deleteAccount);
 
 router.get("/roles", RoleController.listRoles);
 router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermission);
