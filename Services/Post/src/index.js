@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const connectDB = require("./config/database.config");
+const { connectPublisher } = require("./messaging/publisher");
 const postRoutes = require("./routes/post.route");
 const recommendationRoutes = require("./routes/recommendation.route");
 const logger = require("./logger");
@@ -42,6 +43,7 @@ async function startServer() {
     try {
         await connectDB();
         logger.info("Connected to MongoDB");
+        await connectPublisher();
         app.listen(port, () => {
             logger.info(`Post service → http://localhost:${port}`);
         });

@@ -6,10 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import { FaHome, FaCompass, FaBell, FaEnvelope, FaUser, FaPlus, FaCog } from "react-icons/fa";
 import Badge from "@/components/ui/Badge";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useNotifications } from "@/providers/NotificationsProvider";
+import { useMessagesBadge } from "@/providers/MessagesProvider";
 
 export default function NavbarMobile({ forceShow = false }) {
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { unreadCount } = useNotifications();
+  const { unreadCount: messagesUnread } = useMessagesBadge();
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
   const accumulatedDown = useRef(0);
@@ -17,8 +21,8 @@ export default function NavbarMobile({ forceShow = false }) {
   const navItems = [
     { href: "/", icon: FaHome, labelKey: "nav.home" },
     { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer" },
-    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications"},
-    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages"},
+    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: unreadCount },
+    { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: messagesUnread },
     { href: "/profil", icon: FaUser, labelKey: "nav.profil" },
   ];
 

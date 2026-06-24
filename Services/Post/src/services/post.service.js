@@ -6,6 +6,7 @@ const { toView } = require("../utils/postView");
 const { isLikedBy, likedPostIds } = require("../utils/likes.util");
 const { extractTags } = require("../utils/tags.util");
 const { parsePage, slicePage } = require("../utils/pagination.util");
+const { publishEvent } = require("../messaging/publisher");
 
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
@@ -106,12 +107,22 @@ async function likePost(id, userId) {
     const post = await Post.findById(id);
     if (!post) throw new Error("Post not found");
 
+    let isNewLike = false;
     try {
         await Like.create({ post_id: post._id, user_id: String(userId) });
         post.nb_like += 1;
         await post.save();
+        isNewLike = true;
     } catch (err) {
         if (err.code !== 11000) throw err; // 11000 = déjà liké → idempotent
+    }
+
+    if (isNewLike && post.id_user !== String(userId)) {
+        publishEvent("post.liked", {
+            recipientId: post.id_user,
+            actorId: String(userId),
+            postId: String(post._id),
+        });
     }
     return toView(post, true);
 }
@@ -155,6 +166,16 @@ async function addComment(targetId, userId, content) {
         list_tags: extractTags(trimmed),
     });
     await Post.findByIdAndUpdate(rootId, { $inc: { commentsCount: 1 } });
+
+    if (target.id_user !== String(userId)) {
+        publishEvent("post.commented", {
+            recipientId: target.id_user,
+            actorId: String(userId),
+            postId: String(target._id),
+            commentId: String(comment._id),
+        });
+    }
+
     return {
         ...toView(comment, false),
         reply_to_user: replyTo ? target.id_user : null,

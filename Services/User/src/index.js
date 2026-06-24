@@ -7,6 +7,7 @@ const sequelize = require('./config/database.config');
 const userRoutes = require('./routes/user.route');
 const followRoutes = require('./routes/follow.route');
 const logger = require('./logger');
+const { connectPublisher } = require("./messaging/publisher");
 
 const app = express();
 const port = process.env.API_PORT || 3000;
@@ -48,6 +49,7 @@ async function startServer() {
     logger.info("Connected to DB");
     await sequelize.sync({ alter: true });
     logger.info("Synchronized tables");
+    await connectPublisher();
     app.listen(port, () => {
       logger.info(`User service → http://localhost:${port}`);
     });
