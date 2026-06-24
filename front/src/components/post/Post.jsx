@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import UserInfo from '@/components/user/UserInfo';
 import PostMenu from './PostMenu';
 import PostMedia from './PostMedia';
@@ -15,7 +16,52 @@ import { useComments } from '@/hooks/useComments';
 import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/providers/AuthProvider';
+import { inferSearchKind } from '@/utils/search';
 import BanModal from '@/components/moderation/BanModal';
+
+const TOKEN_REGEX = /[#@][A-Za-z0-9_]+/g;
+
+function renderContentWithTokens(text, onTokenClick) {
+  const parts = [];
+  let lastIndex = 0;
+  let key = 0;
+
+  for (const match of text.matchAll(TOKEN_REGEX)) {
+    const token = match[0];
+    const start = match.index ?? 0;
+    const previousChar = start > 0 ? text[start - 1] : '';
+
+    // Evite de transformer des sous-chaînes comme l'intérieur d'un email.
+    if (previousChar && /[A-Za-z0-9_]/.test(previousChar)) continue;
+
+    if (start > lastIndex) {
+      parts.push(text.slice(lastIndex, start));
+    }
+
+    parts.push(
+      <button
+        key={`token-${key}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onTokenClick(token);
+        }}
+        className="mx-0 inline cursor-pointer rounded-sm border-0 bg-transparent p-0 font-semibold text-[var(--color-text-title)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-1"
+      >
+        {token}
+      </button>
+    );
+
+    key += 1;
+    lastIndex = start + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
 
 export default function Post({
   postId,
@@ -34,6 +80,7 @@ export default function Post({
   onReport,
   onDelete,
 }) {
+  const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -115,6 +162,12 @@ export default function Post({
     if (next) commentsHook.load();
   };
 
+  const handleTokenClick = (token) => {
+    const kind = inferSearchKind(token) || 'content';
+    const params = new URLSearchParams({ q: token, kind, nav: String(Date.now()) });
+    router.push(`/explorer?${params.toString()}`);
+  };
+
   return (
     <article className="flex gap-3 border-b border-[var(--color-border)] px-4 py-4 hover:bg-[var(--color-bg-surface-2)] transition-colors cursor-pointer w-full">
       <div className="shrink-0">
@@ -149,7 +202,9 @@ export default function Post({
         </div>
 
         {content && (
-          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
+          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">
+            {renderContentWithTokens(content, handleTokenClick)}
+          </p>
         )}
 
         <PostMedia images={images} />
