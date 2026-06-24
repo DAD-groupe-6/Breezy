@@ -16,7 +16,6 @@ import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
 import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 import { useAuth } from '@/providers/AuthProvider'
-import { hasPermission } from '@/utils/permissions'
 import BanModal from '@/components/moderation/BanModal'
 
 export default function ProfileView({ userId, isOwnProfile }) {
@@ -24,7 +23,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const { t } = useTranslation()
     const toast = useToast()
     const { setProfile } = useCurrentProfile()
-    const { user: currentUser } = useAuth()
+    const { hasPermission } = useAuth()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
     const [followersCount, setFollowersCount] = useState(0)
@@ -38,7 +37,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [banPending, setBanPending] = useState(false)
     // Un utilisateur standard ne voit les posts que sur son propre profil ;
     // consulter ceux d'un autre profil requiert la permission `list_others_posts`.
-    const canViewPosts = isOwnProfile || hasPermission(currentUser?.roleName, 'list_others_posts')
+    const canViewPosts = isOwnProfile || hasPermission('list_others_posts')
     const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId, canViewPosts)
     const sentinelRef = useRef(null)
 
@@ -66,7 +65,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const token = getToken()
     const myId = token ? String(jwtDecode(token).id) : null
 
-    const canModerate = hasPermission(currentUser?.roleName, 'moderate_users')
+    const canModerate = hasPermission('moderate_users')
     const isBanned = Boolean(user?.banned_until && new Date(user.banned_until) > new Date())
 
     useEffect(() => {
@@ -180,7 +179,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         canModerate={canModerate && !isOwnProfile}
                         isBanned={isBanned}
                         onFollow={handleFollow}
-                        canMessage={!isOwnProfile && isFollowing && isMutualFollow}
+                        canMessage={!isOwnProfile && isFollowing && isMutualFollow && hasPermission('private_messages')}
                         onMessage={() => router.push(`/messages?with=${userId}`)}
                         onEditProfile={() => setEditOpen(true)}
                         onShowFollowers={() => setFollowModalTab('followers')}

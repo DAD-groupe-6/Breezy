@@ -8,6 +8,7 @@ import { getToken } from '@/utils/cookie'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
 import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
+import { useAuth } from '@/providers/AuthProvider'
 import Avatar from '@/components/user/Avatar'
 import Button from '@/components/ui/Button'
 
@@ -19,6 +20,9 @@ export default function NewPostComposer() {
   const { t } = useTranslation()
   const toast = useToast()
   const { profile } = useCurrentProfile()
+  const { hasPermission } = useAuth()
+  const canAddImages = hasPermission('add_images')
+  const canAddVideos = hasPermission('add_videos')
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
   const [selectedFiles, setSelectedFiles] = useState([])
@@ -213,30 +217,34 @@ export default function NewPostComposer() {
                 onChange={handleFileSelection}
               />
 
-              <button
-                type="button"
-                onClick={activatePhoto}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
-                  mediaType === 'photo'
-                    ? 'bg-[var(--color-text-title)] text-white'
-                    : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
-                }`}
-              >
-                <FiImage />
-                {t('pages.newPost.photo')}
-              </button>
-              <button
-                type="button"
-                onClick={activateVideo}
-                className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
-                  mediaType === 'video'
-                    ? 'bg-[var(--color-text-title)] text-white'
-                    : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
-                }`}
-              >
-                <FiVideo />
-                {t('pages.newPost.video')}
-              </button>
+              {canAddImages && (
+                <button
+                  type="button"
+                  onClick={activatePhoto}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
+                    mediaType === 'photo'
+                      ? 'bg-[var(--color-text-title)] text-white'
+                      : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
+                  }`}
+                >
+                  <FiImage />
+                  {t('pages.newPost.photo')}
+                </button>
+              )}
+              {canAddVideos && (
+                <button
+                  type="button"
+                  onClick={activateVideo}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs font-medium transition-colors ${
+                    mediaType === 'video'
+                      ? 'bg-[var(--color-text-title)] text-white'
+                      : 'bg-[var(--color-bg-surface-2)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]'
+                  }`}
+                >
+                  <FiVideo />
+                  {t('pages.newPost.video')}
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-3">

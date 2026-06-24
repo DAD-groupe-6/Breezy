@@ -45,12 +45,12 @@ export default function Post({
   const [isAuthorBanned, setIsAuthorBanned] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { hasPermission } = useAuth();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
-  const canModerate = currentUser?.roleName === 'administrateur' || currentUser?.roleName === 'moderateur';
+  const canModerate = hasPermission('moderate_users');
 
   const handleConfirmDelete = async () => {
     setDeleting(true);
