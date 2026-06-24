@@ -40,11 +40,7 @@ export default function ChatPanel({
   const prevLenRef = useRef(0)
   const nearBottomRef = useRef(true)
 
-  const username =
-    conversation.name
-      ?.trim()
-      .toLowerCase()
-      .replace(/\s+/g, '.') || t('common.unknownHandle')
+  const username = conversation.username || t('common.unknownHandle')
 
   // Positionnement du scroll après chaque mise à jour des messages :
   // - changement de conversation → on va en bas (message le plus récent)

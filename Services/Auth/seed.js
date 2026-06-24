@@ -3,9 +3,14 @@ const bcrypt = require("bcrypt");
 const sequelize = require("./src/config/database.config");
 const { User, Role, Permission, RolePermission, initializeAssociations } = require("./src/models");
 
+// --- Constantes partagées (DOIVENT rester synchronisées entre les services Auth/User/Post/Message) ---
 const ADMIN_ID = "1";
 const MOD_ID = "2";
 const getUserId = (i) => String(i + 2);
+const USER_COUNT = 33; // utilisateurs "réguliers" -> ids "3".."35"
+
+// "test" => jeu de données complet (mod + utilisateurs factices) ; sinon (prod) => admin seul.
+const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
 const permissionsList = [
     { name: "create_account", description: "Fx1. Création de comptes utilisateurs" },
@@ -59,13 +64,17 @@ async function seedDatabase() {
         }
 
         const hashedPassword = await bcrypt.hash("123456789", 10);
+        // Le compte admin est toujours créé (test ET prod).
         const usersToCreate = [
             { id: ADMIN_ID, email: "admin@example.com", roleId: createdRoles.administrateur.id },
-            { id: MOD_ID, email: "mod@example.com", roleId: createdRoles.moderateur.id }
         ];
 
-        for (let i = 1; i <= 20; i++) {
-            usersToCreate.push({ id: getUserId(i), email: `user${i}@example.com`, roleId: createdRoles.utilisateur.id });
+        // Données factices (mod + utilisateurs) uniquement en environnement de test.
+        if (IS_TEST_DATASET) {
+            usersToCreate.push({ id: MOD_ID, email: "mod@example.com", roleId: createdRoles.moderateur.id });
+            for (let i = 1; i <= USER_COUNT; i++) {
+                usersToCreate.push({ id: getUserId(i), email: `user${i}@example.com`, roleId: createdRoles.utilisateur.id });
+            }
         }
 
         for (const u of usersToCreate) {
@@ -80,10 +89,13 @@ async function seedDatabase() {
         );
 
         console.log("\n=== COMPTES CRÉÉS ===");
+        console.log(`Dataset : ${IS_TEST_DATASET ? "test (complet)" : "prod (admin seul)"}`);
         console.log("Mot de passe unique : 123456789");
         console.log(`Admin (ID: ${ADMIN_ID}): admin@example.com`);
-        console.log(`Modo (ID: ${MOD_ID}): mod@example.com`);
-        console.log("Users (ID: 3 à 22): user1@example.com à user20@example.com");
+        if (IS_TEST_DATASET) {
+            console.log(`Modo (ID: ${MOD_ID}): mod@example.com`);
+            console.log(`Users (ID: 3 à ${getUserId(USER_COUNT)}): user1@example.com à user${USER_COUNT}@example.com`);
+        }
         console.log("=====================\n");
         process.exit(0);
     } catch (error) {
