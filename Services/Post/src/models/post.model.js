@@ -11,7 +11,11 @@ const postSchema = new mongoose.Schema(
             trim: true,
             maxlength: 300,
         },
-        image: {
+        images: {
+            type: [String],
+            default: [],
+        },
+        video: {
             type: String,
             default: null,
         },
@@ -46,6 +50,7 @@ const postSchema = new mongoose.Schema(
             type: [String],
             default: [],
         },
+
         commentsCount: {
             type: Number,
             default: 0,

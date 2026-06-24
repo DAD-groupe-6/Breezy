@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { FaEllipsisH } from 'react-icons/fa';
+import { FiEdit3 } from 'react-icons/fi';
 import Avatar from '@/components/user/Avatar';
 import Button from '../ui/Button';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -28,19 +27,7 @@ export default function ProfileHeader({
   onBan,
   onUnban,
 }) {
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef(null);
   const { t } = useTranslation();
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setShowMenu(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const formatCount = (n) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -62,33 +49,13 @@ export default function ProfileHeader({
           {/* Zone actions */}
           <div className="flex items-center gap-[var(--space-xs)]">
             {isOwnProfile ? (
-              /* Menu 3 points pour le propriétaire */
-              <div className="relative" ref={menuRef}>
-                <button
-                  onClick={() => setShowMenu((prev) => !prev)}
-                  className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-border)] text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
-                  aria-label={t('profile.optionsAriaLabel')}
-                >
-                  <FaEllipsisH size={15} />
-                </button>
-
-                {showMenu && (
-                  <div className="absolute right-0 z-20 mt-[var(--space-2xs)] w-52 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-[var(--shadow-md)]">
-                    <button
-                      className="w-full cursor-pointer px-[var(--space-md)] py-[12px] text-left text-sm text-[var(--color-text-primary)] transition-[background-color,color] duration-200 [font-weight:var(--font-weight-label)] hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
-                      onClick={() => { setShowMenu(false); onEditProfile?.(); }}
-                    >
-                      {t('profile.editProfile')}
-                    </button>
-                    <button
-                      className="w-full cursor-pointer border-t border-[var(--color-border)] px-[var(--space-md)] py-[12px] text-left text-sm text-[var(--color-text-primary)] transition-[background-color,color] duration-200 [font-weight:var(--font-weight-label)] hover:bg-[var(--color-accent-soft)] focus-visible:outline-none focus-visible:shadow-[inset_0_0_0_2px_var(--color-focus-ring)]"
-                      onClick={() => { setShowMenu(false); }}
-                    >
-                      {t('profile.changePhoto')}
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={onEditProfile}
+                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-[var(--radius-pill)] border border-[var(--color-border)] text-[var(--color-text-secondary)] shadow-[var(--shadow-sm)] transition-[background-color,color,box-shadow] duration-200 hover:bg-[var(--color-accent-soft)] hover:text-[var(--color-text-title)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]"
+                aria-label={t('profile.editProfile')}
+              >
+                <FiEdit3 size={16} />
+              </button>
             ) : (
               /* Boutons visiteur : Suivre + éventuellement Bannir */
               <div className="flex items-center gap-[var(--space-xs)]">

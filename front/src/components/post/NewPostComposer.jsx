@@ -2,44 +2,42 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiImage, FiVideo } from 'react-icons/fi'
+import { FiImage, FiVideo, FiX } from 'react-icons/fi'
 import api from '@/utils/api'
 import { getToken } from '@/utils/cookie'
-import { getCurrentUserId } from '@/utils/auth'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
+import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 import Avatar from '@/components/user/Avatar'
 import Button from '@/components/ui/Button'
 
 const MAX_LENGTH = 300
+const MAX_IMAGES = 4
 
 export default function NewPostComposer() {
   const router = useRouter()
   const { t } = useTranslation()
   const toast = useToast()
+  const { profile } = useCurrentProfile()
   const [content, setContent] = useState('')
   const [mediaType, setMediaType] = useState(null)
-  const [selectedFile, setSelectedFile] = useState(null)
+  const [selectedFiles, setSelectedFiles] = useState([])
   const [loading, setLoading] = useState(false)
-  const [author, setAuthor] = useState(null)
   const imageInputRef = useRef(null)
   const videoInputRef = useRef(null)
 
-  useEffect(() => {
-    const userId = getCurrentUserId()
-    if (!userId) {
-      setAuthor(null)
-      return
-    }
-
-    api.get(`/user/${userId}`)
-      .then((res) => setAuthor(res.data))
-      .catch(() => setAuthor(null))
-  }, [])
+  // Aperçus locaux des fichiers choisis (avant upload). On libère les URLs au changement.
+  const previews = useMemo(
+    () => selectedFiles.map((file) => ({ name: file.name, url: URL.createObjectURL(file) })),
+    [selectedFiles]
+  )
+  useEffect(() => () => previews.forEach((p) => URL.revokeObjectURL(p.url)), [previews])
 
   const canPublish = useMemo(
-    () => content.trim().length > 0 && content.length <= MAX_LENGTH,
-    [content]
+    () =>
+      (content.trim().length > 0 || selectedFiles.length > 0) &&
+      content.length <= MAX_LENGTH,
+    [content, selectedFiles]
   )
 
   async function handlePublish() {
@@ -51,7 +49,24 @@ export default function NewPostComposer() {
 
     setLoading(true)
     try {
-      await api.post('/post', { content })
+      // On uploade chaque média au service Media, puis on rattache les URLs au post.
+      let images = []
+      let video = null
+      if (mediaType === 'photo' && selectedFiles.length) {
+        images = await Promise.all(
+          selectedFiles.map((file) => {
+            const formData = new FormData()
+            formData.append('image', file)
+            return api.post('/media', formData).then((res) => res.data.url)
+          })
+        )
+      } else if (mediaType === 'video' && selectedFiles.length) {
+        const formData = new FormData()
+        formData.append('image', selectedFiles[0])
+        const { data } = await api.post('/media', formData)
+        video = data.url
+      }
+      await api.post('/post', { content, images, video })
       toast.success(t('toasts.postCreated'))
       setContent('')
       setMediaType(null)
@@ -63,35 +78,44 @@ export default function NewPostComposer() {
     }
   }
 
+  const addImages = (files) =>
+    setSelectedFiles((prev) => [...prev, ...files].slice(0, MAX_IMAGES))
+
   const handleDrop = (event) => {
     event.preventDefault()
-    const file = event.dataTransfer.files?.[0]
-    if (!file) return
-
-    if (mediaType === 'photo' && file.type.startsWith('image/')) {
-      setSelectedFile(file)
-    }
-
-    if (mediaType === 'video' && file.type.startsWith('video/')) {
-      setSelectedFile(file)
+    const files = Array.from(event.dataTransfer.files || [])
+    if (mediaType === 'photo') {
+      const imgs = files.filter((f) => f.type.startsWith('image/'))
+      if (imgs.length) addImages(imgs)
+    } else if (mediaType === 'video') {
+      const vid = files.find((f) => f.type.startsWith('video/'))
+      if (vid) setSelectedFiles([vid])
     }
   }
 
   const handleFileSelection = (event) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-    setSelectedFile(file)
+    const files = Array.from(event.target.files || [])
+    if (!files.length) return
+    if (mediaType === 'video') {
+      setSelectedFiles(files.slice(0, 1))
+    } else {
+      addImages(files)
+    }
+    event.target.value = '' // permet de re-sélectionner le même fichier ensuite
   }
 
+  const removeImage = (index) =>
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index))
+
   const activatePhoto = () => {
+    if (mediaType !== 'photo') setSelectedFiles([])
     setMediaType('photo')
-    setSelectedFile(null)
     imageInputRef.current?.click()
   }
 
   const activateVideo = () => {
     setMediaType('video')
-    setSelectedFile(null)
+    setSelectedFiles([])
     videoInputRef.current?.click()
   }
 
@@ -101,7 +125,7 @@ export default function NewPostComposer() {
         <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-4 md:p-6">
           <div className="flex items-start gap-3">
             <div className="shrink-0">
-              <Avatar imageUrl={author?.img_profile || null} size={44} />
+              <Avatar imageUrl={profile?.img_profile || null} size={44} />
             </div>
 
             <div className="w-full">
@@ -129,9 +153,41 @@ export default function NewPostComposer() {
                   <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
                     {mediaType === 'photo' ? t('pages.newPost.dropHintPhoto') : t('pages.newPost.dropHintVideo')}
                   </p>
-                  {selectedFile && (
+
+                  {mediaType === 'photo' && previews.length > 0 && (
+                    <div className="mt-3 flex flex-wrap justify-center gap-2">
+                      {previews.map((preview, index) => (
+                        <div
+                          key={preview.url}
+                          className="relative h-20 w-20 overflow-hidden rounded-lg border border-[var(--color-border)]"
+                        >
+                          <img src={preview.url} alt={preview.name} className="h-full w-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            aria-label={t('pages.newPost.removeImage')}
+                            className="absolute right-0.5 top-0.5 rounded-full bg-black/60 p-0.5 text-white hover:bg-black/80"
+                          >
+                            <FiX size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      {previews.length < MAX_IMAGES && (
+                        <button
+                          type="button"
+                          onClick={() => imageInputRef.current?.click()}
+                          className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-[var(--color-border)] text-2xl text-[var(--color-text-secondary)] hover:text-[var(--color-text-title)]"
+                          aria-label={t('pages.newPost.addImage')}
+                        >
+                          +
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {mediaType === 'video' && selectedFiles[0] && (
                     <p className="mt-3 text-xs font-medium text-[var(--color-text-title)]">
-                      {t('pages.newPost.selectedFile')} {selectedFile.name}
+                      {t('pages.newPost.selectedFile')} {selectedFiles[0].name}
                     </p>
                   )}
                 </div>
@@ -145,6 +201,7 @@ export default function NewPostComposer() {
                 ref={imageInputRef}
                 type="file"
                 accept="image/*"
+                multiple
                 className="hidden"
                 onChange={handleFileSelection}
               />

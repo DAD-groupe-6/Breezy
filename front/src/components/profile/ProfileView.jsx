@@ -11,8 +11,10 @@ import FollowListModal from '@/components/profile/FollowListModal'
 import Post from '@/components/post/Post'
 import ScrollToTopButton from '@/components/post/ScrollToTopButton'
 import { useUserPosts } from '@/hooks/useUserPosts'
+import { cacheAuthor } from '@/utils/authors'
 import { useTranslation } from '@/hooks/useTranslation'
 import { useToast } from '@/hooks/useToast'
+import { useCurrentProfile } from '@/providers/CurrentProfileProvider'
 import { useAuth } from '@/providers/AuthProvider'
 import BanModal from '@/components/moderation/BanModal'
 
@@ -20,6 +22,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const router = useRouter()
     const { t } = useTranslation()
     const toast = useToast()
+    const { setProfile } = useCurrentProfile()
     const { user: currentUser } = useAuth()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
@@ -214,7 +217,12 @@ export default function ProfileView({ userId, isOwnProfile }) {
                     isOpen={editOpen}
                     onClose={() => setEditOpen(false)}
                     user={user}
-                    onSaved={(updated) => setUser(updated)}
+                    onSaved={(updated) => {
+                        setUser(updated)
+                        if (isOwnProfile) setProfile(updated)
+                        cacheAuthor(updated.id_user, updated)
+                        resetPosts()
+                    }}
                 />
             )}
 

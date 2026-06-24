@@ -151,6 +151,8 @@ const fr = {
       dropHintPhoto: 'ou cliquez sur le bouton Photo pour selectionner un fichier',
       dropHintVideo: 'ou cliquez sur le bouton Video pour selectionner un fichier',
       selectedFile: 'Fichier selectionne:',
+      addImage: 'Ajouter une image',
+      removeImage: 'Retirer l\'image',
       photo: 'Photo',
       video: 'Video',
       emoji: 'Emoji',
@@ -209,6 +211,7 @@ const fr = {
     optionsAriaLabel: 'Options du profil',
     editModal: {
       title: 'Modifier le profil',
+      changePhoto: 'Changer la photo',
       pseudoLabel: "Nom d'affichage",
       bioLabel: 'Bio',
       pseudoInvalid:
@@ -286,6 +289,11 @@ const fr = {
       deleting: 'Suppression...',
     },
     imageAlt: 'Contenu du post',
+    lightbox: {
+      close: 'Fermer',
+      prev: 'Image précédente',
+      next: 'Image suivante',
+    },
     commentAria: 'Commenter',
     likeAria: 'Aimer',
   },

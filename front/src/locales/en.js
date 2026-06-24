@@ -151,6 +151,8 @@ const en = {
       dropHintPhoto: 'or click the Photo button to select a file',
       dropHintVideo: 'or click the Video button to select a file',
       selectedFile: 'Selected file:',
+      addImage: 'Add an image',
+      removeImage: 'Remove image',
       photo: 'Photo',
       video: 'Video',
       emoji: 'Emoji',
@@ -209,6 +211,7 @@ const en = {
     optionsAriaLabel: 'Profile options',
     editModal: {
       title: 'Edit profile',
+      changePhoto: 'Change photo',
       pseudoLabel: 'Display name',
       bioLabel: 'Bio',
       pseudoInvalid:
@@ -286,6 +289,11 @@ const en = {
       deleting: 'Deleting...',
     },
     imageAlt: 'Post content',
+    lightbox: {
+      close: 'Close',
+      prev: 'Previous image',
+      next: 'Next image',
+    },
     commentAria: 'Comment',
     likeAria: 'Like',
   },

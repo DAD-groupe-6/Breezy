@@ -14,14 +14,18 @@ const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
 
 // Posts
-async function createPost(userId, content) {
-    if (!content || !content.trim()) {
+async function createPost(userId, content, images = [], video = null) {
+    const trimmed = (content || "").trim();
+    const imgs = (Array.isArray(images) ? images : []).filter(Boolean).slice(0, 4);
+    const vid = typeof video === "string" && video.trim() ? video.trim() : null;
+    if (!trimmed && imgs.length === 0 && !vid) {
         throw new Error("Content is required");
     }
-    const trimmed = content.trim();
     const post = await Post.create({
         id_user: String(userId),
         content: trimmed,
+        images: imgs,
+        video: vid,
         list_tags: extractTags(trimmed),
     });
     return toView(post, false);
