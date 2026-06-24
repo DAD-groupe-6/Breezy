@@ -1,6 +1,5 @@
 import api from '@/utils/api'
 
-.
 export function mediaIdFromUrl(url) {
   if (typeof url !== 'string') return null
   const m = url.match(/\/api\/v1\/media\/([a-f0-9]{24})\b/i)
