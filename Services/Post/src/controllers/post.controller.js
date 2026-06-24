@@ -1,5 +1,5 @@
 const PostService = require("../services/post.service");
-const { hasPermission } = require("../middlewares/permission.middleware");
+const { roleHasPermission } = require("../middlewares/permission.middleware");
 
 function statusFor(message) {
     switch (message) {
@@ -47,7 +47,7 @@ async function getUserPosts(req, res) {
         // Consulter le profil d'un autre utilisateur exige la permission `list_others_posts` ;
         // sur son propre profil, `list_user_posts` (déjà vérifiée par la route) suffit.
         const isOwnProfile = String(req.user?.id) === String(req.params.userId);
-        if (!isOwnProfile && !hasPermission(req.user?.role, "list_others_posts")) {
+        if (!isOwnProfile && !(await roleHasPermission(req.user?.roleId, "list_others_posts"))) {
             return res.status(403).json({ message: "You can only view your own posts" });
         }
         const { page, limit } = req.query;
@@ -63,7 +63,7 @@ async function getUserPosts(req, res) {
 
 async function deletePost(req, res) {
     try {
-        const canModerate = ["moderateur", "administrateur"].includes(req.user?.role);
+        const canModerate = await roleHasPermission(req.user?.roleId, "moderate_users");
         const result = await PostService.deletePost(req.params.id, req.user.id, canModerate);
         res.status(200).json(result);
     } catch (err) {
@@ -130,7 +130,7 @@ async function listComments(req, res) {
 
 async function deleteComment(req, res) {
     try {
-        const canModerate = ["moderateur", "administrateur"].includes(req.user?.role);
+        const canModerate = await roleHasPermission(req.user?.roleId, "moderate_users");
         const result = await PostService.deleteComment(
             req.params.id,
             req.params.commentId,

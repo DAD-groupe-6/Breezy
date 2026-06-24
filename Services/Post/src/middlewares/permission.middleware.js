@@ -1,28 +1,42 @@
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || "http://service-auth:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
-const ROLE_PERMISSIONS = {
-    visiteur:       ["create_account"],
-    utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "report_content"],
-    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "report_content", "moderate_users"],
-};
+// Interroge le service Auth (source unique de vérité) pour savoir si un rôle possède une permission.
+// Voir Auth : GET /api/v1/auth/roles/:roleId/permissions-by-name/:permissionName
+async function roleHasPermission(roleId, permissionName) {
+    if (roleId === undefined || roleId === null) return false;
 
-// Indique si le rôle donné possède la permission demandée.
-const hasPermission = (role, permissionName) => {
-    const permissions = ROLE_PERMISSIONS[role] || [];
-    return permissions.includes(permissionName);
-};
+    const url = `${AUTH_SERVICE_URL}/api/v1/auth/roles/${roleId}/permissions-by-name/${permissionName}`;
+    const response = await fetch(url, {
+        headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+        signal: AbortSignal.timeout(5000),
+    });
 
-const requirePermission = (permissionName) => (req, res, next) => {
+    if (!response.ok) {
+        throw new Error(`Auth permission check failed (${response.status})`);
+    }
+    const data = await response.json();
+    return data?.hasPermission === true;
+}
+
+// Vérifie une permission via le rôle de l'utilisateur, en déléguant au service Auth.
+const requirePermission = (permissionName) => async (req, res, next) => {
+    // Appels internes service-à-service : on court-circuite la vérification.
     if (req.headers["x-internal-secret"] === INTERNAL_SERVICE_SECRET) {
         return next();
     }
-    const role = req.user?.role || "visiteur";
-    if (!hasPermission(role, permissionName)) {
-        const status = req.user ? 403 : 401;
-        return res.status(status).json({ error: "Insufficient permissions" });
+    // Non authentifié (rôle "visiteur") : aucune route de ce service ne lui est ouverte.
+    if (!req.user) {
+        return res.status(401).json({ error: "Insufficient permissions" });
     }
-    next();
+    try {
+        if (!(await roleHasPermission(req.user.roleId, permissionName))) {
+            return res.status(403).json({ error: "Insufficient permissions" });
+        }
+        next();
+    } catch (err) {
+        return res.status(503).json({ error: "Permission service unavailable" });
+    }
 };
 
-module.exports = { requirePermission, hasPermission };
+module.exports = { requirePermission, roleHasPermission };

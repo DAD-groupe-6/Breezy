@@ -2,13 +2,13 @@ const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/auth.controller");
 const RoleController = require("../controllers/role.controller");
-const { authenticate, optionalAuthenticate } = require("../middlewares/auth.middleware");
+const { authenticate } = require("../middlewares/auth.middleware");
 
-router.post("/register", optionalAuthenticate, AuthController.register);
+router.post("/register", authenticate({ optional: true }), AuthController.register);
 router.post("/login",    AuthController.login);
 router.post("/logout",   AuthController.logout);
-router.get("/validate",  authenticate, AuthController.validate);
-router.delete("/account", authenticate, AuthController.deleteAccount);
+router.get("/validate",  authenticate(), AuthController.validate);
+router.delete("/account", authenticate(), AuthController.deleteAccount);
 
 router.get("/roles", RoleController.listRoles);
 router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermission);
