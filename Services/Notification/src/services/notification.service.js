@@ -21,13 +21,23 @@ async function createNotification({ recipientId, actorId, type, postId = null, c
 
     const base = { recipientId: String(recipientId), actorId: String(actorId), type };
 
-    // Like/follow : une notif par couple acteur→cible. upsert pour dédoublonner
-    // (anti-spam relike/refollow) ; isNew=false si déjà présente → pas de ré-émission.
-    if (type === "like" || type === "follow") {
-        const filter = type === "like" ? { ...base, postId } : base;
+    // Like/follow/mention : une notif par couple acteur→cible, dédoublonnée via upsert
+    // (anti-spam relike/refollow/re-mention) ; isNew=false si déjà présente.
+    if (type === "like" || type === "follow" || type === "mention") {
+        let filter, onInsert;
+        if (type === "like") {
+            filter = { ...base, postId };
+            onInsert = { read: false, commentId };
+        } else if (type === "mention") {
+            filter = { ...base, postId, commentId };
+            onInsert = { read: false };
+        } else { // follow
+            filter = base;
+            onInsert = { read: false, commentId };
+        }
         const res = await Notification.findOneAndUpdate(
             filter,
-            { $setOnInsert: { read: false, commentId } },
+            { $setOnInsert: onInsert },
             { new: true, upsert: true, setDefaultsOnInsert: true, includeResultMetadata: true }
         );
         const isNew = !res.lastErrorObject?.updatedExisting;
