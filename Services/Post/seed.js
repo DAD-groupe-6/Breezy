@@ -4,31 +4,43 @@ const { fakerFR: faker } = require("@faker-js/faker");
 const connectDB = require("./src/config/database.config");
 const Post = require("./src/models/post.model");
 const Like = require("./src/models/like.model");
-// Réutilise l'extraction de tags de l'app : un tag n'est présent QUE si le mot
-// apparaît dans le contenu précédé d'un "#" (sinon list_tags reste vide).
 const { extractTags } = require("./src/utils/tags.util");
 
-// --- Constantes partagées (DOIVENT rester synchronisées entre les services Auth/User/Post/Message) ---
 const ADMIN_ID = "1";
 const MOD_ID = "2";
+
+/**
+ * Donne l'id du i-ème utilisateur régulier (1 et 2 sont réservés admin/mod).
+ * Entrée : i (number), 1-based
+ * Sortie : id (string)
+ */
 const getUserId = (i) => String(i + 2);
-const USER_COUNT = 33; // utilisateurs "réguliers" -> ids "3".."35"
+const USER_COUNT = 33;
 const ALL_USER_IDS = [
     ADMIN_ID,
     MOD_ID,
     ...Array.from({ length: USER_COUNT }, (_, i) => getUserId(i + 1)),
 ];
 
-// "test" => jeu de données complet ; sinon (prod) => aucun post.
 const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
-// --- Identifiants média FIXES (synchronisés avec Services/Media/seed.js et Services/User/seed.js) ---
+/**
+ * Construit un ObjectId déterministe (24 caractères) à partir d'un entier.
+ * Entrée : n (number)
+ * Sortie : id (string)
+ */
 const objId = (n) => String(n).padStart(24, "0");
 const POST_IMAGE_IDS = Array.from({ length: 30 }, (_, i) => objId(101 + i));
 const POST_VIDEO_IDS = Array.from({ length: 6 }, (_, i) => objId(201 + i));
+
+/**
+ * Construit l'URL publique d'un média à partir de son id.
+ * Entrée : id (string)
+ * Sortie : url (string)
+ */
 const mediaUrl = (id) => `/api/v1/media/${id}`;
 
-faker.seed(1234); // résultat reproductible
+faker.seed(1234);
 
 const realPosts = [
     "Aujourd'hui est une journée parfaite pour apprendre de nouvelles choses ! 🚀",
@@ -118,8 +130,12 @@ const commentPool = [
 
 const tagPool = ["humeur", "tech", "food", "sport", "cinema", "musique", "dev", "voyage", "nature", "lifestyle"];
 
+/**
+ * Compose le contenu d'un post à partir du pool curé (combinaisons et hashtags aléatoires).
+ * Entrée : rien
+ * Sortie : content (string)
+ */
 function makePostContent() {
-    // Texte 100 % français issu du pool curé ; faker pilote la variation (combinaisons, hashtags).
     const base = faker.helpers.arrayElement(realPosts);
     if (faker.datatype.boolean(0.2)) {
         const second = faker.helpers.arrayElement(realPosts);
@@ -131,9 +147,13 @@ function makePostContent() {
     return base;
 }
 
+/**
+ * Tire au sort les médias d'un post (~20 % images, ~5 % vidéo, ~75 % texte seul).
+ * Entrée : rien
+ * Sortie : media (object) { images (array), video (string|null) }
+ */
 function pickMedia() {
     const r = faker.number.float();
-    // Répartition cible : ~20 % d'images, ~5 % de vidéos, ~75 % texte seul.
     if (r < 0.2) {
         const n = faker.number.int({ min: 1, max: 4 });
         return { images: faker.helpers.arrayElements(POST_IMAGE_IDS, n).map(mediaUrl), video: null };
@@ -144,6 +164,11 @@ function pickMedia() {
     return { images: [], video: null };
 }
 
+/**
+ * Construit un document Post complet à partir de champs partiels (valeurs par défaut + _id).
+ * Entrée : fields (object), doit inclure createdAt
+ * Sortie : doc (object) prêt pour l'insertion
+ */
 function newDoc(fields) {
     const now = fields.createdAt;
     return {
@@ -162,12 +187,17 @@ function newDoc(fields) {
     };
 }
 
+/**
+ * Génère en mémoire le jeu de données complet : posts racines, commentaires/réponses, likes
+ * et quelques signalements, de façon déterministe.
+ * Entrée : rien
+ * Sortie : dataset (object) { posts, comments, likes }
+ */
 function buildDataset() {
     const posts = [];
     const comments = [];
     const likes = [];
 
-    // 1) Posts racines, répartis sur tous les utilisateurs, datés sur ~60 jours.
     for (const userId of ALL_USER_IDS) {
         const count = faker.number.int({ min: 8, max: 25 });
         for (let p = 0; p < count; p++) {
@@ -189,7 +219,6 @@ function buildDataset() {
 
     const now = new Date();
 
-    // 2) Commentaires (niveau 1) et réponses (niveau 2).
     for (const post of posts) {
         if (!faker.datatype.boolean(0.45)) continue;
         const nbComments = faker.number.int({ min: 1, max: 5 });
@@ -202,14 +231,13 @@ function buildDataset() {
                 type: "response",
                 content,
                 list_tags: extractTags(content),
-                parent_id: post._id, // parent direct = le post
-                reply_to: null, // commentaire de 1er niveau
+                parent_id: post._id,
+                reply_to: null,
                 createdAt: faker.date.between({ from: post.createdAt, to: now }),
             });
             comments.push(comment);
             postComments.push(comment);
 
-            // Réponses au commentaire (niveau 2).
             if (faker.datatype.boolean(0.3)) {
                 const nbReplies = faker.number.int({ min: 1, max: 3 });
                 for (let r = 0; r < nbReplies; r++) {
@@ -220,20 +248,18 @@ function buildDataset() {
                             type: "response",
                             content: rContent,
                             list_tags: extractTags(rContent),
-                            parent_id: comment._id, // parent direct = le commentaire
-                            reply_to: comment._id, // on répond à ce commentaire
+                            parent_id: comment._id,
+                            reply_to: comment._id,
                             createdAt: faker.date.between({ from: comment.createdAt, to: now }),
                         })
                     );
                 }
-                // commentsCount d'un noeud = nombre de ses enfants directs (cf. addComment).
                 comment.commentsCount = nbReplies;
             }
         }
         post.commentsCount = postComments.length;
     }
 
-    // 3) Likes : documents Like uniques (post_id,user_id) + nb_like cohérent, sur posts ET commentaires.
     const addLikes = (doc, maxLikes) => {
         const candidates = ALL_USER_IDS.filter((id) => id !== doc.id_user);
         const count = faker.number.int({ min: 0, max: Math.min(maxLikes, candidates.length) });
@@ -246,7 +272,6 @@ function buildDataset() {
     posts.forEach((post) => addLikes(post, 25));
     comments.forEach((comment) => addLikes(comment, 8));
 
-    // 4) Signalements : ~5 % des posts, 1 à 2 reporters (jamais 3 => suppression auto côté contrôleur).
     for (const post of posts) {
         if (!faker.datatype.boolean(0.05)) continue;
         const candidates = ALL_USER_IDS.filter((id) => id !== post.id_user);
@@ -258,6 +283,11 @@ function buildDataset() {
     return { posts, comments, likes };
 }
 
+/**
+ * Insère le jeu de données de test dans MongoDB (rien en dataset non-test).
+ * Entrée : rien (lit RESET_SEED et SEED_DATASET dans l'environnement)
+ * Sortie : rien (process.exit 0 si succès, 1 sinon)
+ */
 async function seedDatabase() {
     try {
         await connectDB();
@@ -274,7 +304,6 @@ async function seedDatabase() {
 
         const { posts, comments, likes } = buildDataset();
 
-        // timestamps:false pour conserver nos createdAt/updatedAt étalés dans le temps.
         await Post.insertMany([...posts, ...comments], { timestamps: false });
         await Like.insertMany(likes);
 

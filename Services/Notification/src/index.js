@@ -22,6 +22,11 @@ app.use("/api/v1/notifications", notificationRoutes);
 const server = http.createServer(app);
 initSocket(server);
 
+/**
+ * Connecte la base, démarre le consumer RabbitMQ puis lance le serveur HTTP (et le socket).
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
     try {
         await connectDB();

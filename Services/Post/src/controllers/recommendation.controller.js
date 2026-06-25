@@ -1,5 +1,10 @@
 const RecommendationService = require("../services/recommendation.service");
 
+/**
+ * Renvoie le fil recommandé d'un utilisateur (posts des comptes suivis + complément).
+ * Entrée : req.user.id (string), req.query { limit, page }
+ * Sortie : 200 result { posts, hasMore } ; 400 si erreur
+ */
 async function getRecommendedPosts(req, res) {
     try {
         const { limit, page } = req.query;

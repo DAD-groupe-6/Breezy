@@ -11,26 +11,28 @@ const TYPE_BY_ROUTING_KEY = {
     "post.mentioned": "mention",
 };
 
-// Permission unique (sur le rôle du destinataire) qui active/désactive toutes les
-// notifications. Tous les types passent par le même droit `receive_notifications` (Fx14).
 const PERMISSION_BY_TYPE = {
     like: "receive_notifications",
     follow: "receive_notifications",
     comment: "receive_notifications",
 };
 
+/**
+ * Traite un événement RabbitMQ : vérifie le droit du destinataire, crée la notification
+ * et l'émet en temps réel (sauf si elle est dédoublonnée). Auth indisponible = on s'abstient.
+ * Entrée : routingKey (string), payload (object) { recipientId, actorId, postId?, commentId? }
+ * Sortie : rien
+ */
 async function handleEvent(routingKey, payload) {
     const type = TYPE_BY_ROUTING_KEY[routingKey];
     if (!type) return;
 
-    // Le destinataire a-t-il le droit de recevoir ce type de notification ? (selon son rôle)
     const requiredPermission = PERMISSION_BY_TYPE[type];
     if (requiredPermission) {
         let allowed;
         try {
             allowed = await userHasPermission(payload.recipientId, requiredPermission);
         } catch (err) {
-            // Auth indisponible : on s'abstient de notifier (fail-safe) plutôt que de notifier à tort.
             logger.error(`Vérif permission notif échouée (${requiredPermission}) : ${err.message}`);
             return;
         }
@@ -48,13 +50,17 @@ async function handleEvent(routingKey, payload) {
         commentId: payload.commentId || null,
     });
 
-    // Notif dédoublonnée (relike/refollow déjà notifié) → on ne ré-émet pas.
     if (!isNew) return;
 
     emitToUser(notification.recipientId, "notification", notification);
     logger.info(`Notif ${type} → user ${notification.recipientId}`);
 }
 
+/**
+ * Démarre le consumer RabbitMQ branché sur handleEvent.
+ * Entrée : rien
+ * Sortie : Promise résolue quand le consumer est prêt
+ */
 function startNotificationConsumer() {
     return startConsumer(handleEvent);
 }

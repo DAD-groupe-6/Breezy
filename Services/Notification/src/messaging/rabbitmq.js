@@ -6,7 +6,11 @@ const EXCHANGE = "breezy.events";
 const QUEUE = "notifications";
 const BINDINGS = ["post.liked", "post.commented", "user.followed", "post.mentioned"];
 
-// RabbitMQ peut démarrer après le service → on réessaie quelques fois.
+/**
+ * Se connecte à RabbitMQ avec plusieurs tentatives (le broker peut démarrer après le service).
+ * Entrée : retries (number), delayMs (number)
+ * Sortie : conn (amqp.Connection) ; throw si toutes les tentatives échouent
+ */
 async function connectWithRetry(retries = 10, delayMs = 3000) {
     for (let i = 1; i <= retries; i++) {
         try {
@@ -19,7 +23,12 @@ async function connectWithRetry(retries = 10, delayMs = 3000) {
     throw new Error("Impossible de se connecter à RabbitMQ");
 }
 
-// onEvent(routingKey, payload) : appelé pour chaque message reçu.
+/**
+ * Déclare l'exchange/queue/bindings et consomme les messages, en appelant onEvent pour chacun.
+ * Un message en échec est rejeté sans requeue pour éviter une boucle infinie.
+ * Entrée : onEvent (function) (routingKey, payload)
+ * Sortie : rien (consumer actif)
+ */
 async function startConsumer(onEvent) {
     const conn = await connectWithRetry();
     const channel = await conn.createChannel();
@@ -38,7 +47,7 @@ async function startConsumer(onEvent) {
             channel.ack(msg);
         } catch (err) {
             logger.error(`Échec traitement message : ${err.message}`);
-            channel.nack(msg, false, false); // pas de requeue → évite la boucle infinie
+            channel.nack(msg, false, false);
         }
     });
 

@@ -17,14 +17,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// --- Routes REST ---
 app.get("/api/v1/message/health", (req, res) => {
     res.status(200).json({ status: "UP" });
 });
 app.use("/api/v1/message/conversations", conversationRoutes);
 app.use("/api/v1/message/conversations", messageRoutes);
 
-// --- WebSocket ---
 const io = new Server(httpServer, {
     path: "/api/v1/message/socket.io",
     cors: { origin: "*" },
@@ -32,6 +30,11 @@ const io = new Server(httpServer, {
 
 registerSocketHandlers(io);
 
+/**
+ * Connecte la base puis démarre le serveur HTTP (+ WebSocket).
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
     try {
         await connectDB();

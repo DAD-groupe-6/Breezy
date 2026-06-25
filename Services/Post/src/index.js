@@ -16,7 +16,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-// --- Documentation Swagger ---
 const swaggerOptions = {
     definition: {
         openapi: "3.0.0",
@@ -32,13 +31,17 @@ const swaggerOptions = {
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use("/api/v1/post/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// --- Routes ---
 app.get("/api/v1/post/health", (req, res) => {
     res.status(200).json({ status: "UP" });
 });
 app.use("/api/v1/post", postRoutes);
 app.use("/api/v1/post/recommendations", recommendationRoutes);
 
+/**
+ * Connecte la base, lance le publisher RabbitMQ puis démarre le serveur.
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
     try {
         await connectDB();

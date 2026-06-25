@@ -5,22 +5,26 @@ const connectDB = require("./src/config/database.config");
 const Conversation = require("./src/models/conversation.model");
 const Message = require("./src/models/message.model");
 
-// --- Constantes partagées (DOIVENT rester synchronisées entre les services Auth/User/Post/Message) ---
 const ADMIN_ID = "1";
 const MOD_ID = "2";
+
+/**
+ * Donne l'id du i-ème utilisateur régulier (1 et 2 sont réservés admin/mod).
+ * Entrée : i (number), 1-based
+ * Sortie : id (string)
+ */
 const getUserId = (i) => String(i + 2);
 const USER_COUNT = 33;
-const FOLLOW_SEED = 4242; // doit être identique à Services/User/seed.js
+const FOLLOW_SEED = 4242;
 const ALL_USER_IDS = [
     ADMIN_ID,
     MOD_ID,
     ...Array.from({ length: USER_COUNT }, (_, i) => getUserId(i + 1)),
 ];
 
-// "test" => conversations factices ; sinon (prod) => rien.
 const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
-faker.seed(1234); // résultat reproductible
+faker.seed(1234);
 
 const messagePool = [
     "Salut, ça va ?",
@@ -40,9 +44,13 @@ const messagePool = [
     "Trop hâte ! 🔥",
 ];
 
+/**
+ * Génère un contenu de message aléatoire (parfois deux phrases enchaînées).
+ * Entrée : rien
+ * Sortie : content (string)
+ */
 function makeMessageContent() {
     const base = faker.helpers.arrayElement(messagePool);
-    // Parfois on enchaîne deux phrases pour varier le ton.
     if (faker.datatype.boolean(0.25)) {
         const second = faker.helpers.arrayElement(messagePool);
         if (second !== base) return `${base} ${second}`;
@@ -50,9 +58,12 @@ function makeMessageContent() {
     return base;
 }
 
-// Graphe de follows : fonction déterministe et AUTONOME (reseed interne).
-// Doit rester IDENTIQUE à celle de Services/User/seed.js afin de reconstituer
-// exactement les mêmes relations de suivi.
+/**
+ * Génère le graphe de follows : chaque utilisateur suit 5 à 15 autres (sans self-follow ni doublon).
+ * Déterministe et autonome (reseed interne) ; doit rester identique à Services/User/seed.js.
+ * Entrée : ids (array de string)
+ * Sortie : pairs (array) [{ follower_id, following_id }]
+ */
 function buildFollowPairs(ids) {
     faker.seed(FOLLOW_SEED);
     const pairs = [];
@@ -67,8 +78,12 @@ function buildFollowPairs(ids) {
     return pairs;
 }
 
-// Paires d'abonnés MUTUELS (a suit b ET b suit a) — seul cas où l'app autorise
-// d'ouvrir une conversation (cf. front NewConversationModal).
+/**
+ * Construit les paires d'abonnés mutuels (a suit b ET b suit a), seul cas où l'app
+ * autorise l'ouverture d'une conversation.
+ * Entrée : rien
+ * Sortie : mutual (array) [[a, b]]
+ */
 function buildMutualPairs() {
     const pairs = buildFollowPairs(ALL_USER_IDS);
     const directed = new Set(pairs.map((p) => `${p.follower_id}>${p.following_id}`));
@@ -84,25 +99,28 @@ function buildMutualPairs() {
     return mutual;
 }
 
+/**
+ * Construit les conversations et messages factices à partir des abonnés mutuels.
+ * Entrée : rien
+ * Sortie : dataset (object) { conversations (array), messages (array) }
+ */
 function buildDataset() {
     const conversations = [];
     const messages = [];
     const now = new Date();
 
     const mutualPairs = buildMutualPairs();
-    faker.seed(1234); // re-graine pour un contenu de messages reproductible et indépendant du graphe
+    faker.seed(1234);
 
     for (const [a, b] of mutualPairs) {
         const convId = new mongoose.Types.ObjectId();
         const nbMessages = faker.number.int({ min: 3, max: 15 });
 
-        // Messages chronologiques, étalés sur ~30 jours.
         let cursor = faker.date.recent({ days: 30 });
         let last = null;
         for (let m = 0; m < nbMessages; m++) {
             const senderId = faker.helpers.arrayElement([a, b]);
             const content = makeMessageContent();
-            // Les anciens messages sont lus ; les 2 plus récents peuvent être non lus.
             const isRecent = m >= nbMessages - 2;
             const readAt = isRecent && faker.datatype.boolean(0.5)
                 ? null
@@ -132,6 +150,11 @@ function buildDataset() {
     return { conversations, messages };
 }
 
+/**
+ * Insère les conversations et messages de démonstration (uniquement si SEED_DATASET=test).
+ * Entrée : rien (lit RESET_SEED et SEED_DATASET dans l'environnement)
+ * Sortie : rien (process.exit 0 si succès, 1 sinon)
+ */
 async function seedDatabase() {
     try {
         await connectDB();

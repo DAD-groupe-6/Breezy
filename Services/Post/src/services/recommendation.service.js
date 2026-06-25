@@ -10,6 +10,12 @@ const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
 
+/**
+ * Construit le fil recommandé : posts des comptes suivis (paginés), complétés par d'autres
+ * posts si la page n'est pas pleine.
+ * Entrée : userId (string), options (object) { limit, page }
+ * Sortie : result (object) { posts, hasMore }
+ */
 async function getRecommendedPosts(userId, { limit, page } = {}) {
     const { safeLimit, skip } = parsePage({ limit, page }, DEFAULT_LIMIT, MAX_LIMIT);
 
@@ -21,14 +27,12 @@ async function getRecommendedPosts(userId, { limit, page } = {}) {
     const followedUserIds = followingUsers.map(String);
     const excludedIds = [...followedUserIds, String(userId)];
 
-    // Nombre total de posts des comptes suivis (nécessaire pour calculer le skip du complément)
     const followedCount = followedUserIds.length > 0
         ? await Post.countDocuments({ type: "post", id_user: { $in: followedUserIds } })
         : 0;
 
     let posts = [];
 
-    // 1. Posts des comptes suivis (paginés)
     if (followedUserIds.length > 0 && skip < followedCount) {
         posts = await Post.find({ type: "post", id_user: { $in: followedUserIds } })
             .sort({ createdAt: -1, _id: -1 })
@@ -36,7 +40,6 @@ async function getRecommendedPosts(userId, { limit, page } = {}) {
             .limit(safeLimit + 1);
     }
 
-    // 2. Complément avec d'autres posts si la page n'est pas pleine
     if (posts.length <= safeLimit) {
         const followedOnPage = Math.min(posts.length, safeLimit);
         const complementSkip = Math.max(0, skip - followedCount);

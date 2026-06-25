@@ -1,6 +1,7 @@
 /**
- * Calcule les paramètres de pagination à partir de la requête entrante.
- * @returns {{ safeLimit: number, skip: number }}
+ * Calcule les paramètres de pagination (limite bornée et offset) à partir de la requête.
+ * Entrée : query (object) { page, limit }, defaultLimit (number), maxLimit (number)
+ * Sortie : result (object) { safeLimit (number), skip (number) }
  */
 function parsePage({ page, limit } = {}, defaultLimit, maxLimit) {
     const safeLimit = Math.min(Number(limit) || defaultLimit, maxLimit);
@@ -10,7 +11,8 @@ function parsePage({ page, limit } = {}, defaultLimit, maxLimit) {
 
 /**
  * Tranche un tableau récupéré avec `limit + 1` pour détecter s'il y a une page suivante.
- * @returns {{ items: T[], hasMore: boolean }}
+ * Entrée : rows (array), safeLimit (number)
+ * Sortie : result (object) { items (array), hasMore (boolean) }
  */
 function slicePage(rows, safeLimit) {
     const hasMore = rows.length > safeLimit;

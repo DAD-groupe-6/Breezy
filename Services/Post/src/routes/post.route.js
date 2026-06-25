@@ -4,13 +4,10 @@ const PostController = require("../controllers/post.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 const { requirePermission } = require("../middlewares/permission.middleware");
 
-// Recherche et routes spécifiques avant les routes dynamiques `/:id`.
 router.get("/search/content", authenticate({ optional: true }), requirePermission("search"), PostController.searchByContent);
 router.get("/search/tags/:tag", authenticate({ optional: true }), requirePermission("search"), PostController.searchByTag);
-// Ses propres posts sont toujours visibles ; voir ceux d'un autre profil exige `view_others_posts` (vérifié dans le contrôleur).
 router.get("/user/:userId", authenticate({ optional: true }), PostController.getUserPosts);
 
-// Consultation d'un post ouverte à tout utilisateur authentifié (view_profile_posts supprimée).
 router.get("/:id", authenticate({ optional: true }), PostController.getPost);
 
 router.post("/", authenticate({ optional: true }), requirePermission("publish_post"), PostController.createPost);

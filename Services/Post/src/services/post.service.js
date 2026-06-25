@@ -15,7 +15,11 @@ const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
 
-// Notifie les @pseudo_uniq mentionnés (best-effort, résolus via le service User).
+/**
+ * Notifie les @pseudo_uniq mentionnés (best-effort, résolus via le service User).
+ * Entrée : content (string), ctx (object) { actorId, postId, commentId? }
+ * Sortie : rien (publie des events post.mentioned)
+ */
 async function publishMentions(content, { actorId, postId, commentId = null }) {
     const handles = extractMentions(content);
     if (!handles.length) return;
@@ -28,13 +32,11 @@ async function publishMentions(content, { actorId, postId, commentId = null }) {
                 headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
                 timeout: 5000,
             });
-            // recherche partielle (iLike) → on ne garde que l'exact
             const match = (data || []).find((u) => String(u.pseudo_uniq).toLowerCase() === handle);
             if (match && String(match.id_user) !== String(actorId)) {
                 recipients.add(String(match.id_user));
             }
         } catch (err) {
-            // pseudo non résolu → on ignore
         }
     }));
 
@@ -43,7 +45,11 @@ async function publishMentions(content, { actorId, postId, commentId = null }) {
     }
 }
 
-// Posts
+/**
+ * Crée un post (texte et/ou médias), extrait ses tags et notifie les mentions.
+ * Entrée : userId (string), content (string), images (array), video (string|null)
+ * Sortie : post (view) ; throw "Content is required" si tout est vide
+ */
 async function createPost(userId, content, images = [], video = null) {
     const trimmed = (content || "").trim();
     const imgs = (Array.isArray(images) ? images : []).filter(Boolean).slice(0, 4);
@@ -62,6 +68,11 @@ async function createPost(userId, content, images = [], video = null) {
     return toView(post, false);
 }
 
+/**
+ * Récupère un document Post par son id.
+ * Entrée : id (string)
+ * Sortie : post (object document) ; throw "Post not found"
+ */
 async function getPostById(id) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new Error("Post not found");
@@ -71,28 +82,41 @@ async function getPostById(id) {
     return post;
 }
 
+/**
+ * Récupère un post au format API, avec l'état "liké par le viewer".
+ * Entrée : id (string), viewerId (string|null)
+ * Sortie : post (view)
+ */
 async function getPostView(id, viewerId) {
     const post = await getPostById(id);
     const likedByMe = await isLikedBy(post._id, viewerId);
     return toView(post, likedByMe);
 }
 
+/**
+ * Supprime un post (auteur, ou modérateur) et ses likes en cascade.
+ * Entrée : id (string), userId (string), canModerate (boolean)
+ * Sortie : result (object) { message } ; throw "Forbidden" si non autorisé
+ */
 async function deletePost(id, userId, canModerate = false) {
     const post = await getPostById(id);
     if (!canModerate && post.id_user !== String(userId)) throw new Error("Forbidden");
 
     await post.deleteOne();
-    await Like.deleteMany({ post_id: post._id }); // cascade : likes du post
+    await Like.deleteMany({ post_id: post._id });
     return { message: "Post deleted" };
 }
 
-// Édition du contenu (auteur seul), tags ré-extraits.
+/**
+ * Édite le contenu d'un post (auteur seul), ré-extrait les tags et marque comme édité.
+ * Entrée : id (string), userId (string), content (string)
+ * Sortie : post (view) ; throw "Forbidden" / "Content is required"
+ */
 async function editPost(id, userId, content) {
     const post = await getPostById(id);
     if (post.id_user !== String(userId)) throw new Error("Forbidden");
 
     const trimmed = (content || "").trim();
-    // contenu vide toléré seulement s'il reste un média
     if (!trimmed && (post.images?.length ?? 0) === 0 && !post.video) {
         throw new Error("Content is required");
     }
@@ -106,6 +130,11 @@ async function editPost(id, userId, content) {
     return toView(post, likedByMe);
 }
 
+/**
+ * Signale un post ; au 3e signalement, signale l'auteur côté User et supprime le post.
+ * Entrée : id (string), reporterId (string)
+ * Sortie : result (object) { message, deleted, reports } ; throw selon le cas
+ */
 async function reportPost(id, reporterId) {
     const post = await getPostById(id);
 
@@ -151,7 +180,11 @@ async function reportPost(id, reporterId) {
     };
 }
 
-// Likes
+/**
+ * Like un post (idempotent grâce à l'index unique) et notifie l'auteur.
+ * Entrée : id (string), userId (string)
+ * Sortie : post (view, liké) ; throw "Post not found"
+ */
 async function likePost(id, userId) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Post not found");
     const post = await Post.findById(id);
@@ -164,7 +197,7 @@ async function likePost(id, userId) {
         await post.save();
         isNewLike = true;
     } catch (err) {
-        if (err.code !== 11000) throw err; // 11000 = déjà liké → idempotent
+        if (err.code !== 11000) throw err;
     }
 
     if (isNewLike && post.id_user !== String(userId)) {
@@ -177,31 +210,40 @@ async function likePost(id, userId) {
     return toView(post, true);
 }
 
+/**
+ * Retire le like d'un post (décrémente le compteur si un like existait).
+ * Entrée : id (string), userId (string)
+ * Sortie : post (view, non liké) ; throw "Post not found"
+ */
 async function unlikePost(id, userId) {
     if (!mongoose.Types.ObjectId.isValid(id)) throw new Error("Post not found");
     const post = await Post.findById(id);
     if (!post) throw new Error("Post not found");
 
     const result = await Like.deleteOne({ post_id: post._id, user_id: String(userId) });
-    if (result.deletedCount > 0) { // un like existait → décrémente
+    if (result.deletedCount > 0) {
         post.nb_like = Math.max(0, post.nb_like - 1);
         await post.save();
     }
     return toView(post, false);
 }
 
-// Commentaires 
+/**
+ * Ajoute un commentaire (ou une réponse), rattaché à la racine, et notifie auteur + mentions.
+ * Entrée : targetId (string), userId (string), content (string)
+ * Sortie : comment (view + reply_to_user) ; throw "Content is required" / "Post not found"
+ */
 async function addComment(targetId, userId, content) {
     if (!content || !content.trim()) {
         throw new Error("Content is required");
     }
-    const target = await getPostById(targetId); // 404 si la cible n'existe pas
+    const target = await getPostById(targetId);
 
 
-    let rootId = targetId;       
+    let rootId = targetId;
     let replyTo = null;
     if (target.type === "response") {
-        replyTo = target._id; 
+        replyTo = target._id;
         const parent = await getPostById(target.parent_id);
         rootId = parent.type === "response" ? target.parent_id : target._id;
     }
@@ -238,9 +280,13 @@ async function addComment(targetId, userId, content) {
     };
 }
 
-// Liste paginée des enfants directs d'un parent (commentaires d'un post,ou rép d'un commentaire)
+/**
+ * Liste paginée des enfants directs d'un parent (commentaires d'un post ou réponses d'un commentaire).
+ * Entrée : parentId (string), viewerId (string|null), options (object) { page, limit, order }
+ * Sortie : result (object) { comments, hasMore }
+ */
 async function listComments(parentId, viewerId, { page, limit, order } = {}) {
-    await getPostById(parentId); // 404 si le parent n'existe pas
+    await getPostById(parentId);
     const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
     const sortDir = order === "asc" ? 1 : -1;
 
@@ -260,7 +306,6 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
         authorByTarget = Object.fromEntries(targets.map((tg) => [String(tg._id), tg.id_user]));
     }
 
-    // likes de la page en une requête
     const likedSet = await likedPostIds(pageComments.map((c) => c._id), viewerId);
 
     return {
@@ -272,23 +317,30 @@ async function listComments(parentId, viewerId, { page, limit, order } = {}) {
     };
 }
 
+/**
+ * Supprime un commentaire (auteur ou modérateur), ses réponses et leurs likes en cascade.
+ * Entrée : parentId (string), commentId (string), userId (string), canModerate (boolean)
+ * Sortie : result (object) { message } ; throw "Forbidden" si non autorisé
+ */
 async function deleteComment(parentId, commentId, userId, canModerate = false) {
     const comment = await getPostById(commentId);
     if (!canModerate && comment.id_user !== String(userId)) throw new Error("Forbidden");
 
-    // cascade : likes du commentaire et de ses réponses
     const replies = await Post.find({ parent_id: commentId, type: "response" }).select("_id");
     const deletedIds = [comment._id, ...replies.map((r) => r._id)];
     await Like.deleteMany({ post_id: { $in: deletedIds } });
 
-    // cascade : réponses du commentaire
     await Post.deleteMany({ parent_id: commentId, type: "response" });
     await comment.deleteOne();
     await Post.findByIdAndUpdate(parentId, { $inc: { commentsCount: -1 } });
     return { message: "Comment deleted" };
 }
 
-// Recherche
+/**
+ * Recherche des posts dont le contenu correspond aux mots-clés (insensible à la casse).
+ * Entrée : keywords (string), viewerId (string|null), options (object) { page, limit }
+ * Sortie : result (object) { posts, hasMore } ; throw "Keywords are required"
+ */
 async function searchByContent(keywords, viewerId, { page, limit } = {}) {
     if (!keywords || !keywords.trim()) {
         throw new Error("Keywords are required");
@@ -304,6 +356,11 @@ async function searchByContent(keywords, viewerId, { page, limit } = {}) {
     return { posts: items.map((post) => toView(post, likedSet.has(String(post._id)))), hasMore };
 }
 
+/**
+ * Recherche les posts portant un tag donné.
+ * Entrée : tag (string), viewerId (string|null), options (object) { page, limit }
+ * Sortie : result (object) { posts, hasMore } ; throw "Tag is required"
+ */
 async function searchByTag(tag, viewerId, { page, limit } = {}) {
     if (!tag || !tag.trim()) {
         throw new Error("Tag is required");
@@ -318,6 +375,11 @@ async function searchByTag(tag, viewerId, { page, limit } = {}) {
     return { posts: items.map((post) => toView(post, likedSet.has(String(post._id)))), hasMore };
 }
 
+/**
+ * Liste paginée des posts d'un utilisateur, avec le total.
+ * Entrée : userId (string), viewerId (string|null), options (object) { page, limit }
+ * Sortie : result (object) { posts, hasMore, total }
+ */
 async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     const { safeLimit, skip } = parsePage({ page, limit }, DEFAULT_LIMIT, MAX_LIMIT);
     const query = { id_user: String(userId), type: "post" };
@@ -330,8 +392,11 @@ async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     return { posts: items.map((post) => toView(post, likedSet.has(String(post._id)))), hasMore, total };
 }
 
-// Nombre de posts d'un utilisateur, sans renvoyer leur contenu.
-// Sert à afficher le compteur du profil même quand le viewer n'a pas le droit de voir les posts.
+/**
+ * Compte les posts d'un utilisateur sans renvoyer leur contenu (compteur de profil).
+ * Entrée : userId (string)
+ * Sortie : count (number)
+ */
 async function countUserPosts(userId) {
     return Post.countDocuments({ id_user: String(userId), type: "post" });
 }

@@ -1,6 +1,11 @@
 const conversationService = require("../services/conversation.service");
 const { deleteMessagesByConversation } = require("../services/message.service");
 
+/**
+ * Liste les conversations de l'utilisateur courant (avec compteur de non-lus).
+ * Entrée : req.user.id (string)
+ * Sortie : 200 conversations (array) ; 500 si erreur
+ */
 async function listConversations(req, res) {
     try {
         const conversations = await conversationService.getUserConversations(String(req.user.id));
@@ -10,6 +15,11 @@ async function listConversations(req, res) {
     }
 }
 
+/**
+ * Ouvre (ou retrouve) une conversation avec un destinataire.
+ * Entrée : req.body { recipientId }, req.user.id (string)
+ * Sortie : 200 conversation (object) ; 400 si recipientId manquant ou égal à soi-même, 500 si erreur
+ */
 async function startConversation(req, res) {
     try {
         const { recipientId } = req.body;
@@ -28,6 +38,11 @@ async function startConversation(req, res) {
     }
 }
 
+/**
+ * Renvoie une conversation dont l'utilisateur est participant.
+ * Entrée : req.params.id (string), req.user.id (string)
+ * Sortie : 200 conversation (object) ; 404 si introuvable, 403 si non participant, 500 sinon
+ */
 async function getConversation(req, res) {
     try {
         const conversation = await conversationService.getConversationById(
@@ -42,6 +57,11 @@ async function getConversation(req, res) {
     }
 }
 
+/**
+ * Supprime une conversation et tous ses messages.
+ * Entrée : req.params.id (string), req.user.id (string)
+ * Sortie : 200 { message } ; 404 si introuvable, 403 si non participant, 500 sinon
+ */
 async function deleteConversation(req, res) {
     try {
         await conversationService.deleteConversation(req.params.id, String(req.user.id));
