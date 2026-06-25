@@ -1,18 +1,30 @@
 'use client';
 
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
+import LoadMoreButton from './LoadMoreButton';
 
-export default function CommentSection({ comments = [], onAddComment, onDelete, onLike }) {
+export default function CommentSection({
+  comments = [],
+  hasMore = false,
+  onLoadMore,
+  onAddComment,
+  onDelete,
+  onLike,
+}) {
   const { t } = useTranslation();
+  // Publier un commentaire passe par la permission `publish_post` (posts et réponses).
+  const { hasPermission } = useAuth();
+  const canPublish = hasPermission('publish_post');
 
   return (
     <section
       className="mt-3 rounded-xl border border-[var(--color-bg-surface-2)] bg-[var(--color-bg-primary)]/35 p-3"
       onClick={(e) => e.stopPropagation()}
     >
-      <CommentForm onSubmit={onAddComment} />
+      {canPublish && <CommentForm onSubmit={onAddComment} />}
 
       <div className="space-y-2">
         {comments.length === 0 && (
@@ -27,6 +39,8 @@ export default function CommentSection({ comments = [], onAddComment, onDelete, 
             onLike={onLike}
           />
         ))}
+
+        {hasMore && <LoadMoreButton onClick={onLoadMore} />}
       </div>
     </section>
   );

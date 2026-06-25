@@ -1,5 +1,11 @@
 const { User, Follow } = require("../models/user.model");
+const { publishEvent } = require("../messaging/publisher");
 
+/**
+ * Crée un suivi (refuse self-follow et doublon), incrémente nb_followers et publie un événement.
+ * Entrée : follower_id (string), following_id (string)
+ * Sortie : result (object) { message, follow } ; throw si user introuvable / self-follow / déjà suivi
+ */
 async function addFollow(follower_id, following_id) {
     const follower = await User.findByPk(follower_id);
     if (!follower) throw new Error("Follower user not found");
@@ -30,9 +36,19 @@ async function addFollow(follower_id, following_id) {
     following.nb_followers += 1;
     await following.save();
 
+    publishEvent("user.followed", {
+        recipientId: String(following_id),
+        actorId: String(follower_id),
+    });
+
     return { message: "Follow added successfully", follow: newFollow };
 }
 
+/**
+ * Supprime un suivi et décrémente nb_followers (sans descendre sous 0).
+ * Entrée : follower_id (string), following_id (string)
+ * Sortie : result (object) { message } ; throw si user ou relation introuvable
+ */
 async function removeFollow(follower_id, following_id) {
     const follower = await User.findByPk(follower_id);
     if (!follower) throw new Error("Follower user not found");
@@ -59,6 +75,11 @@ async function removeFollow(follower_id, following_id) {
     return { message: "Follow removed successfully" };
 }
 
+/**
+ * Liste les abonnés d'un utilisateur.
+ * Entrée : user_id (string)
+ * Sortie : result (object) { user_id, followers_count, followers_list } ; throw "User not found"
+ */
 async function getFollowers(user_id) {
     const user = await User.findByPk(user_id);
     if (!user) throw new Error("User not found");
@@ -75,6 +96,11 @@ async function getFollowers(user_id) {
     };
 }
 
+/**
+ * Liste les abonnements d'un utilisateur.
+ * Entrée : user_id (string)
+ * Sortie : result (object) { following } ; throw "User not found"
+ */
 async function getFollowing(user_id) {
     const user = await User.findByPk(user_id);
     if (!user) throw new Error("User not found");

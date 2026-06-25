@@ -7,12 +7,13 @@ import { useTranslation } from '@/hooks/useTranslation'
 // Nombre de posts récupérés par tranche (pagination serveur)
 const PAGE_SIZE = 5
 
-export function useUserPosts(userId) {
+export function useUserPosts(userId, enabled = true) {
   const { t, locale } = useTranslation()
   const [posts, setPosts] = useState([])
   const [page, setPage] = useState(1)
   const [hasMore, setHasMore] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [total, setTotal] = useState(0)
 
   const mapPost = useCallback(
     async (post) => {
@@ -25,7 +26,9 @@ export function useUserPosts(userId) {
         imageUrl: author?.img_profile || null,
         timestamp: timeAgo(post.createdAt, t, locale),
         content: post.content,
-        image: post.image,
+        edited: post.edited || false,
+        images: post.images,
+        video: post.video || null,
         likes: post.nb_like,
         liked: post.likedByMe,
         comments: post.commentsCount,
@@ -44,6 +47,7 @@ export function useUserPosts(userId) {
         const mapped = await Promise.all(data.posts.map(mapPost))
         setPosts((prev) => (p === 1 ? mapped : [...prev, ...mapped]))
         setHasMore(data.hasMore)
+        setTotal(data.total ?? 0)
         setPage(p)
       } catch (err) {
         console.error('[useUserPosts] Échec du chargement des posts', err)
@@ -55,13 +59,20 @@ export function useUserPosts(userId) {
     [userId, mapPost]
   )
 
-  // Première tranche au changement de profil
+  // Première tranche au changement de profil (seulement si l'affichage est autorisé)
   useEffect(() => {
+    if (!enabled) {
+      setPosts([])
+      setHasMore(false)
+      setTotal(0)
+      return
+    }
     fetchPage(1)
-  }, [fetchPage])
+  }, [fetchPage, enabled])
 
   const loadMore = () => fetchPage(page + 1)
+  const reset = useCallback(() => { setPosts([]); fetchPage(1) }, [fetchPage])
   const removePost = (id) => setPosts((prev) => prev.filter((p) => p.postId !== id))
 
-  return { posts, hasMore, loading, loadMore, removePost }
+  return { posts, hasMore, loading, loadMore, reset, removePost, total }
 }

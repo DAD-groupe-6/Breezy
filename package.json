@@ -1,0 +1,29 @@
+{
+  "name": "breezy-seed-runner",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "seed:check:authdb": "docker compose exec -T db-auth pg_isready -U admin -d auth_db",
+    "seed:check:userdb": "docker compose exec -T db-user pg_isready -U admin -d user_db",
+    "seed:check:postdb": "docker compose exec -T db-post mongosh --quiet --eval \"db.adminCommand({ ping: 1 })\"",
+    "seed:check:mediadb": "docker compose exec -T db-media mongosh --quiet --eval \"db.adminCommand({ ping: 1 })\"",
+    "seed:check:messagedb": "docker compose exec -T db-message mongosh --quiet --eval \"db.adminCommand({ ping: 1 })\"",
+
+    "seed:auth": "npm run seed:check:authdb && docker compose exec -T service-auth sh -c \"SEED_DATASET=test node seed.js\"",
+    "seed:user": "npm run seed:check:userdb && docker compose exec -T service-user sh -c \"SEED_DATASET=test node seed.js\"",
+    "seed:media": "npm run seed:check:mediadb && docker compose exec -T service-media sh -c \"SEED_DATASET=test node seed.js\"",
+    "seed:post": "npm run seed:check:postdb && docker compose exec -T service-post sh -c \"SEED_DATASET=test node seed.js\"",
+    "seed:message": "npm run seed:check:messagedb && docker compose exec -T service-message sh -c \"SEED_DATASET=test node seed.js\"",
+    "seed:all": "npm run seed:auth && npm run seed:user && npm run seed:media && npm run seed:post && npm run seed:message",
+
+    "seed:auth:reset": "npm run seed:check:authdb && docker compose exec -T service-auth sh -c \"SEED_DATASET=test RESET_SEED=true node seed.js\"",
+    "seed:user:reset": "npm run seed:check:userdb && docker compose exec -T service-user sh -c \"SEED_DATASET=test RESET_SEED=true node seed.js\"",
+    "seed:media:reset": "npm run seed:check:mediadb && docker compose exec -T service-media sh -c \"SEED_DATASET=test RESET_SEED=true node seed.js\"",
+    "seed:post:reset": "npm run seed:check:postdb && docker compose exec -T service-post sh -c \"SEED_DATASET=test RESET_SEED=true node seed.js\"",
+    "seed:message:reset": "npm run seed:check:messagedb && docker compose exec -T service-message sh -c \"SEED_DATASET=test RESET_SEED=true node seed.js\"",
+    "seed:all:reset": "npm run seed:auth:reset && npm run seed:user:reset && npm run seed:media:reset && npm run seed:post:reset && npm run seed:message:reset",
+
+    "seed:prod": "npm run seed:check:authdb && docker compose exec -T service-auth sh -c \"node seed.js\"",
+    "seed:prod:reset": "npm run seed:check:authdb && docker compose exec -T service-auth sh -c \"RESET_SEED=true node seed.js\""
+  }
+}

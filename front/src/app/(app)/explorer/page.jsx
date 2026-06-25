@@ -1,141 +1,186 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
-import SearchBar from '../../../components/SearchBar'
+import { useAuth } from '@/providers/AuthProvider'
+import SearchBar from '@/components/navigation/SearchBar'
 import Post from '../../../components/post/Post'
-import ProfileCard from '../../../components/profil/ProfileCard'
+import ProfileCard from '@/components/profile/ProfileCard'
+import ScrollToTopButton from '@/components/post/ScrollToTopButton'
 import api from '@/utils/api'
+import { getCurrentUserId } from '@/utils/auth'
+import { resolveAuthor } from '@/utils/authors'
 import { timeAgo } from '@/utils/time'
 
+const SEARCH_LIMIT = 10
+
+function readQueryFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('q') || ''
+}
+
 export default function ExplorerPage() {
+  const router = useRouter()
+  const { hasPermission, permsLoaded } = useAuth()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searchType, setSearchType] = useState(null) // 'tag', 'profile', 'content'
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [hasMore, setHasMore] = useState(false)
+  const [searchPage, setSearchPage] = useState(1)
+  const [suggestions, setSuggestions] = useState([])
+  const [suggestionsLoading, setSuggestionsLoading] = useState(true)
+  const [followingIds, setFollowingIds] = useState(() => new Set())
   const { t } = useTranslation()
   const searchTimeoutRef = useRef(null)
+  const sentinelRef = useRef(null)
+  // Permet d'accéder aux valeurs courantes depuis l'IntersectionObserver sans re-créer l'observer
+  const stateRef = useRef({})
+  stateRef.current = { query, searchType, searchPage, hasMore, isLoading }
 
-  // Récupérer les informations de l'auteur pour un post
-  const fetchAuthorInfo = async (authorId) => {
-    try {
-      const response = await api.get(`/user/${authorId}`)
-      return {
-        displayName: response.data.pseudo,
-        username: response.data.pseudo_uniq,
-        imageUrl: response.data.img_profile,
-      }
-    } catch (err) {
-      console.error('[ExplorerPage] Erreur lors de la récupération de l\'auteur:', err)
-      return null
+  // Page de recherche réservée à la permission `search` → sinon on renvoie vers le profil.
+  const searchDisabled = permsLoaded && !hasPermission('search')
+  useEffect(() => {
+    if (searchDisabled) router.replace('/profil')
+  }, [searchDisabled, router])
+
+  useEffect(() => {
+    const initialQuery = readQueryFromUrl()
+    if (initialQuery) setQuery(initialQuery)
+
+    const handlePopState = () => {
+      setQuery(readQueryFromUrl())
     }
-  }
 
-  // Enrichir les posts avec les informations de l'auteur
-  const enrichPostsWithAuthorInfo = async (posts) => {
-    const enrichedPosts = await Promise.all(
-      posts.map(async (post) => {
-        // Si l'auteur n'est pas inclus, le récupérer
-        if (!post.author && post.id_user) {
-          const authorInfo = await fetchAuthorInfo(post.id_user)
-          return {
-            ...post,
-            author: authorInfo,
-          }
-        }
-        return post
-      })
-    )
-    return enrichedPosts
-  }
-  const determineSearchType = (searchQuery) => {
-    if (!searchQuery.trim()) return null
-    
-    if (searchQuery.startsWith('#')) return 'tag'
-    if (searchQuery.startsWith('@')) return 'profile'
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  // Les suggestions relèvent du suivi : on ne les charge/affiche qu'avec `follow_user`.
+  const canFollow = hasPermission('follow_user')
+
+  useEffect(() => {
+    if (!canFollow) { setSuggestionsLoading(false); return }
+    let cancelled = false
+    const myId = getCurrentUserId()
+    api.get('/user/suggestions', { params: { userId: myId, limit: 5 } })
+      .then(res => { if (!cancelled) setSuggestions(res.data || []) })
+      .catch(() => { if (!cancelled) setSuggestions([]) })
+      .finally(() => { if (!cancelled) setSuggestionsLoading(false) })
+    if (myId) {
+      api.get(`/user/${myId}/following`)
+        .then(res => { if (!cancelled) setFollowingIds(new Set((res.data?.following || []).map(String))) })
+        .catch(() => {})
+    }
+    return () => { cancelled = true }
+  }, [canFollow])
+
+  const handleFollowChange = useCallback((userId, isFollowing) => {
+    setFollowingIds((prev) => {
+      const next = new Set(prev)
+      if (isFollowing) next.add(String(userId))
+      else next.delete(String(userId))
+      return next
+    })
+  }, [])
+
+  const determineSearchType = (q) => {
+    if (!q.trim()) return null
+    if (q.startsWith('#')) return 'tag'
+    if (q.startsWith('@')) return 'profile'
     return 'content'
   }
 
-  // Effectuer la recherche
-  const performSearch = async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      setResults([])
-      setSearchType(null)
-      setError('')
-      return
-    }
-
+  const fetchResults = useCallback(async (searchQuery, p) => {
     const type = determineSearchType(searchQuery)
-    setSearchType(type)
+    if (!type) return
+
     setIsLoading(true)
-    setError('')
+    if (p === 1) setError('')
 
     try {
-      let response
-      
       if (type === 'tag') {
-        // Recherche par tag: enlever le # et chercher
         const tag = searchQuery.slice(1).trim()
-        if (!tag) {
-          setResults([])
-          setIsLoading(false)
-          return
-        }
-        response = await api.get(`/post/search/tags/${encodeURIComponent(tag)}`)
+        if (!tag) { setResults([]); return }
+        const { data } = await api.get(`/post/search/tags/${encodeURIComponent(tag)}`, {
+          params: { page: p, limit: SEARCH_LIMIT },
+        })
+        const enriched = await Promise.all(
+          data.posts.map(async (post) => ({ ...post, author: await resolveAuthor(post.id_user) }))
+        )
+        setResults((prev) => (p === 1 ? enriched : [...prev, ...enriched]))
+        setHasMore(data.hasMore)
+        setSearchPage(p)
       } else if (type === 'profile') {
-        // Recherche par profil: enlever le @ et chercher
         const pseudo = searchQuery.slice(1).trim()
-        if (!pseudo) {
-          setResults([])
-          setIsLoading(false)
-          return
-        }
-        response = await api.get(`/user/search`, { params: { pseudo_uniq: pseudo } })
+        if (!pseudo) { setResults([]); return }
+        const { data } = await api.get(`/user/search`, { params: { pseudo_uniq: pseudo } })
+        setResults(Array.isArray(data) ? data : [])
+        setHasMore(false)
+        setSearchPage(1)
       } else {
-        // Recherche par contenu
-        response = await api.get(`/post/search/content`, { params: { keywords: searchQuery } })
-      }
-
-      // Limiter à 10 résultats
-      const limitedResults = response.data.slice(0, 10)
-      
-      // Enrichir les posts avec les informations de l'auteur si c'est une recherche de posts
-      if (type === 'content' || type === 'tag') {
-        const enrichedResults = await enrichPostsWithAuthorInfo(limitedResults)
-        setResults(enrichedResults)
-      } else {
-        setResults(limitedResults)
+        const { data } = await api.get(`/post/search/content`, {
+          params: { keywords: searchQuery, page: p, limit: SEARCH_LIMIT },
+        })
+        const enriched = await Promise.all(
+          data.posts.map(async (post) => ({ ...post, author: await resolveAuthor(post.id_user) }))
+        )
+        setResults((prev) => (p === 1 ? enriched : [...prev, ...enriched]))
+        setHasMore(data.hasMore)
+        setSearchPage(p)
       }
     } catch (err) {
       console.error('[ExplorerPage] Erreur de recherche:', err)
       setError(t('pages.explorer.searchError') || 'Erreur lors de la recherche')
-      setResults([])
+      if (p === 1) setResults([])
+      setHasMore(false)
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [t])
 
-  // Debounce la recherche
+  // Recherche avec debounce — reset à la page 1 à chaque nouveau terme
   useEffect(() => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current)
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
+
+    const type = determineSearchType(query)
+    setSearchType(type)
+
+    if (!query.trim()) {
+      setResults([])
+      setHasMore(false)
+      setSearchPage(1)
+      return
     }
 
     searchTimeoutRef.current = setTimeout(() => {
-      performSearch(query)
+      setResults([])
+      setHasMore(false)
+      setSearchPage(1)
+      fetchResults(query, 1)
     }, 300)
 
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current)
-      }
-    }
-  }, [query])
+    return () => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current) }
+  }, [query, fetchResults])
 
-  const handleDelete = (postId) => {
-    setResults(results.filter(item => (item._id || item.id) !== postId))
-  }
+  // Chargement automatique à l'approche du bas de la liste
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(([entry]) => {
+      const { query: q, searchPage: p, hasMore: more, isLoading: loading } = stateRef.current
+      if (entry.isIntersecting && more && !loading) fetchResults(q, p + 1)
+    }, { threshold: 0.1 })
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [fetchResults])
+
+  const handleDelete = (postId) => setResults((prev) => prev.filter((item) => (item._id || item.id) !== postId))
+
+  // Accès refusé (pas la permission `search`) : on n'affiche rien le temps de la redirection.
+  if (searchDisabled) return null
 
   return (
     <div className="relative min-h-full overflow-hidden bg-[var(--color-bg-primary)] px-4 py-6 text-[var(--color-text-primary)] md:px-6 lg:px-8">
@@ -145,99 +190,130 @@ export default function ExplorerPage() {
       </div>
 
       <div className="mx-auto max-w-2xl">
-        <SearchBar
-          id="explorer-search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={t('pages.explorer.searchPlaceholder')}
-          className="mt-8 w-full"
-        />
+        <div
+          className="mt-8 rounded-2xl border p-6"
+          style={{ backgroundColor: 'var(--color-bg-surface)', borderColor: 'var(--color-border)' }}
+        >
+          <SearchBar
+            id="explorer-search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('pages.explorer.searchPlaceholder')}
+            className="w-full"
+          />
 
-        {/* Afficher l'état de chargement ou les erreurs */}
-        {isLoading && (
-          <div className="mt-6 text-center text-[var(--color-text-secondary)]">
-            {t('pages.explorer.searching') || 'Recherche en cours...'}
-          </div>
-        )}
+          {/* Suggestions (aucune recherche en cours) — uniquement si l'utilisateur peut suivre */}
+          {canFollow && !query.trim() && (suggestionsLoading || suggestions.length > 0) && (
+            <section className="mt-6">
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
+                {t('pages.explorer.suggestionsTitle')}
+              </h2>
+              {suggestionsLoading ? (
+                <div className="text-center text-sm text-[var(--color-text-secondary)]">
+                  {t('pages.explorer.searching')}
+                </div>
+              ) : (
+                <div className="overflow-hidden rounded-2xl border border-[var(--color-border)]">
+                  <div className="divide-y divide-[var(--color-border)]">
+                    {suggestions.map((user) => (
+                      <ProfileCard
+                        key={user.id_user}
+                        userId={user.id_user}
+                        displayName={user.pseudo}
+                        username={user.pseudo_uniq}
+                        imageUrl={user.img_profile}
+                        bio={user.bio}
+                        initialFollowing={followingIds.has(String(user.id_user))}
+                        onFollowChange={handleFollowChange}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
 
-        {error && (
-          <div className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-500">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mt-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-red-500">
+              {error}
+            </div>
+          )}
 
-        {/* Afficher les résultats */}
-        {!isLoading && query.trim() && results.length === 0 && !error && (
-          <div className="mt-6 text-center text-[var(--color-text-secondary)]">
-            {t('pages.explorer.noResults') || 'Aucun résultat trouvé'}
-          </div>
-        )}
+          {!isLoading && query.trim() && results.length === 0 && !error && (
+            <div className="mt-6 text-center text-[var(--color-text-secondary)]">
+              {t('pages.explorer.noResults') || 'Aucun résultat trouvé'}
+            </div>
+          )}
 
-        {/* Afficher le type de recherche en cours */}
-        {!isLoading && query.trim() && results.length > 0 && (
-          <div className="mt-4 text-xs text-[var(--color-text-secondary)]">
-            {searchType === 'tag' && `Résultats pour le tag: #${query.slice(1).trim()}`}
-            {searchType === 'profile' && `Résultats pour le profil: @${query.slice(1).trim()}`}
-            {searchType === 'content' && `Résultats pour: "${query}"`}
-            {results.length < 10 && ` (${results.length} résultat${results.length > 1 ? 's' : ''})`}
-            {results.length === 10 && ` (10 premiers résultats)`}
-          </div>
-        )}
+          {!isLoading && query.trim() && results.length > 0 && (
+            <div className="mt-4 text-xs text-[var(--color-text-secondary)]">
+              {searchType === 'tag' && `Résultats pour le tag : #${query.slice(1).trim()}`}
+              {searchType === 'profile' && `Résultats pour le profil : @${query.slice(1).trim()}`}
+              {searchType === 'content' && `Résultats pour : "${query}"`}
+            </div>
+          )}
 
-        {/* Résultats de posts (contenu ou tags) */}
-        {!isLoading && (searchType === 'content' || searchType === 'tag') && results.length > 0 && (
-          <div className="mt-6 border border-[var(--color-border)] rounded-2xl overflow-hidden">
-            <div className="divide-y divide-[var(--color-border)]">
-              {results.map((post) => {
-                // Utiliser _id comme ID du post (format MongoDB)
-                const postId = post._id || post.id
-                // Mapper les attributs du post pour le composant Post
-                const displayName = post.author?.displayName || post.displayName || 'Utilisateur'
-                const username = post.author?.username || post.username || 'user'
-                const imageUrl = post.author?.imageUrl || post.imageUrl
-                const authorId = post.author?.id || post.author?.id_user || post.id_user
-
-                return (
+          {/* Résultats posts (contenu ou tags) */}
+          {(searchType === 'content' || searchType === 'tag') && results.length > 0 && (
+            <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--color-border)]">
+              <div className="divide-y divide-[var(--color-border)]">
+                {results.map((post) => (
                   <Post
-                    key={postId}
-                    postId={postId}
-                    authorId={authorId}
-                    displayName={displayName}
-                    username={username}
-                    imageUrl={imageUrl}
-                    timestamp={timeAgo(post.createdAt || post.timestamp, t)}
+                    key={post._id}
+                    postId={post._id}
+                    authorId={post.id_user}
+                    displayName={post.author?.pseudo || t('common.unknownUser')}
+                    username={post.author?.pseudo_uniq || t('common.unknownHandle')}
+                    imageUrl={post.author?.img_profile || null}
+                    timestamp={timeAgo(post.createdAt, t)}
                     content={post.content}
-                    image={post.image}
+                    edited={post.edited}
+                    images={post.images}
                     video={post.video}
-                    likes={post.likes || 0}
-                    liked={post.liked || false}
-                    comments={post.commentsCount || post.comments || 0}
+                    likes={post.nb_like}
+                    liked={post.likedByMe}
+                    comments={post.commentsCount}
                     onDelete={handleDelete}
                   />
-                )
-              })}
-            </div>
-          </div>
-        )}
+                ))}
+              </div>
 
-        {/* Résultats de profils */}
-        {!isLoading && searchType === 'profile' && results.length > 0 && (
-          <div className="mt-6 border border-[var(--color-border)] rounded-2xl overflow-hidden">
-            <div className="divide-y divide-[var(--color-border)]">
-              {results.map((user) => (
-                <ProfileCard
-                  key={user.id_user}
-                  userId={user.id_user}
-                  displayName={user.pseudo}
-                  username={user.pseudo_uniq}
-                  imageUrl={user.img_profile}
-                  bio={user.bio}
-                />
-              ))}
+              <div ref={sentinelRef} className="py-2 text-center text-sm text-[var(--color-text-secondary)]">
+                {isLoading && t('common.loading')}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Résultats profils */}
+          {searchType === 'profile' && results.length > 0 && (
+            <div className="mt-6 overflow-hidden rounded-2xl border border-[var(--color-border)]">
+              <div className="divide-y divide-[var(--color-border)]">
+                {results.map((user) => (
+                  <ProfileCard
+                    key={user.id_user}
+                    userId={user.id_user}
+                    displayName={user.pseudo}
+                    username={user.pseudo_uniq}
+                    imageUrl={user.img_profile}
+                    bio={user.bio}
+                    initialFollowing={followingIds.has(String(user.id_user))}
+                    onFollowChange={handleFollowChange}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Spinner initial (aucun résultat encore affiché) */}
+          {isLoading && results.length === 0 && (
+            <div className="mt-6 text-center text-[var(--color-text-secondary)]">
+              {t('pages.explorer.searching') || 'Recherche en cours...'}
+            </div>
+          )}
+        </div>
       </div>
+
+      <ScrollToTopButton />
     </div>
   )
 }

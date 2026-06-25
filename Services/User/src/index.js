@@ -7,6 +7,7 @@ const sequelize = require('./config/database.config');
 const userRoutes = require('./routes/user.route');
 const followRoutes = require('./routes/follow.route');
 const logger = require('./logger');
+const { connectPublisher } = require("./messaging/publisher");
 
 const app = express();
 const port = process.env.API_PORT || 3000;
@@ -42,12 +43,18 @@ app.get('/api/v1/user/health', (req, res) => {
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/user', followRoutes);
 
+/**
+ * Connecte la base, synchronise les tables, lance le publisher RabbitMQ puis démarre le serveur.
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
   try {
     await sequelize.authenticate();
     logger.info("Connected to DB");
     await sequelize.sync({ alter: true });
     logger.info("Synchronized tables");
+    await connectPublisher();
     app.listen(port, () => {
       logger.info(`User service → http://localhost:${port}`);
     });

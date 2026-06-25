@@ -1,15 +1,65 @@
 'use client';
 
 import { useState } from 'react';
-import UserInfo from '../UserInfo';
+import { useRouter } from 'next/navigation';
+import UserInfo from '@/components/user/UserInfo';
 import PostMenu from './PostMenu';
+import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentSection from './CommentSection';
+import ConfirmDialog from '../ui/ConfirmDialog';
 import api from '@/utils/api';
+import { deleteMedia } from '@/utils/media';
 import { getCurrentUserId } from '@/utils/auth';
 import { usePostLikes } from '@/hooks/usePostLikes';
 import { useComments } from '@/hooks/useComments';
+import { useToast } from '@/hooks/useToast';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
+import BanModal from '@/components/moderation/BanModal';
+
+const TOKEN_REGEX = /[#@][\p{L}\p{N}\p{M}_]+/gu;
+
+function renderContentWithTokens(text, onTokenClick) {
+  const parts = [];
+  let lastIndex = 0;
+  let key = 0;
+
+  for (const match of text.matchAll(TOKEN_REGEX)) {
+    const token = match[0];
+    const start = match.index ?? 0;
+    const previousChar = start > 0 ? text[start - 1] : '';
+
+    if (previousChar && /[\p{L}\p{N}\p{M}_]/u.test(previousChar)) continue;
+
+    if (start > lastIndex) {
+      parts.push(text.slice(lastIndex, start));
+    }
+
+    parts.push(
+      <button
+        key={`token-${key}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onTokenClick(token);
+        }}
+        className="mx-0 inline cursor-pointer rounded-sm border-0 bg-transparent p-0 font-semibold text-[var(--color-text-title)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-1"
+      >
+        {token}
+      </button>
+    );
+
+    key += 1;
+    lastIndex = start + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
 
 export default function Post({
   postId,
@@ -19,7 +69,8 @@ export default function Post({
   imageUrl = null,
   timestamp,
   content = '',
-  image = null,
+  edited = false,
+  images = [],
   video = null,
   likes = 0,
   liked = false,
@@ -28,31 +79,119 @@ export default function Post({
   onReport,
   onDelete,
 }) {
+  const router = useRouter();
   const [showComments, setShowComments] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [reported, setReported] = useState(false);
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banPending, setBanPending] = useState(false);
+  const [isAuthorBanned, setIsAuthorBanned] = useState(false);
+  const [contentValue, setContentValue] = useState(content);
+  const [isEdited, setIsEdited] = useState(edited);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(content);
+  const [savingEdit, setSavingEdit] = useState(false);
+  const toast = useToast();
   const { t } = useTranslation();
+  const { hasPermission } = useAuth();
 
   const postLikes = usePostLikes(postId, liked, likes);
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
+  const canModerate = hasPermission('moderate_users');
+  const canReport = hasPermission('report_content');
 
-  const handleDeletePost = async () => {
+  const handleConfirmDelete = async () => {
+    setDeleting(true);
     try {
       await api.delete(`/post/${postId}`);
+      // Le post est supprimé : on nettoie ses médias rattachés (sinon orphelins).
+      deleteMedia([...images, video]);
+      toast.success(t('toasts.postDeleted'));
+      setConfirmOpen(false);
       onDelete?.(postId);
     } catch (err) {
-      console.error('[Post] Failed to delete post', err);
+      toast.error(t('toasts.postDeleteError'));
+      console.error('[Post] Échec de la suppression du post', err);
+    } finally {
+      setDeleting(false);
     }
   };
 
-  const handleReportPost = async () => {
+  const handleConfirmReport = async () => {
+    setReporting(true);
     try {
       const { data } = await api.post(`/post/${postId}/report`);
+      setReported(true);
+      setReportOpen(false);
       if (data?.deleted) {
         onReport?.(postId);
         onDelete?.(postId);
+      } else {
+        toast.success(t('toasts.postReported'));
       }
     } catch (err) {
+      if (err.response?.data?.message === 'Already reported') {
+        setReported(true);
+        setReportOpen(false);
+        toast.info(t('toasts.alreadyReported'));
+      } else {
+        toast.error(t('toasts.reportError'));
+      }
       console.error('[Post] Failed to report post', err);
+    } finally {
+      setReporting(false);
+    }
+  };
+
+  const handleBanAuthor = async (durationDays) => {
+    setBanPending(true);
+    try {
+      await api.post(`/user/${authorId}/ban`, { durationDays });
+      setIsAuthorBanned(true);
+      toast.success(t('toasts.banSuccess'));
+      setBanModalOpen(false);
+    } catch {
+      toast.error(t('toasts.banError'));
+    } finally {
+      setBanPending(false);
+    }
+  };
+
+  const handleUnbanAuthor = async () => {
+    try {
+      await api.post(`/user/${authorId}/unban`);
+      setIsAuthorBanned(false);
+      toast.success(t('toasts.unbanSuccess'));
+    } catch {
+      toast.error(t('toasts.unbanError'));
+    }
+  };
+
+  const handleStartEdit = () => {
+    setEditDraft(contentValue);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editDraft.trim();
+    // pas de contenu vide sans média
+    if (!trimmed && images.length === 0 && !video) return;
+    setSavingEdit(true);
+    try {
+      const { data } = await api.put(`/post/${postId}`, { content: trimmed });
+      setContentValue(data.content);
+      setIsEdited(true);
+      setIsEditing(false);
+      toast.success(t('toasts.postEdited'));
+    } catch (err) {
+      toast.error(t('toasts.postEditError'));
+      console.error('[Post] Échec de la modification du post', err);
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -61,6 +200,10 @@ export default function Post({
     const next = !showComments;
     setShowComments(next);
     if (next) commentsHook.load();
+  };
+
+  const handleTokenClick = (token) => {
+    router.push(`/explorer?q=${encodeURIComponent(token)}`);
   };
 
   return (
@@ -82,25 +225,64 @@ export default function Post({
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm truncate">@{username}</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm whitespace-nowrap">{timestamp}</span>
+            {isEdited && (
+              <>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm italic whitespace-nowrap">{t('post.edited')}</span>
+              </>
+            )}
           </div>
 
           <PostMenu
             isMine={isMine}
+            canModerate={canModerate}
+            canReport={canReport}
+            isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
-            onReport={handleReportPost}
-            onDelete={handleDeletePost}
+            onEdit={handleStartEdit}
+            alreadyReported={reported}
+            onReport={() => setReportOpen(true)}
+            onDelete={() => setConfirmOpen(true)}
+            onBanAuthor={() => setBanModalOpen(true)}
+            onUnbanAuthor={handleUnbanAuthor}
           />
         </div>
 
-        {content && (
-          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
+        {isEditing ? (
+          <div className="mb-2" onClick={(e) => e.stopPropagation()}>
+            <textarea
+              value={editDraft}
+              onChange={(e) => setEditDraft(e.target.value)}
+              maxLength={300}
+              rows={3}
+              autoFocus
+              className="w-full resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-text-title)]"
+            />
+            <div className="mt-2 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface-2)] transition-colors"
+              >
+                {t('post.editCancel')}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="rounded-full bg-[var(--color-text-title)] px-4 py-1.5 text-xs font-semibold text-[var(--color-bg-surface)] hover:bg-[var(--color-accent-hover)] disabled:opacity-60 transition-colors"
+              >
+                {savingEdit ? t('post.editSaving') : t('post.editSave')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          contentValue && (
+            <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">
+              {renderContentWithTokens(contentValue, handleTokenClick)}
+            </p>
+          )
         )}
 
-        {image && (
-          <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
-            <img src={image} alt={t('post.imageAlt')} className="w-full h-auto object-cover max-h-96" />
-          </div>
-        )}
+        <PostMedia images={images} />
 
         {video && (
           <div className="mb-2 rounded-2xl overflow-hidden border border-[var(--color-border)] w-full">
@@ -119,12 +301,45 @@ export default function Post({
         {showComments && (
           <CommentSection
             comments={commentsHook.list}
+            hasMore={commentsHook.hasMore}
+            onLoadMore={commentsHook.loadMore}
             onAddComment={commentsHook.add}
             onDelete={commentsHook.remove}
             onLike={commentsHook.like}
           />
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        title={t('post.deleteConfirm.title')}
+        message={t('post.deleteConfirm.message')}
+        confirmLabel={deleting ? t('post.deleteConfirm.deleting') : t('post.deleteConfirm.confirm')}
+        cancelLabel={t('post.deleteConfirm.cancel')}
+        onConfirm={handleConfirmDelete}
+        onClose={() => { if (!deleting) setConfirmOpen(false); }}
+        loading={deleting}
+        danger
+      />
+
+      <ConfirmDialog
+        isOpen={reportOpen}
+        title={t('post.reportConfirm.title')}
+        message={t('post.reportConfirm.message')}
+        confirmLabel={t('post.reportConfirm.confirm')}
+        cancelLabel={t('post.reportConfirm.cancel')}
+        onConfirm={handleConfirmReport}
+        onClose={() => { if (!reporting) setReportOpen(false); }}
+        loading={reporting}
+        danger
+      />
+
+      <BanModal
+        isOpen={banModalOpen}
+        onConfirm={handleBanAuthor}
+        onClose={() => setBanModalOpen(false)}
+        loading={banPending}
+      />
     </article>
   );
 }

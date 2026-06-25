@@ -1,6 +1,7 @@
 services:
   # --- LA GATEWAY ---
   gateway:
+    restart: unless-stopped
     build:
       context: ./gateway
     ports:
@@ -10,9 +11,13 @@ services:
       - service-auth
       - service-post
       - service-user
+      - service-message
+      - service-media
+      - service-notification
 
   # --- LES BASES DE DONNÉES ---
   db-auth:
+    restart: unless-stopped
     image: postgres:15
     environment:
       POSTGRES_USER: admin
@@ -27,6 +32,7 @@ services:
       retries: 10
 
   db-user:
+    restart: unless-stopped
     image: postgres:15
     environment:
       POSTGRES_USER: admin
@@ -41,17 +47,58 @@ services:
       retries: 10
 
   db-post:
+    restart: unless-stopped
     image: mongo:latest
+    command: ["mongod", "--quiet"]
     volumes:
       - mongo_post_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/post_db --quiet"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  db-media:
+    restart: unless-stopped
+    image: mongo:latest
+    command: ["mongod", "--quiet"]
+    volumes:
+      - mongo_media_data:/data/db
+
+  rabbitmq:
+    restart: unless-stopped
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  db-notification:
+    restart: unless-stopped
+    image: mongo:latest
+    command: ["mongod", "--quiet"]
+    volumes:
+      - mongo_notification_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/notification_db --quiet"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # --- LE FRONT ---
   front:
+    restart: unless-stopped
     build:
       context: ./front
 
   # --- LES MICROSERVICES ---
   service-auth:
+    restart: unless-stopped
     build:
       context: ./Services/Auth
     environment:
@@ -65,11 +112,13 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - SALT_ROUNDS=12
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
     depends_on:
       db-auth:
         condition: service_healthy
 
   service-user:
+    restart: unless-stopped
     build:
       context: ./Services/User
     environment:
@@ -77,21 +126,87 @@ services:
       - DB_USER=admin
       - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_NAME=user_db
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
       db-user:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
   service-post:
+    restart: unless-stopped
     build:
       context: ./Services/Post
     environment:
       - API_PORT=3000
       - MONGO_URI=mongodb://db-post:27017/post_db
       - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - RABBITMQ_URL=amqp://rabbitmq:5672
     depends_on:
-      - db-post
+      db-post:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  service-notification:
+    restart: unless-stopped
+    build:
+      context: ./Services/Notification
+    environment:
+      - API_PORT=3000
+      - MONGO_URI=mongodb://db-notification:27017/notification_db
+      - JWT_SECRET=${JWT_SECRET}
+      - INTERNAL_SERVICE_SECRET=${INTERNAL_SERVICE_SECRET}
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+    depends_on:
+      db-notification:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  db-message:
+    restart: unless-stopped
+    image: mongo:latest
+    command: ["mongod", "--quiet"]
+    volumes:
+      - mongo_message_data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand({ ping: 1 }).ok' | mongosh mongodb://localhost:27017/message_db --quiet"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  service-message:
+    restart: unless-stopped
+    build:
+      context: ./Services/Message
+    environment:
+      - API_PORT=3000
+      - MONGO_URI=mongodb://db-message:27017/message_db
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      db-message:
+        condition: service_healthy
+
+  service-media:
+    restart: unless-stopped
+    build:
+      context: ./Services/Media
+    environment:
+      - API_PORT=3000
+      - MONGO_URI=mongodb://db-media:27017/media_db
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - db-media
 
 volumes:
   pg_auth_data:
   pg_user_data:
   mongo_post_data:
+  mongo_media_data:
+  mongo_message_data:
+  mongo_notification_data:

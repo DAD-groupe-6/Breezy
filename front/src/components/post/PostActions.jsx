@@ -18,7 +18,7 @@ export default function PostActions({
         className="group flex items-center gap-0.5 transition-colors hover:text-[var(--color-text-title)]"
         aria-label="Commenter"
       >
-        <div className="group-hover:bg-[var(--color-bg-surface-2)] rounded-full p-1.5 transition-colors">
+        <div className="rounded-full p-1.5 transition-colors group-hover:bg-[var(--color-like-hover-bg)] group-active:bg-[var(--color-like-hover-bg)]">
           <FaRegComment size={16} />
         </div>
         <span className="text-xs sm:text-sm">{formatCount(commentCount)}</span>
