@@ -1,5 +1,6 @@
 const { Server } = require("socket.io");
 const { verifyToken } = require("../utils/jwt.util");
+const { corsOptions } = require("../utils/cors.util");
 const logger = require("../logger");
 
 let io = null;
@@ -11,7 +12,7 @@ let io = null;
  */
 function initSocket(httpServer) {
     io = new Server(httpServer, {
-        cors: { origin: true, credentials: true },
+        cors: corsOptions,
     });
 
     io.use((socket, next) => {
