@@ -8,11 +8,21 @@ const logger = require("../logger");
 const USER_SERVICE_URL = process.env.USER_SERVICE_URL || "http://service-user:3000";
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
+/**
+ * Indique si un profil est sous bannissement encore actif.
+ * Entrée : userProfile (object) avec banned_until
+ * Sortie : isActive (boolean)
+ */
 function isBanActive(userProfile) {
     if (!userProfile?.banned_until) return false;
     return new Date(userProfile.banned_until) > new Date();
 }
 
+/**
+ * Interroge le service User et lève une erreur si le compte est banni.
+ * Entrée : userId (number)
+ * Sortie : rien (throw "Account is banned" / "User profile not found" / "Unable to validate account status")
+ */
 async function assertUserNotBanned(userId) {
     try {
         const { data } = await axios.get(
@@ -36,6 +46,12 @@ async function assertUserNotBanned(userId) {
     }
 }
 
+/**
+ * Crée le compte, choisit le rôle (par défaut "utilisateur") puis crée le profil côté User.
+ * Entrée : email (string), password (string), pseudo_uniq (string), pseudo (string),
+ *          roleId (number|string, optionnel), caller (object|null, l'utilisateur appelant)
+ * Sortie : user (object) { id, email, roleId }
+ */
 async function register(email, password, pseudo_uniq, pseudo, roleId, caller) {
     if (!email || !password || !pseudo_uniq || !pseudo) {
         throw new Error("Email, password, pseudo_uniq and pseudo are required");
@@ -86,6 +102,11 @@ async function register(email, password, pseudo_uniq, pseudo, roleId, caller) {
     return { id: newUser.id, email: newUser.email, roleId: newUser.roleId };
 }
 
+/**
+ * Vérifie les identifiants, refuse les comptes bannis et renvoie un JWT.
+ * Entrée : email (string), password (string)
+ * Sortie : result (object) { token }
+ */
 async function login(email, password) {
     const user = await User.findOne({ where: { email }, include: [{ model: Role, as: "role" }] });
     if (!user) throw new Error("Invalid credentials");
@@ -100,6 +121,11 @@ async function login(email, password) {
     return { token };
 }
 
+/**
+ * Supprime le profil côté User (échec non bloquant) puis le compte côté Auth.
+ * Entrée : userId (number)
+ * Sortie : result (object) { id }
+ */
 async function deleteAccount(userId) {
     const user = await User.findByPk(userId);
     if (!user) throw new Error("User not found");

@@ -12,6 +12,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+/**
+ * Connecte la base, synchronise les tables, recale la séquence d'id puis démarre le serveur.
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
   try {
     await sequelize.authenticate();

@@ -17,7 +17,6 @@ router.get("/roles/:roleId/permissions/:permissionId", RoleController.checkPermi
 router.get("/roles/:roleId/permissions-by-name/:permissionName", RoleController.checkPermissionByName);
 router.get("/users/:userId/permissions-by-name/:permissionName", RoleController.checkPermissionByUserId);
 
-// --- Administration RBAC (réservé à la permission `manage_roles`) ---
 const adminGuard = [authenticate(), requirePermission("manage_roles")];
 
 router.get("/admin/roles", ...adminGuard, RoleController.adminListRoles);
@@ -25,7 +24,6 @@ router.post("/admin/roles", ...adminGuard, RoleController.adminCreateRole);
 router.put("/admin/roles/:roleId", ...adminGuard, RoleController.adminUpdateRole);
 router.delete("/admin/roles/:roleId", ...adminGuard, RoleController.adminDeleteRole);
 
-// Permissions (droits) gérées par le code (seed) → lecture seule, pas de création/édition/suppression.
 router.get("/admin/permissions", ...adminGuard, RoleController.adminListPermissions);
 
 module.exports = router;
