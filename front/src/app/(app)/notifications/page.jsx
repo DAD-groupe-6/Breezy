@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import NotificationsView from '@/components/notifications/NotificationsView'
 import { useNotifications } from '@/providers/NotificationsProvider'
+import { useAuth } from '@/providers/AuthProvider'
 import { resolveAuthor } from '@/utils/authors'
 
 // Mappe le type stocké → clé de traduction existante (pages.notifications.actions.*)
@@ -14,13 +16,22 @@ const TYPE_TO_ACTION = {
 }
 
 export default function NotificationsPage() {
+  const router = useRouter()
+  const { hasPermission, permsLoaded } = useAuth()
   const { notifications, markAllRead } = useNotifications()
   const [enriched, setEnriched] = useState([])
 
+  // Notifications désactivées pour ce rôle (receive_notifications absente) → redirection profil.
+  const notifsDisabled = permsLoaded && !hasPermission('receive_notifications')
+  useEffect(() => {
+    if (notifsDisabled) router.replace('/profil')
+  }, [notifsDisabled, router])
+
   // Ouvrir la page = tout marquer comme lu.
   useEffect(() => {
+    if (notifsDisabled) return
     markAllRead()
-  }, [markAllRead])
+  }, [notifsDisabled, markAllRead])
 
   // Résoudre le pseudo/avatar de l'acteur pour chaque notif.
   useEffect(() => {
@@ -47,6 +58,8 @@ export default function NotificationsPage() {
     enrich()
     return () => { cancelled = true }
   }, [notifications])
+
+  if (notifsDisabled) return null
 
   return <NotificationsView notifications={enriched} />
 }

@@ -25,9 +25,7 @@ router.post("/admin/roles", ...adminGuard, RoleController.adminCreateRole);
 router.put("/admin/roles/:roleId", ...adminGuard, RoleController.adminUpdateRole);
 router.delete("/admin/roles/:roleId", ...adminGuard, RoleController.adminDeleteRole);
 
+// Permissions (droits) gérées par le code (seed) → lecture seule, pas de création/édition/suppression.
 router.get("/admin/permissions", ...adminGuard, RoleController.adminListPermissions);
-router.post("/admin/permissions", ...adminGuard, RoleController.adminCreatePermission);
-router.put("/admin/permissions/:permissionId", ...adminGuard, RoleController.adminUpdatePermission);
-router.delete("/admin/permissions/:permissionId", ...adminGuard, RoleController.adminDeletePermission);
 
 module.exports = router;

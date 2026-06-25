@@ -28,7 +28,9 @@ export function usePostLikes(postId, initialLiked, initialCount) {
       setLiked(data.likedByMe)
       setCount(data.nb_like)
     } catch (err) {
-      toast.error(t('toasts.likeError'))
+      // 403 = le rôle de l'utilisateur n'a pas la permission `like_post`.
+      const message = err.response?.status === 403 ? t('toasts.likeForbidden') : t('toasts.likeError')
+      toast.error(message)
       console.error('[usePostLikes] Échec du like/unlike du post', err)
     } finally {
       setLoading(false)

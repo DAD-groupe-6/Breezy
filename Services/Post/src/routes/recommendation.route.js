@@ -43,6 +43,6 @@ const { requirePermission } = require("../middlewares/permission.middleware");
  *       401:
  *         description: Unauthorized
  */
-router.get("/:userId", authenticate({ optional: true }), requirePermission("view_timeline"), RecommendationController.getRecommendedPosts);
+router.get("/:userId", authenticate({ optional: true }), requirePermission("view_feed"), RecommendationController.getRecommendedPosts);
 
 module.exports = router;

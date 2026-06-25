@@ -23,7 +23,7 @@ export default function SettingsPage() {
                 }}
             >
                 <div className="flex flex-col gap-5">
-                    {hasPermission('multi_language') && (
+                    {hasPermission('change_language') && (
                         <SettingsCard
                             title={t('pages.settings.languageSection')}
                             description={t('pages.settings.languageDescription')}
@@ -32,7 +32,7 @@ export default function SettingsPage() {
                         </SettingsCard>
                     )}
 
-                    {hasPermission('custom_theme') && (
+                    {hasPermission('change_theme') && (
                         <SettingsCard
                             title={t('pages.settings.themeSection')}
                             description={t('pages.settings.themeDescription')}

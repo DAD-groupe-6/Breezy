@@ -6,6 +6,7 @@ import UserInfo from '@/components/user/UserInfo';
 import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
 import { useToast } from '@/hooks/useToast';
 
 export default function ProfileCard({
@@ -20,6 +21,8 @@ export default function ProfileCard({
 }) {
   const router = useRouter();
   const { t } = useTranslation();
+  const { hasPermission } = useAuth();
+  const canFollow = hasPermission('follow_user');
   const toast = useToast();
   const [isFollowing, setIsFollowing] = useState(initialFollowing);
   const [pending, setPending] = useState(false);
@@ -95,7 +98,7 @@ export default function ProfileCard({
                 e.stopPropagation();
                 handleFollow();
               }}
-              disabled={pending}
+              disabled={pending || !canFollow}
               className={`px-4 py-1 rounded-full text-sm font-bold whitespace-nowrap transition-colors disabled:opacity-50 ${
                 isFollowing
                   ? 'border border-[var(--color-text-secondary)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]'

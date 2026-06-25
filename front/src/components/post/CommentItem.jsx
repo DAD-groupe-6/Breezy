@@ -3,11 +3,15 @@
 import { useState } from 'react';
 import { FiTrash2, FiCornerDownRight } from 'react-icons/fi';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useAuth } from '@/providers/AuthProvider';
 import LikeButton from './LikeButton';
 import RepliesThread from './RepliesThread';
 
 export default function CommentItem({ comment, onDelete, onLike, isReply = false, onReply }) {
   const { t } = useTranslation();
+  // Répondre = publier → gouverné par `publish_post`.
+  const { hasPermission } = useAuth();
+  const canPublish = hasPermission('publish_post');
   const [showReplies, setShowReplies] = useState(false);
   const [autoFocusReply, setAutoFocusReply] = useState(false);
 
@@ -59,13 +63,15 @@ export default function CommentItem({ comment, onDelete, onLike, isReply = false
           hideZero
           label={t('comments.likeAria')}
         />
-        <button
-          type="button"
-          onClick={handleReplyClick}
-          className="text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]"
-        >
-          {t('comments.reply')}
-        </button>
+        {canPublish && (
+          <button
+            type="button"
+            onClick={handleReplyClick}
+            className="text-xs font-medium text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text-title)]"
+          >
+            {t('comments.reply')}
+          </button>
+        )}
       </div>
 
       {/* Toggle "Voir les N réponses" + sous-conversation (commentaires racine uniquement) */}

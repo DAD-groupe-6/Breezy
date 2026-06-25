@@ -45,8 +45,10 @@ async function getPost(req, res) {
 async function getUserPosts(req, res) {
     try {
         const isOwnProfile = String(req.user?.id) === String(req.params.userId);
-        if (!isOwnProfile && !(await roleHasPermission(req.user?.roleId, "list_others_posts"))) {
-            return res.status(403).json({ message: "You can only view your own posts" });
+        if (!isOwnProfile && !(await roleHasPermission(req.user?.roleId, "view_others_posts"))) {
+            // Posts masqués, mais on renvoie quand même le total pour l'afficher sur le profil.
+            const total = await PostService.countUserPosts(req.params.userId);
+            return res.status(200).json({ posts: [], hasMore: false, total });
         }
         const { page, limit } = req.query;
         const result = await PostService.getUserPosts(req.params.userId, req.user.id, { page, limit });

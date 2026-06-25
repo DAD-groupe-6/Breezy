@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useComments } from '@/hooks/useComments';
+import { useAuth } from '@/providers/AuthProvider';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import LoadMoreButton from './LoadMoreButton';
@@ -10,6 +11,9 @@ export default function RepliesThread({ commentId, autoFocus = false }) {
   const replies = useComments(commentId, undefined, { order: 'asc' });
   const [target, setTarget] = useState(null);
   const inputRef = useRef(null);
+  // Répondre = publier → gouverné par `publish_post`.
+  const { hasPermission } = useAuth();
+  const canPublish = hasPermission('publish_post');
 
   // Charge la 1re tranche de réponses au montage (à l'ouverture du fil).
   const { load } = replies;
@@ -46,12 +50,14 @@ export default function RepliesThread({ commentId, autoFocus = false }) {
 
       {replies.hasMore && <LoadMoreButton onClick={replies.loadMore} />}
 
-      <CommentForm
-        onSubmit={handleSubmit}
-        replyTarget={target}
-        onCancelTarget={() => setTarget(null)}
-        inputRef={inputRef}
-      />
+      {canPublish && (
+        <CommentForm
+          onSubmit={handleSubmit}
+          replyTarget={target}
+          onCancelTarget={() => setTarget(null)}
+          inputRef={inputRef}
+        />
+      )}
     </div>
   );
 }

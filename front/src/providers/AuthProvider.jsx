@@ -37,8 +37,13 @@ export function AuthProvider({ children }) {
   }, [])
 
   // À chaque changement de rôle : (re)charge la liste des permissions depuis Auth.
+  // On attend la fin du chargement initial (loading=false) pour éviter un flash
+  // où permsLoaded=true avec permissions=[] avant que le token soit lu.
   useEffect(() => {
     let cancelled = false
+
+    if (loading) return
+
     const roleId = user?.roleId
 
     if (roleId === null || roleId === undefined) {
@@ -54,7 +59,7 @@ export function AuthProvider({ children }) {
       .finally(() => { if (!cancelled) setPermsLoaded(true) })
 
     return () => { cancelled = true }
-  }, [user?.roleId])
+  }, [user?.roleId, loading])
 
   // Vrai uniquement si la permission est explicitement accordée au rôle courant.
   const hasPermission = useCallback(
