@@ -1,15 +1,18 @@
 'use client'
 
 import { FiCheck, FiX, FiInfo } from 'react-icons/fi'
+import { useTranslation } from '@/hooks/useTranslation'
 
 const TYPES = {
-  success: { Icon: FiCheck, title: 'Succès', color: 'var(--color-status-success)' },
-  error: { Icon: FiX, title: 'Erreur', color: 'var(--color-status-error)' },
-  info: { Icon: FiInfo, title: 'Info', color: 'var(--color-status-info)' },
+  success: { Icon: FiCheck, titleKey: 'common.success', color: 'var(--color-status-success)' },
+  error: { Icon: FiX, titleKey: 'common.error', color: 'var(--color-status-error)' },
+  info: { Icon: FiInfo, titleKey: 'common.info', color: 'var(--color-status-info)' },
 }
 
 function ToastItem({ toast, onClose }) {
-  const { Icon, title, color } = TYPES[toast.type] ?? TYPES.info
+  const { t } = useTranslation()
+  const { Icon, titleKey, color } = TYPES[toast.type] ?? TYPES.info
+  const title = t(titleKey)
 
   return (
     <div
@@ -35,7 +38,7 @@ function ToastItem({ toast, onClose }) {
       <button
         type="button"
         onClick={() => onClose(toast.id)}
-        aria-label="Fermer"
+        aria-label={t('common.close')}
         className="shrink-0 text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
       >
         <FiX size={20} />

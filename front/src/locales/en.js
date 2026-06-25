@@ -383,6 +383,10 @@ const en = {
     unknownUser: 'Unknown user',
     unknownHandle: 'unknown',
     cancel: 'Cancel',
+    close: 'Close',
+    success: 'Success',
+    error: 'Error',
+    info: 'Info',
   },
 
   errors: {
