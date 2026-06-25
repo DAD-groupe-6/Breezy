@@ -1,6 +1,10 @@
 const Notification = require("../models/notification.model");
 
-// Document Mongo → objet de sortie stable (id en string)
+/**
+ * Transforme un document Mongo en objet de sortie stable (id en string).
+ * Entrée : doc (object Mongoose)
+ * Sortie : view (object) { id, recipientId, actorId, type, postId, commentId, read, createdAt }
+ */
 function toView(doc) {
     return {
         id: String(doc._id),
@@ -14,6 +18,12 @@ function toView(doc) {
     };
 }
 
+/**
+ * Crée une notification ; like/follow/mention sont dédoublonnés par upsert (anti-spam),
+ * un commentaire crée toujours une nouvelle entrée.
+ * Entrée : payload (object) { recipientId, actorId, type, postId?, commentId? }
+ * Sortie : result (object) { notification (view), isNew (boolean) } ; throw si payload invalide
+ */
 async function createNotification({ recipientId, actorId, type, postId = null, commentId = null }) {
     if (!recipientId || !actorId || !type) {
         throw new Error("Invalid notification payload");
@@ -21,8 +31,6 @@ async function createNotification({ recipientId, actorId, type, postId = null, c
 
     const base = { recipientId: String(recipientId), actorId: String(actorId), type };
 
-    // Like/follow/mention : une notif par couple acteur→cible, dédoublonnée via upsert
-    // (anti-spam relike/refollow/re-mention) ; isNew=false si déjà présente.
     if (type === "like" || type === "follow" || type === "mention") {
         let filter, onInsert;
         if (type === "like") {
@@ -31,7 +39,7 @@ async function createNotification({ recipientId, actorId, type, postId = null, c
         } else if (type === "mention") {
             filter = { ...base, postId, commentId };
             onInsert = { read: false };
-        } else { // follow
+        } else {
             filter = base;
             onInsert = { read: false, commentId };
         }
@@ -44,11 +52,15 @@ async function createNotification({ recipientId, actorId, type, postId = null, c
         return { notification: toView(res.value), isNew };
     }
 
-    // Commentaire : chaque commentaire est distinct → pas de dédoublonnage.
     const doc = await Notification.create({ ...base, postId, commentId });
     return { notification: toView(doc), isNew: true };
 }
 
+/**
+ * Renvoie les 50 dernières notifications d'un utilisateur et le nombre de non-lues.
+ * Entrée : userId (string)
+ * Sortie : result (object) { notifications (array de view), unreadCount (number) }
+ */
 async function listForUser(userId) {
     const docs = await Notification.find({ recipientId: String(userId) })
         .sort({ createdAt: -1 })
@@ -60,6 +72,11 @@ async function listForUser(userId) {
     return { notifications: docs.map(toView), unreadCount };
 }
 
+/**
+ * Marque une notification de l'utilisateur comme lue.
+ * Entrée : userId (string), id (string)
+ * Sortie : view (object notification) ; throw "Notification not found"
+ */
 async function markRead(userId, id) {
     const doc = await Notification.findOneAndUpdate(
         { _id: id, recipientId: String(userId) },
@@ -70,6 +87,11 @@ async function markRead(userId, id) {
     return toView(doc);
 }
 
+/**
+ * Marque toutes les notifications non-lues d'un utilisateur comme lues.
+ * Entrée : userId (string)
+ * Sortie : result (object) { message }
+ */
 async function markAllRead(userId) {
     await Notification.updateMany(
         { recipientId: String(userId), read: false },

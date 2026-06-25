@@ -3,13 +3,17 @@ const bcrypt = require("bcrypt");
 const sequelize = require("./src/config/database.config");
 const { User, Role, Permission, RolePermission, initializeAssociations } = require("./src/models");
 
-// --- Constantes partagées (DOIVENT rester synchronisées entre les services Auth/User/Post/Message) ---
 const ADMIN_ID = "1";
 const MOD_ID = "2";
-const getUserId = (i) => String(i + 2);
-const USER_COUNT = 33; // utilisateurs "réguliers" -> ids "3".."35"
 
-// "test" => jeu de données complet (mod + utilisateurs factices) ; sinon (prod) => admin seul.
+/**
+ * Donne l'id du i-ème utilisateur régulier (les ids 1 et 2 sont réservés admin/mod).
+ * Entrée : i (number), 1-based
+ * Sortie : id (string)
+ */
+const getUserId = (i) => String(i + 2);
+const USER_COUNT = 33;
+
 const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
 const permissionsList = [
@@ -38,6 +42,12 @@ const rolePermissionsMap = {
     administrateur: ["create_account", "publish_post", "view_feed", "like_post", "follow_user", "view_others_posts", "search", "receive_notifications", "send_messages", "add_images", "add_videos", "report_content", "moderate_users", "change_language", "change_theme", "manage_roles"],
 };
 
+/**
+ * Crée (ou met à jour) les permissions, les rôles et leurs liens, puis les comptes de départ.
+ * Le jeu complet (mod + utilisateurs factices) n'est créé qu'avec SEED_DATASET=test.
+ * Entrée : rien (lit RESET_SEED et SEED_DATASET dans l'environnement)
+ * Sortie : rien (process.exit 0 si succès, 1 sinon)
+ */
 async function seedDatabase() {
     try {
         if (process.env.RESET_SEED === "true") {
@@ -65,12 +75,10 @@ async function seedDatabase() {
         }
 
         const hashedPassword = await bcrypt.hash("123456789", 10);
-        // Le compte admin est toujours créé (test ET prod).
         const usersToCreate = [
             { id: ADMIN_ID, email: "admin@example.com", roleId: createdRoles.administrateur.id },
         ];
 
-        // Données factices (mod + utilisateurs) uniquement en environnement de test.
         if (IS_TEST_DATASET) {
             usersToCreate.push({ id: MOD_ID, email: "mod@example.com", roleId: createdRoles.moderateur.id });
             for (let i = 1; i <= USER_COUNT; i++) {

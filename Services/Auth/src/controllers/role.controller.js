@@ -1,5 +1,10 @@
 const RoleService = require("../services/role.service");
 
+/**
+ * Liste les rôles assignables.
+ * Entrée : rien
+ * Sortie : 200 { roles }
+ */
 async function listRoles(req, res) {
     try {
         const roles = await RoleService.listRoles();
@@ -9,13 +14,18 @@ async function listRoles(req, res) {
     }
 }
 
+/**
+ * Dit si un rôle a une permission (par id).
+ * Entrée : req.params { roleId, permissionId }
+ * Sortie : 200 { hasPermission } ; 400 si paramètre manquant
+ */
 async function checkPermission(req, res) {
     try {
         const { roleId, permissionId } = req.params;
 
         if (!roleId || !permissionId) {
-            return res.status(400).json({ 
-                message: "roleId and permissionId are required" 
+            return res.status(400).json({
+                message: "roleId and permissionId are required"
             });
         }
 
@@ -30,13 +40,18 @@ async function checkPermission(req, res) {
     }
 }
 
+/**
+ * Dit si un rôle a une permission (par nom).
+ * Entrée : req.params { roleId, permissionName }
+ * Sortie : 200 { hasPermission } ; 400 si paramètre manquant, 404 si permission inconnue
+ */
 async function checkPermissionByName(req, res) {
     try {
         const { roleId, permissionName } = req.params;
 
         if (!roleId || !permissionName) {
-            return res.status(400).json({ 
-                message: "roleId and permissionName are required" 
+            return res.status(400).json({
+                message: "roleId and permissionName are required"
             });
         }
 
@@ -52,6 +67,11 @@ async function checkPermissionByName(req, res) {
     }
 }
 
+/**
+ * Renvoie les noms de permissions d'un rôle.
+ * Entrée : req.params { roleId }
+ * Sortie : 200 { permissions } ; 400 si manquant, 404 si rôle inconnu
+ */
 async function getRolePermissions(req, res) {
     try {
         const { roleId } = req.params;
@@ -68,6 +88,11 @@ async function getRolePermissions(req, res) {
     }
 }
 
+/**
+ * Dit si l'utilisateur a une permission (par userId).
+ * Entrée : req.params { userId, permissionName }
+ * Sortie : 200 { hasPermission } ; 400 si manquant, 404 si user/permission inconnu
+ */
 async function checkPermissionByUserId(req, res) {
     try {
         const { userId, permissionName } = req.params;
@@ -90,11 +115,11 @@ async function checkPermissionByUserId(req, res) {
     }
 }
 
-// =====================================================================
-//  Administration RBAC (réservé à la permission `manage_roles`)
-// =====================================================================
-
-// Traduit les erreurs métier en codes HTTP cohérents.
+/**
+ * Traduit un message d'erreur métier en code HTTP.
+ * Entrée : message (string)
+ * Sortie : status (number)
+ */
 function adminErrorStatus(message) {
     if (["Role not found"].includes(message)) return 404;
     if (["Role already exists", "Role has assigned users"].includes(message)) return 409;
@@ -108,6 +133,11 @@ function adminErrorStatus(message) {
     return 500;
 }
 
+/**
+ * Liste tous les rôles avec leurs permissions (admin).
+ * Entrée : rien
+ * Sortie : 200 { roles }
+ */
 async function adminListRoles(req, res) {
     try {
         const roles = await RoleService.listRolesDetailed();
@@ -117,6 +147,11 @@ async function adminListRoles(req, res) {
     }
 }
 
+/**
+ * Liste toutes les permissions (admin).
+ * Entrée : rien
+ * Sortie : 200 { permissions }
+ */
 async function adminListPermissions(req, res) {
     try {
         const permissions = await RoleService.listPermissions();
@@ -126,6 +161,11 @@ async function adminListPermissions(req, res) {
     }
 }
 
+/**
+ * Crée un rôle (admin).
+ * Entrée : req.body { name, description, permissions }
+ * Sortie : 201 { role } ; 4xx via adminErrorStatus
+ */
 async function adminCreateRole(req, res) {
     try {
         const { name, description, permissions } = req.body;
@@ -136,6 +176,11 @@ async function adminCreateRole(req, res) {
     }
 }
 
+/**
+ * Met à jour un rôle (admin).
+ * Entrée : req.params { roleId }, req.body { name, description, permissions }, req.user.roleId
+ * Sortie : 200 { role } ; 4xx via adminErrorStatus
+ */
 async function adminUpdateRole(req, res) {
     try {
         const { name, description, permissions } = req.body;
@@ -150,6 +195,11 @@ async function adminUpdateRole(req, res) {
     }
 }
 
+/**
+ * Supprime un rôle (admin).
+ * Entrée : req.params { roleId }
+ * Sortie : 204 ; 4xx via adminErrorStatus
+ */
 async function adminDeleteRole(req, res) {
     try {
         await RoleService.deleteRole(parseInt(req.params.roleId));
@@ -165,7 +215,6 @@ module.exports = {
     checkPermission,
     checkPermissionByName,
     checkPermissionByUserId,
-    // Administration RBAC
     adminListRoles,
     adminListPermissions,
     adminCreateRole,

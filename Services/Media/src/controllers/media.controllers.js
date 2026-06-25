@@ -1,6 +1,11 @@
 const MediaService = require("../services/media.service");
 const logger = require("../logger");
 
+/**
+ * Confirme l'upload (le fichier a déjà été écrit par le moteur de stockage Multer).
+ * Entrée : req.file (object) posé par Multer
+ * Sortie : 201 { id, url } ; 400 si aucun fichier
+ */
 async function upload(req, res) {
     if (!req.file) {
         return res.status(400).json({ message: "No file provided" });
@@ -11,13 +16,18 @@ async function upload(req, res) {
     });
 }
 
+/**
+ * Sert un média en streaming, avec gestion des requêtes par plage (Range) pour la vidéo.
+ * Entrée : req.params.id (string), req.headers.range (string, optionnel)
+ * Sortie : flux 200 (complet) ou 206 (plage) ; 416 si plage invalide, 404 si introuvable
+ */
 async function getOne(req, res) {
     try {
         const fileInfo = await MediaService.getFileInfo(req.params.id);
         const total = fileInfo.length;
 
         res.set("Content-Type", fileInfo.contentType);
-        res.set("Cache-Control", "public, max-age=31536000"); // cache 1 an
+        res.set("Cache-Control", "public, max-age=31536000");
         res.set("Accept-Ranges", "bytes");
 
         const range = req.headers.range;
@@ -53,6 +63,11 @@ async function getOne(req, res) {
     }
 }
 
+/**
+ * Supprime un média.
+ * Entrée : req.params.id (string)
+ * Sortie : 200 result { id } ; 404 si introuvable
+ */
 async function remove(req, res) {
     try {
         const result = await MediaService.deleteImage(req.params.id);

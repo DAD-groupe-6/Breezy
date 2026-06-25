@@ -18,12 +18,22 @@ app.get("/api/v1/media/health", (req, res) => {
 app.use("/api/v1/media", mediaRoutes);
 
 
+/**
+ * Handler d'erreurs global (notamment les erreurs d'upload Multer).
+ * Entrée : err (Error), req, res, next
+ * Sortie : réponse JSON avec le code adapté (413 si fichier trop gros, sinon err.status ou 400)
+ */
 app.use((err, req, res, next) => {
     logger.error(`Upload failed: ${err.message}`);
     const status = err.status || (err.code === "LIMIT_FILE_SIZE" ? 413 : 400);
     res.status(status).json({ message: err.message });
 });
 
+/**
+ * Connecte la base puis démarre le serveur.
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
     try {
         await connectDB();

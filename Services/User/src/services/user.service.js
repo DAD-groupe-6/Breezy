@@ -1,6 +1,11 @@
 const { User } = require("../models/user.model");
 const sequelize = require("../config/database.config");
 
+/**
+ * Crée un profil (id imposé par Auth), en refusant un id ou un pseudo déjà pris.
+ * Entrée : id_user (string), pseudo_uniq (string), pseudo (string)
+ * Sortie : newUser (object profil) ; throw si id/pseudo déjà existant
+ */
 async function createUser(id_user, pseudo_uniq, pseudo) {
     const existing = await User.findByPk(id_user);
     if(existing) {
@@ -14,12 +19,22 @@ async function createUser(id_user, pseudo_uniq, pseudo) {
     return newUser;
 }
 
+/**
+ * Récupère un profil par son id.
+ * Entrée : id_user (string)
+ * Sortie : user (object profil) ; throw "User not found"
+ */
 async function getUser(id_user){
     const user = await User.findByPk(id_user);
     if(!user) throw new Error("User not found");
     return user;
 }
 
+/**
+ * Met à jour les champs modifiables d'un profil.
+ * Entrée : id_user (string), data (object) { pseudo?, bio?, img_profile? }
+ * Sortie : user (object profil mis à jour) ; throw "User not found"
+ */
 async function updateUser(id_user, data) {
     const user = await User.findByPk(id_user);
     if (!user) throw new Error("User not found");
@@ -33,6 +48,11 @@ async function updateUser(id_user, data) {
     return user;
 }
 
+/**
+ * Supprime un profil.
+ * Entrée : id_user (string)
+ * Sortie : result (object) { id_user } ; throw "User not found"
+ */
 async function deleteUser(id_user) {
     const user = await User.findByPk(id_user);
     if (!user) throw new Error("User not found");
@@ -41,6 +61,11 @@ async function deleteUser(id_user) {
     return { id_user };
 }
 
+/**
+ * Incrémente le compteur de signalements ; au 3e, bannit l'utilisateur 30 jours et remet le compteur à 0.
+ * Entrée : id_user (string)
+ * Sortie : result (object) { id_user, deleted_reported_posts, banned_until, is_banned } ; throw "User not found"
+ */
 async function reportUser(id_user) {
     const user = await User.findByPk(id_user);
     if (!user) throw new Error("User not found");
@@ -71,11 +96,15 @@ async function reportUser(id_user) {
     };
 }
 
+/**
+ * Renvoie des profils à suivre au hasard, en excluant soi-même et les comptes déjà suivis.
+ * Entrée : currentUserId (string), limit (number, borné entre 1 et 20)
+ * Sortie : users (array de profils)
+ */
 async function getSuggestions(currentUserId, limit = 5) {
     const { Op } = require("sequelize");
     const max = Math.min(Math.max(Number(limit) || 5, 1), 20);
 
-    // On exclut soi-même et les comptes déjà suivis
     const excludeIds = [];
     if (currentUserId) {
         excludeIds.push(currentUserId);
@@ -98,6 +127,11 @@ async function getSuggestions(currentUserId, limit = 5) {
     return users;
 }
 
+/**
+ * Recherche des profils dont le pseudo unique contient le terme (insensible à la casse).
+ * Entrée : pseudo_uniq (string)
+ * Sortie : users (array de profils, max 10)
+ */
 async function searchUsersByPseudo(pseudo_uniq) {
     const { Op } = require("sequelize");
     const users = await User.findAll({
@@ -111,6 +145,12 @@ async function searchUsersByPseudo(pseudo_uniq) {
     });
     return users;
 }
+
+/**
+ * Bannit un utilisateur jusqu'à une date (durée en jours, ou permanent si null).
+ * Entrée : id_user (string), durationDays (number|null)
+ * Sortie : result (object) { id_user, banned_until } ; throw "User not found"
+ */
 async function banUser(id_user, durationDays) {
     const user = await User.findByPk(id_user);
     if (!user) throw new Error("User not found");
@@ -122,6 +162,11 @@ async function banUser(id_user, durationDays) {
     return { id_user: user.id_user, banned_until: user.banned_until };
 }
 
+/**
+ * Lève le bannissement d'un utilisateur.
+ * Entrée : id_user (string)
+ * Sortie : result (object) { id_user, banned_until: null } ; throw "User not found"
+ */
 async function unbanUser(id_user) {
     const user = await User.findByPk(id_user);
     if (!user) throw new Error("User not found");
@@ -141,4 +186,3 @@ module.exports = {
     searchUsersByPseudo,
     getSuggestions,
 };
-

@@ -1,6 +1,11 @@
 const messageService = require("../services/message.service");
 const conversationService = require("../services/conversation.service");
 
+/**
+ * Renvoie les messages d'une conversation (paginés, récents d'abord).
+ * Entrée : req.params.id (string), req.query { page, limit }, req.user.id (string)
+ * Sortie : 200 messages (array) ; 404 si introuvable, 403 si non participant, 500 sinon
+ */
 async function getMessages(req, res) {
     try {
         const { id } = req.params;
@@ -17,6 +22,11 @@ async function getMessages(req, res) {
     }
 }
 
+/**
+ * Marque comme lus les messages reçus dans une conversation.
+ * Entrée : req.params.id (string), req.user.id (string)
+ * Sortie : 200 { message } ; 404 si introuvable, 403 si non participant, 500 sinon
+ */
 async function markAsRead(req, res) {
     try {
         const { id } = req.params;

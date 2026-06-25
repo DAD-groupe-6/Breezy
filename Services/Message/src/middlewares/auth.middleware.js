@@ -1,5 +1,10 @@
 const { verifyToken } = require("../utils/jwt.util");
 
+/**
+ * Exige un JWT valide dans le header Authorization et pose req.user.
+ * Entrée : req (Request), res (Response), next (function)
+ * Sortie : next() si valide, sinon réponse 401
+ */
 function authenticate(req, res, next) {
     const authHeader = req.headers["authorization"];
     if (!authHeader) {

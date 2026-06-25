@@ -3,6 +3,12 @@ const { createMessage, markAsRead } = require("../services/message.service");
 const { getConversationById } = require("../services/conversation.service");
 const logger = require("../logger");
 
+/**
+ * Branche l'authentification du socket (JWT dans le handshake) et tous les événements
+ * temps réel (rejoindre/quitter une conversation, lecture, envoi, frappe, déconnexion).
+ * Entrée : io (Server socket.io)
+ * Sortie : rien
+ */
 function registerSocketHandlers(io) {
     io.use((socket, next) => {
         const token = socket.handshake.auth?.token;
@@ -25,7 +31,6 @@ function registerSocketHandlers(io) {
             socket.join(conversationId);
             logger.info(`User ${userId} joined conversation ${conversationId}`);
 
-            // Notifie les autres participants que ce user a lu la conversation
             socket.to(conversationId).emit("messages_read", {
                 conversationId,
                 readAt: new Date(),
@@ -36,9 +41,6 @@ function registerSocketHandlers(io) {
             socket.leave(conversationId);
         });
 
-        // Marque les messages reçus comme lus alors que la conversation est
-        // déjà ouverte (un message arrivé en direct n'est plus "non lu") et
-        // notifie l'expéditeur pour basculer ses messages en ✓✓.
         socket.on("mark_read", async ({ conversationId }) => {
             try {
                 if (!conversationId) return;

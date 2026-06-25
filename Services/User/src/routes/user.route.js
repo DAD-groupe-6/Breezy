@@ -4,10 +4,8 @@ const UserController = require("../controllers/user.controller");
 const { authenticate } = require("../middlewares/auth.middleware");
 const { requirePermission } = require("../middlewares/permission.middleware");
 
-// Route interne appelée par le service Auth — pas de vérification de permission
 router.post("/", UserController.createUser);
 
-// Profil consultable par tout utilisateur authentifié — plus de permission dédiée (view_profile supprimée).
 router.get("/search", authenticate({ optional: true }), UserController.searchUsersByPseudo);
 router.get("/suggestions", authenticate({ optional: true }), UserController.getSuggestions);
 router.get("/:id", authenticate({ optional: true }), UserController.getUser);

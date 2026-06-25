@@ -1,4 +1,8 @@
-// Transforme un document Post (post ou commentaire) en objet exposé par l'API.
+/**
+ * Transforme un document Post (post ou commentaire) en objet exposé par l'API.
+ * Entrée : post (object document), likedByMe (boolean)
+ * Sortie : view (object) prêt pour le client
+ */
 function toView(post, likedByMe = false) {
     return {
         _id: post._id,

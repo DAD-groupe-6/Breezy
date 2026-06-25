@@ -43,6 +43,11 @@ app.get('/api/v1/user/health', (req, res) => {
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/user', followRoutes);
 
+/**
+ * Connecte la base, synchronise les tables, lance le publisher RabbitMQ puis démarre le serveur.
+ * Entrée : rien
+ * Sortie : rien (écoute sur le port configuré)
+ */
 async function startServer() {
   try {
     await sequelize.authenticate();

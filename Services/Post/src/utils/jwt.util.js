@@ -2,8 +2,11 @@ const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "defaultSecret";
 
-// Le service Post ne crée pas de token, il vérifie seulement
-// celui émis par le service Auth (même JWT_SECRET partagé).
+/**
+ * Vérifie la signature et la validité d'un JWT (Post ne fait que vérifier, jamais signer).
+ * Entrée : token (string)
+ * Sortie : decoded (object) si valide, null sinon
+ */
 function verifyToken(token) {
     try {
         return jwt.verify(token, JWT_SECRET);

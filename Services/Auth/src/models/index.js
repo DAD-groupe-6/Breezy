@@ -3,20 +3,22 @@ const Role = require("./role.model");
 const Permission = require("./permission.model");
 const RolePermission = require("./rolePermission.model");
 
+/**
+ * Déclare les associations Sequelize (User↔Role, Role↔Permission via RolePermission).
+ * Entrée : rien
+ * Sortie : rien
+ */
 const initializeAssociations = () => {
-    // User belongs to Role
     User.belongsTo(Role, {
         foreignKey: "roleId",
         as: "role",
     });
 
-    // Role has many Users
     Role.hasMany(User, {
         foreignKey: "roleId",
         as: "users",
     });
 
-    // Role has many Permissions (through RolePermission)
     Role.belongsToMany(Permission, {
         through: RolePermission,
         foreignKey: "roleId",
@@ -24,7 +26,6 @@ const initializeAssociations = () => {
         as: "permissions",
     });
 
-    // Permission has many Roles (through RolePermission)
     Permission.belongsToMany(Role, {
         through: RolePermission,
         foreignKey: "permissionId",

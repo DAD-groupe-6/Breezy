@@ -1,7 +1,11 @@
 const RoleService = require("../services/role.service");
 
-// Vérifie une permission via le rôle de l'utilisateur. Auth étant la source de vérité,
-// on interroge directement la base (pas d'appel HTTP vers soi-même).
+/**
+ * Construit un middleware qui exige une permission sur le rôle de l'utilisateur,
+ * lue directement en base (Auth est la source de vérité).
+ * Entrée : permissionName (string)
+ * Sortie : middleware (function) (req, res, next) — 401/403/500 sinon next()
+ */
 const requirePermission = (permissionName) => async (req, res, next) => {
     if (!req.user) {
         return res.status(401).json({ message: "No token provided" });
