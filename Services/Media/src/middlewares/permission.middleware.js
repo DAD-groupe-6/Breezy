@@ -8,6 +8,7 @@ const inflight = new Map();
 /**
  * Récupère les permissions d'un rôle depuis Auth, avec cache mémoire (TTL) et mutualisation
  * des appels concurrents pour ne pas marteler Auth.
+ * Si Auth est injoignable, sert le cache même expiré quand il existe (dégradation gracieuse), sinon propage l'erreur.
  * Entrée : roleId (number)
  * Sortie : permissions (array de string)
  */
@@ -32,8 +33,6 @@ async function getRolePermissions(roleId) {
             cache.set(roleId, { permissions, expiresAt: Date.now() + CACHE_TTL_MS });
             return permissions;
         } catch (err) {
-            // Dégradation gracieuse : si Auth est injoignable mais qu'on a déjà un cache
-            // (même expiré), on le sert plutôt que de bloquer toutes les routes en 503.
             if (cached) return cached.permissions;
             throw err;
         }

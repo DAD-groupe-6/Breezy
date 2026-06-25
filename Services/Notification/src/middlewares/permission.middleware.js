@@ -2,14 +2,16 @@ const { userHasPermission } = require("../utils/permission.util");
 
 const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal-secret-key";
 
-// Vérifie une permission via le rôle de l'utilisateur, en déléguant au service Auth.
-// Réutilise userHasPermission (permission.util) qui gère déjà cache + dégradation gracieuse.
+/**
+ * Construit un middleware exigeant une permission (les appels internes x-internal-secret passent).
+ * Délègue à userHasPermission (permission.util), qui gère le cache et la dégradation gracieuse.
+ * Entrée : permissionName (string)
+ * Sortie : middleware (function) (req, res, next) — 401/403/503 sinon next()
+ */
 const requirePermission = (permissionName) => async (req, res, next) => {
-    // Appels internes service-à-service : on court-circuite la vérification.
     if (req.headers["x-internal-secret"] === INTERNAL_SERVICE_SECRET) {
         return next();
     }
-    // Non authentifié : aucune route de ce service ne lui est ouverte.
     if (!req.user) {
         return res.status(401).json({ error: "Insufficient permissions" });
     }

@@ -8,6 +8,7 @@ const inflight = new Map();
 /**
  * Demande à Auth si un utilisateur (via son rôle) possède une permission, avec cache mémoire
  * (TTL) et mutualisation des appels concurrents pour absorber les rafales d'événements.
+ * Si Auth est injoignable, sert le cache même expiré quand il existe (dégradation gracieuse), sinon propage l'erreur.
  * Entrée : userId (string), permissionName (string)
  * Sortie : value (boolean)
  */
@@ -35,7 +36,6 @@ async function userHasPermission(userId, permissionName) {
             cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
             return value;
         } catch (err) {
-            // Dégradation gracieuse : Auth injoignable mais cache présent (même expiré) → on le sert.
             if (cached) return cached.value;
             throw err;
         }
