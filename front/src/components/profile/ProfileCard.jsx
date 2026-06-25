@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import UserInfo from '@/components/user/UserInfo';
 import api from '@/utils/api';
 import { getCurrentUserId } from '@/utils/auth';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useToast } from '@/hooks/useToast';
 
 export default function ProfileCard({
   userId,
@@ -19,10 +20,15 @@ export default function ProfileCard({
 }) {
   const router = useRouter();
   const { t } = useTranslation();
+  const toast = useToast();
   const [isFollowing, setIsFollowing] = useState(initialFollowing);
   const [pending, setPending] = useState(false);
   const currentUserId = getCurrentUserId();
   const isOwnProfile = String(userId) === String(currentUserId);
+
+  useEffect(() => {
+    setIsFollowing(initialFollowing);
+  }, [initialFollowing]);
 
   const handleFollow = async () => {
     if (!currentUserId || pending) return;
@@ -37,7 +43,17 @@ export default function ProfileCard({
       setIsFollowing(next);
       onFollowChange?.(userId, next);
     } catch (err) {
-      console.error('[ProfileCard] Erreur lors du suivi', err);
+      const message = err.response?.data?.message || '';
+      if (/already following/i.test(message)) {
+        setIsFollowing(true);
+        onFollowChange?.(userId, true);
+      } else if (/relationship not found/i.test(message)) {
+        setIsFollowing(false);
+        onFollowChange?.(userId, false);
+      } else {
+        console.error('[ProfileCard] Erreur lors du suivi', err);
+        toast.error(t('toasts.followError'));
+      }
     } finally {
       setPending(false);
     }
