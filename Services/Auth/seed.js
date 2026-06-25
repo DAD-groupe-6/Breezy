@@ -14,22 +14,14 @@ const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
 const permissionsList = [
     { name: "create_account", description: "Fx1. Création de comptes utilisateurs" },
-    { name: "authenticate", description: "Fx2. Authentification sécurisée" },
-    { name: "publish_post", description: "Fx3. Publication de messages courts" },
-    { name: "view_profile_posts", description: "Fx4. Affichage des messages sur le profil" },
-    { name: "view_timeline", description: "Fx5. Flux chronologique des messages" },
+    { name: "publish_post", description: "Fx3. Publication de messages et réponses (posts et commentaires)" },
+    { name: "view_timeline", description: "Fx5. Flux chronologique — active/désactive la page d'accueil" },
     { name: "like_post", description: "Fx6. Liker un post" },
-    { name: "reply_post", description: "Fx7. Répondre à un post sous forme de commentaire" },
-    { name: "reply_comment", description: "Fx8. Répondre à un commentaire sur un post" },
     { name: "follow_user", description: "Fx9. Suivre ou être suivi" },
-    { name: "view_profile", description: "Fx10. Profil utilisateur avec informations de base" },
     { name: "list_user_posts", description: "Fx11. Liste des messages publiés sur le profil" },
     { name: "list_others_posts", description: "Fx11b. Affichage des posts sous le profil d'autres utilisateurs" },
-    { name: "add_tags", description: "Fx12. Ajout de tags aux messages" },
-    { name: "search_tags", description: "Fx13. Recherche de posts via des tags" },
-    { name: "notify_mentions", description: "Fx14. Notifications pour les mentions" },
-    { name: "notify_likes", description: "Fx15. Notifications pour les likes" },
-    { name: "notify_followers", description: "Fx16. Notifications pour les nouveaux followers" },
+    { name: "search", description: "Fx13. Recherche de posts (contenu et tags)" },
+    { name: "receive_notifications", description: "Fx14. Réception des notifications (mentions, likes, abonnés)" },
     { name: "private_messages", description: "Fx17. Système de messages privés entre utilisateurs" },
     { name: "add_images", description: "Fx18. Ajout d'images aux messages" },
     { name: "add_videos", description: "Fx19. Ajout de vidéos aux messages" },
@@ -42,9 +34,9 @@ const permissionsList = [
 
 const rolePermissionsMap = {
     visiteur:       ["create_account", "custom_theme"],
-    utilisateur:    ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "add_tags", "search_tags", "notify_mentions", "notify_likes", "notify_followers", "private_messages", "add_images", "add_videos", "report_content", "multi_language", "custom_theme"],
-    moderateur:     ["authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "notify_mentions", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
-    administrateur: ["create_account", "authenticate", "publish_post", "view_profile_posts", "view_timeline", "like_post", "reply_post", "reply_comment", "follow_user", "view_profile", "list_user_posts", "list_others_posts", "add_tags", "search_tags", "notify_mentions", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme", "manage_roles"],
+    utilisateur:    ["publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "multi_language", "custom_theme"],
+    moderateur:     ["publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "list_others_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
+    administrateur: ["create_account", "publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "list_others_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme", "manage_roles"],
 };
 
 async function seedDatabase() {

@@ -66,6 +66,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const myId = token ? String(jwtDecode(token).id) : null
 
     const canModerate = hasPermission('moderate_users')
+    const canFollow = hasPermission('follow_user')
     const isBanned = Boolean(user?.banned_until && new Date(user.banned_until) > new Date())
 
     useEffect(() => {
@@ -177,6 +178,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         isFollowing={isFollowing}
                         followPending={followPending}
                         canModerate={canModerate && !isOwnProfile}
+                        canFollow={canFollow}
                         isBanned={isBanned}
                         onFollow={handleFollow}
                         canMessage={!isOwnProfile && isFollowing && isMutualFollow && hasPermission('private_messages')}

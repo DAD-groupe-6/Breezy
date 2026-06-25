@@ -1,7 +1,9 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useTranslation } from '@/hooks/useTranslation'
+import { useAuth } from '@/providers/AuthProvider'
 import SearchBar from '@/components/navigation/SearchBar'
 import Post from '../../../components/post/Post'
 import ProfileCard from '@/components/profile/ProfileCard'
@@ -14,6 +16,8 @@ import { timeAgo } from '@/utils/time'
 const SEARCH_LIMIT = 10
 
 export default function ExplorerPage() {
+  const router = useRouter()
+  const { hasPermission, permsLoaded } = useAuth()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searchType, setSearchType] = useState(null) // 'tag', 'profile', 'content'
@@ -30,14 +34,24 @@ export default function ExplorerPage() {
   const stateRef = useRef({})
   stateRef.current = { query, searchType, searchPage, hasMore, isLoading }
 
+  // Page de recherche réservée à la permission `search` → sinon on renvoie vers le profil.
+  const searchDisabled = permsLoaded && !hasPermission('search')
   useEffect(() => {
+    if (searchDisabled) router.replace('/profil')
+  }, [searchDisabled, router])
+
+  // Les suggestions relèvent du suivi : on ne les charge/affiche qu'avec `follow_user`.
+  const canFollow = hasPermission('follow_user')
+
+  useEffect(() => {
+    if (!canFollow) { setSuggestionsLoading(false); return }
     let cancelled = false
     api.get('/user/suggestions', { params: { userId: getCurrentUserId(), limit: 5 } })
       .then(res => { if (!cancelled) setSuggestions(res.data || []) })
       .catch(() => { if (!cancelled) setSuggestions([]) })
       .finally(() => { if (!cancelled) setSuggestionsLoading(false) })
     return () => { cancelled = true }
-  }, [])
+  }, [canFollow])
 
   const determineSearchType = (q) => {
     if (!q.trim()) return null
@@ -132,6 +146,9 @@ export default function ExplorerPage() {
 
   const handleDelete = (postId) => setResults((prev) => prev.filter((item) => (item._id || item.id) !== postId))
 
+  // Accès refusé (pas la permission `search`) : on n'affiche rien le temps de la redirection.
+  if (searchDisabled) return null
+
   return (
     <div className="relative min-h-full overflow-hidden bg-[var(--color-bg-primary)] px-4 py-6 text-[var(--color-text-primary)] md:px-6 lg:px-8">
       <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
@@ -152,8 +169,8 @@ export default function ExplorerPage() {
             className="w-full"
           />
 
-          {/* Suggestions (aucune recherche en cours) */}
-          {!query.trim() && (suggestionsLoading || suggestions.length > 0) && (
+          {/* Suggestions (aucune recherche en cours) — uniquement si l'utilisateur peut suivre */}
+          {canFollow && !query.trim() && (suggestionsLoading || suggestions.length > 0) && (
             <section className="mt-6">
               <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-[var(--color-text-secondary)]">
                 {t('pages.explorer.suggestionsTitle')}

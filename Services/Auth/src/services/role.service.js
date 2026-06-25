@@ -156,36 +156,6 @@ async function deleteRole(roleId) {
     await role.destroy();
 }
 
-async function createPermission({ name, description }) {
-    if (!name || !name.trim()) throw new Error("Permission name is required");
-    const clean = name.trim();
-    if (await Permission.findOne({ where: { name: clean } })) throw new Error("Permission already exists");
-    return Permission.create({ name: clean, description: description || null });
-}
-
-async function updatePermission(permissionId, { name, description }) {
-    const permission = await Permission.findByPk(permissionId);
-    if (!permission) throw new Error("Permission not found");
-
-    if (name !== undefined && name.trim() && name.trim() !== permission.name) {
-        // La permission `manage_roles` ne peut pas être renommée : la perdre verrouillerait l'admin.
-        if (permission.name === "manage_roles") throw new Error("Cannot rename the admin permission");
-        if (await Permission.findOne({ where: { name: name.trim() } })) throw new Error("Permission already exists");
-        permission.name = name.trim();
-    }
-    if (description !== undefined) permission.description = description;
-    await permission.save();
-    return permission;
-}
-
-async function deletePermission(permissionId) {
-    const permission = await Permission.findByPk(permissionId);
-    if (!permission) throw new Error("Permission not found");
-    if (permission.name === "manage_roles") throw new Error("Cannot delete the admin permission");
-    // Les liens role_permissions sont retirés en cascade (onDelete: CASCADE).
-    await permission.destroy();
-}
-
 module.exports = {
     listRoles,
     getRolePermissions,
@@ -198,7 +168,4 @@ module.exports = {
     createRole,
     updateRole,
     deleteRole,
-    createPermission,
-    updatePermission,
-    deletePermission,
 };

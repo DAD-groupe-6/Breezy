@@ -71,7 +71,7 @@ export default function AdminPage() {
                 ) : (
                     <>
                         <RolesPanel roles={roles} permissions={permissions} onChange={reload} />
-                        <PermissionsPanel permissions={permissions} onChange={reload} />
+                        <PermissionsPanel permissions={permissions} />
                     </>
                 )}
             </div>

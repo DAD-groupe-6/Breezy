@@ -24,9 +24,9 @@ export default function NavbarMobile({ forceShow = false }) {
   const canSee = (permission) => !permission || !permsLoaded || hasPermission(permission);
 
   const navItems = [
-    { href: "/", icon: FaHome, labelKey: "nav.home" },
-    { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer" },
-    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: unreadCount },
+    { href: "/", icon: FaHome, labelKey: "nav.home", permission: "view_timeline" },
+    { href: "/explorer", icon: FaCompass, labelKey: "nav.explorer", permission: "search" },
+    { href: "/notifications", icon: FaBell, labelKey: "nav.notifications", badge: unreadCount, permission: "receive_notifications" },
     { href: "/messages", icon: FaEnvelope, labelKey: "nav.messages", badge: messagesUnread, permission: "private_messages" },
     { href: "/profil", icon: FaUser, labelKey: "nav.profil" },
   ].filter((item) => canSee(item.permission));

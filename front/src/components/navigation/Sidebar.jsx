@@ -22,9 +22,9 @@ export default function Sidebar({ user = null }) {
   const canSee = (permission) => !permission || !permsLoaded || hasPermission(permission)
 
   const NAV_ITEMS = [
-    { href: '/',              label: t('nav.home'),          Icon: FiHome          },
-    { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass       },
-    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell, badge: unreadCount },
+    { href: '/',              label: t('nav.home'),          Icon: FiHome, permission: 'view_timeline' },
+    { href: '/explorer',      label: t('nav.explorer'),      Icon: FiCompass, permission: 'search' },
+    { href: '/notifications', label: t('nav.notifications'), Icon: FiBell, badge: unreadCount, permission: 'receive_notifications' },
     { href: '/messages',      label: t('nav.messages'),      Icon: FiMessageSquare, badge: messagesUnread, permission: 'private_messages' },
     { href: '/admin',         label: t('nav.admin'),         Icon: FiShield, permission: 'manage_roles', strict: true },
     { href: '/settings',      label: t('nav.settings'),      Icon: FiSettings      },

@@ -10,11 +10,12 @@ const TYPE_BY_ROUTING_KEY = {
     "user.followed": "follow",
 };
 
-// Permission requise (sur le rôle du destinataire) pour recevoir ce type de notification.
-// Les notifications de commentaire ne sont gouvernées par aucune permission de la matrice.
+// Permission unique (sur le rôle du destinataire) qui active/désactive toutes les
+// notifications. Tous les types passent par le même droit `receive_notifications` (Fx14).
 const PERMISSION_BY_TYPE = {
-    like: "notify_likes",      // Fx15
-    follow: "notify_followers", // Fx16
+    like: "receive_notifications",
+    follow: "receive_notifications",
+    comment: "receive_notifications",
 };
 
 async function handleEvent(routingKey, payload) {

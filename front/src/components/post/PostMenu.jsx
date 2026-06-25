@@ -5,7 +5,7 @@ import { FaEllipsisH } from 'react-icons/fa';
 import { createPortal } from 'react-dom';
 import { useTranslation } from '@/hooks/useTranslation';
 
-export default function PostMenu({ isMine, canModerate, isAuthorBanned, alreadyReported, onViewProfile, onReport, onDelete, onBanAuthor, onUnbanAuthor }) {
+export default function PostMenu({ isMine, canModerate, canReport = true, isAuthorBanned, alreadyReported, onViewProfile, onReport, onDelete, onBanAuthor, onUnbanAuthor }) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
@@ -88,7 +88,7 @@ export default function PostMenu({ isMine, canModerate, isAuthorBanned, alreadyR
           >
             {t('post.viewProfile')}
           </button>
-          {!isMine && !alreadyReported && (
+          {!isMine && !alreadyReported && canReport && (
             <button
               className={`${itemClass} text-rose-600 border-t border-[var(--color-border)]`}
               onClick={() => { setOpen(false); onReport?.(); }}

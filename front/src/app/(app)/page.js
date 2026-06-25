@@ -12,9 +12,16 @@ import { timeAgo } from '@/utils/time'
 export default function Home() {
   const router = useRouter()
   const { t, locale } = useTranslation()
-  const { user, loading } = useAuth()
+  const { user, loading, hasPermission, permsLoaded } = useAuth()
   const { posts, hasMore, loading: feedLoading, loadMore, reset, removePost } = useRecommendedPosts(user?.id)
   const sentinelRef = useRef(null)
+
+  // Flux chronologique désactivé pour ce rôle (view_timeline absente) → on renvoie vers le profil
+  // (page toujours accessible, évite toute boucle si /explorer est lui aussi restreint).
+  const feedDisabled = permsLoaded && !hasPermission('view_timeline')
+  useEffect(() => {
+    if (feedDisabled) router.replace('/profil')
+  }, [feedDisabled, router])
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -29,7 +36,7 @@ export default function Home() {
     return () => observer.disconnect()
   }, [hasMore, feedLoading, loadMore])
 
-  if (loading) {
+  if (loading || feedDisabled) {
     return (
       <section className="min-h-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)]">
         <section className="mx-auto w-full max-w-3xl px-4 py-4">

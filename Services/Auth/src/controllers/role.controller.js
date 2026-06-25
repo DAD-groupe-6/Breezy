@@ -96,16 +96,13 @@ async function checkPermissionByUserId(req, res) {
 
 // Traduit les erreurs métier en codes HTTP cohérents.
 function adminErrorStatus(message) {
-    if (["Role not found", "Permission not found", "User not found"].includes(message)) return 404;
-    if (["Role already exists", "Permission already exists", "Role has assigned users"].includes(message)) return 409;
+    if (["Role not found"].includes(message)) return 404;
+    if (["Role already exists", "Role has assigned users"].includes(message)) return 409;
     if ([
         "Role name is required",
-        "Permission name is required",
         "Unknown permission",
         "Cannot delete a core role",
         "Cannot rename a core role",
-        "Cannot delete the admin permission",
-        "Cannot rename the admin permission",
         "Cannot remove your own admin access",
     ].includes(message)) return 400;
     return 500;
@@ -162,35 +159,6 @@ async function adminDeleteRole(req, res) {
     }
 }
 
-async function adminCreatePermission(req, res) {
-    try {
-        const { name, description } = req.body;
-        const permission = await RoleService.createPermission({ name, description });
-        res.status(201).json({ permission });
-    } catch (err) {
-        res.status(adminErrorStatus(err.message)).json({ message: err.message });
-    }
-}
-
-async function adminUpdatePermission(req, res) {
-    try {
-        const { name, description } = req.body;
-        const permission = await RoleService.updatePermission(parseInt(req.params.permissionId), { name, description });
-        res.status(200).json({ permission });
-    } catch (err) {
-        res.status(adminErrorStatus(err.message)).json({ message: err.message });
-    }
-}
-
-async function adminDeletePermission(req, res) {
-    try {
-        await RoleService.deletePermission(parseInt(req.params.permissionId));
-        res.status(204).end();
-    } catch (err) {
-        res.status(adminErrorStatus(err.message)).json({ message: err.message });
-    }
-}
-
 module.exports = {
     listRoles,
     getRolePermissions,
@@ -203,7 +171,4 @@ module.exports = {
     adminCreateRole,
     adminUpdateRole,
     adminDeleteRole,
-    adminCreatePermission,
-    adminUpdatePermission,
-    adminDeletePermission,
 };

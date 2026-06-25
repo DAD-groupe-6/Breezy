@@ -51,6 +51,7 @@ export default function Post({
   const commentsHook = useComments(postId, comments);
   const isMine = String(authorId) === String(getCurrentUserId());
   const canModerate = hasPermission('moderate_users');
+  const canReport = hasPermission('report_content');
 
   const handleConfirmDelete = async () => {
     setDeleting(true);
@@ -150,6 +151,7 @@ export default function Post({
           <PostMenu
             isMine={isMine}
             canModerate={canModerate}
+            canReport={canReport}
             isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
             alreadyReported={reported}

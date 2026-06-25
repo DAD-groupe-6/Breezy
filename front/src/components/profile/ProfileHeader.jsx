@@ -17,6 +17,7 @@ export default function ProfileHeader({
   isFollowing = false,
   followPending = false,
   canModerate = false,
+  canFollow = true,
   isBanned = false,
   canMessage = false,
   onFollow,
@@ -76,7 +77,7 @@ export default function ProfileHeader({
                 <Button
                   variant={isFollowing ? 'secondary' : 'primary'}
                   onClick={onFollow}
-                  disabled={followPending}
+                  disabled={followPending || !canFollow}
                 >
                   {isFollowing ? t('profile.following') : t('profile.follow')}
                 </Button>
