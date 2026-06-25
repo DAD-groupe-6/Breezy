@@ -7,6 +7,7 @@ const connectDB = require("./config/database.config");
 const conversationRoutes = require("./routes/conversation.route");
 const messageRoutes = require("./routes/message.route");
 const { registerSocketHandlers } = require("./sockets/message.socket");
+const { corsOptions } = require("./utils/cors.util");
 const logger = require("./logger");
 
 const app = express();
@@ -25,7 +26,7 @@ app.use("/api/v1/message/conversations", messageRoutes);
 
 const io = new Server(httpServer, {
     path: "/api/v1/message/socket.io",
-    cors: { origin: "*" },
+    cors: corsOptions,
 });
 
 registerSocketHandlers(io);

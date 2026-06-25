@@ -8,6 +8,7 @@ const inflight = new Map();
 /**
  * Récupère les permissions d'un rôle depuis Auth, avec cache mémoire (TTL) et mutualisation
  * des appels concurrents pour ne pas marteler Auth.
+ * Si Auth est injoignable, sert le cache même expiré quand il existe (dégradation gracieuse), sinon propage l'erreur.
  * Entrée : roleId (number)
  * Sortie : permissions (array de string)
  */
@@ -18,18 +19,23 @@ async function getRolePermissions(roleId) {
     if (inflight.has(roleId)) return inflight.get(roleId);
 
     const promise = (async () => {
-        const url = `${AUTH_SERVICE_URL}/api/v1/auth/roles/${roleId}/permissions`;
-        const response = await fetch(url, {
-            headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
-            signal: AbortSignal.timeout(5000),
-        });
-        if (!response.ok) {
-            throw new Error(`Auth permission check failed (${response.status})`);
+        try {
+            const url = `${AUTH_SERVICE_URL}/api/v1/auth/roles/${roleId}/permissions`;
+            const response = await fetch(url, {
+                headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+                signal: AbortSignal.timeout(5000),
+            });
+            if (!response.ok) {
+                throw new Error(`Auth permission check failed (${response.status})`);
+            }
+            const data = await response.json();
+            const permissions = Array.isArray(data?.permissions) ? data.permissions : [];
+            cache.set(roleId, { permissions, expiresAt: Date.now() + CACHE_TTL_MS });
+            return permissions;
+        } catch (err) {
+            if (cached) return cached.permissions;
+            throw err;
         }
-        const data = await response.json();
-        const permissions = Array.isArray(data?.permissions) ? data.permissions : [];
-        cache.set(roleId, { permissions, expiresAt: Date.now() + CACHE_TTL_MS });
-        return permissions;
     })().finally(() => inflight.delete(roleId));
 
     inflight.set(roleId, promise);

@@ -8,6 +8,7 @@ const inflight = new Map();
 /**
  * Demande à Auth si un utilisateur (via son rôle) possède une permission, avec cache mémoire
  * (TTL) et mutualisation des appels concurrents pour absorber les rafales d'événements.
+ * Si Auth est injoignable, sert le cache même expiré quand il existe (dégradation gracieuse), sinon propage l'erreur.
  * Entrée : userId (string), permissionName (string)
  * Sortie : value (boolean)
  */
@@ -21,18 +22,23 @@ async function userHasPermission(userId, permissionName) {
     if (inflight.has(key)) return inflight.get(key);
 
     const promise = (async () => {
-        const url = `${AUTH_SERVICE_URL}/api/v1/auth/users/${userId}/permissions-by-name/${permissionName}`;
-        const response = await fetch(url, {
-            headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
-            signal: AbortSignal.timeout(5000),
-        });
-        if (!response.ok) {
-            throw new Error(`Auth permission check failed (${response.status})`);
+        try {
+            const url = `${AUTH_SERVICE_URL}/api/v1/auth/users/${userId}/permissions-by-name/${permissionName}`;
+            const response = await fetch(url, {
+                headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+                signal: AbortSignal.timeout(5000),
+            });
+            if (!response.ok) {
+                throw new Error(`Auth permission check failed (${response.status})`);
+            }
+            const data = await response.json();
+            const value = data?.hasPermission === true;
+            cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+            return value;
+        } catch (err) {
+            if (cached) return cached.value;
+            throw err;
         }
-        const data = await response.json();
-        const value = data?.hasPermission === true;
-        cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
-        return value;
     })().finally(() => inflight.delete(key));
 
     inflight.set(key, promise);
