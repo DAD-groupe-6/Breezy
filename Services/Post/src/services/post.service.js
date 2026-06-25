@@ -5,6 +5,7 @@ const Like = require("../models/like.model");
 const { toView } = require("../utils/postView");
 const { isLikedBy, likedPostIds } = require("../utils/likes.util");
 const { extractTags } = require("../utils/tags.util");
+const { extractMentions } = require("../utils/mentions.util");
 const { parsePage, slicePage } = require("../utils/pagination.util");
 const { publishEvent } = require("../messaging/publisher");
 
@@ -13,6 +14,34 @@ const INTERNAL_SERVICE_SECRET = process.env.INTERNAL_SERVICE_SECRET || "internal
 
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 50;
+
+// Notifie les @pseudo_uniq mentionnés (best-effort, résolus via le service User).
+async function publishMentions(content, { actorId, postId, commentId = null }) {
+    const handles = extractMentions(content);
+    if (!handles.length) return;
+
+    const recipients = new Set();
+    await Promise.all(handles.map(async (handle) => {
+        try {
+            const { data } = await axios.get(`${USER_SERVICE_URL}/api/v1/user/search`, {
+                params: { pseudo_uniq: handle },
+                headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+                timeout: 5000,
+            });
+            // recherche partielle (iLike) → on ne garde que l'exact
+            const match = (data || []).find((u) => String(u.pseudo_uniq).toLowerCase() === handle);
+            if (match && String(match.id_user) !== String(actorId)) {
+                recipients.add(String(match.id_user));
+            }
+        } catch (err) {
+            // pseudo non résolu → on ignore
+        }
+    }));
+
+    for (const recipientId of recipients) {
+        publishEvent("post.mentioned", { recipientId, actorId: String(actorId), postId, commentId });
+    }
+}
 
 // Posts
 async function createPost(userId, content, images = [], video = null) {
@@ -29,6 +58,7 @@ async function createPost(userId, content, images = [], video = null) {
         video: vid,
         list_tags: extractTags(trimmed),
     });
+    publishMentions(trimmed, { actorId: String(userId), postId: String(post._id) }).catch(() => {});
     return toView(post, false);
 }
 
@@ -54,6 +84,26 @@ async function deletePost(id, userId, canModerate = false) {
     await post.deleteOne();
     await Like.deleteMany({ post_id: post._id }); // cascade : likes du post
     return { message: "Post deleted" };
+}
+
+// Édition du contenu (auteur seul), tags ré-extraits.
+async function editPost(id, userId, content) {
+    const post = await getPostById(id);
+    if (post.id_user !== String(userId)) throw new Error("Forbidden");
+
+    const trimmed = (content || "").trim();
+    // contenu vide toléré seulement s'il reste un média
+    if (!trimmed && (post.images?.length ?? 0) === 0 && !post.video) {
+        throw new Error("Content is required");
+    }
+
+    post.content = trimmed;
+    post.list_tags = extractTags(trimmed);
+    post.edited = true;
+    await post.save();
+
+    const likedByMe = await isLikedBy(post._id, userId);
+    return toView(post, likedByMe);
 }
 
 async function reportPost(id, reporterId) {
@@ -176,6 +226,12 @@ async function addComment(targetId, userId, content) {
         });
     }
 
+    publishMentions(trimmed, {
+        actorId: String(userId),
+        postId: String(target._id),
+        commentId: String(comment._id),
+    }).catch(() => {});
+
     return {
         ...toView(comment, false),
         reply_to_user: replyTo ? target.id_user : null,
@@ -287,6 +343,7 @@ module.exports = {
     getPostById,
     getPostView,
     deletePost,
+    editPost,
     reportPost,
     likePost,
     unlikePost,

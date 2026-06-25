@@ -15,6 +15,11 @@ import { timeAgo } from '@/utils/time'
 
 const SEARCH_LIMIT = 10
 
+function readQueryFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('q') || ''
+}
+
 export default function ExplorerPage() {
   const router = useRouter()
   const { hasPermission, permsLoaded } = useAuth()
@@ -27,6 +32,7 @@ export default function ExplorerPage() {
   const [searchPage, setSearchPage] = useState(1)
   const [suggestions, setSuggestions] = useState([])
   const [suggestionsLoading, setSuggestionsLoading] = useState(true)
+  const [followingIds, setFollowingIds] = useState(() => new Set())
   const { t } = useTranslation()
   const searchTimeoutRef = useRef(null)
   const sentinelRef = useRef(null)
@@ -40,18 +46,45 @@ export default function ExplorerPage() {
     if (searchDisabled) router.replace('/profil')
   }, [searchDisabled, router])
 
+  useEffect(() => {
+    const initialQuery = readQueryFromUrl()
+    if (initialQuery) setQuery(initialQuery)
+
+    const handlePopState = () => {
+      setQuery(readQueryFromUrl())
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
   // Les suggestions relèvent du suivi : on ne les charge/affiche qu'avec `follow_user`.
   const canFollow = hasPermission('follow_user')
 
   useEffect(() => {
     if (!canFollow) { setSuggestionsLoading(false); return }
     let cancelled = false
-    api.get('/user/suggestions', { params: { userId: getCurrentUserId(), limit: 5 } })
+    const myId = getCurrentUserId()
+    api.get('/user/suggestions', { params: { userId: myId, limit: 5 } })
       .then(res => { if (!cancelled) setSuggestions(res.data || []) })
       .catch(() => { if (!cancelled) setSuggestions([]) })
       .finally(() => { if (!cancelled) setSuggestionsLoading(false) })
+    if (myId) {
+      api.get(`/user/${myId}/following`)
+        .then(res => { if (!cancelled) setFollowingIds(new Set((res.data?.following || []).map(String))) })
+        .catch(() => {})
+    }
     return () => { cancelled = true }
   }, [canFollow])
+
+  const handleFollowChange = useCallback((userId, isFollowing) => {
+    setFollowingIds((prev) => {
+      const next = new Set(prev)
+      if (isFollowing) next.add(String(userId))
+      else next.delete(String(userId))
+      return next
+    })
+  }, [])
 
   const determineSearchType = (q) => {
     if (!q.trim()) return null
@@ -84,7 +117,7 @@ export default function ExplorerPage() {
         const pseudo = searchQuery.slice(1).trim()
         if (!pseudo) { setResults([]); return }
         const { data } = await api.get(`/user/search`, { params: { pseudo_uniq: pseudo } })
-        setResults(data.slice(0, 10))
+        setResults(Array.isArray(data) ? data : [])
         setHasMore(false)
         setSearchPage(1)
       } else {
@@ -190,6 +223,8 @@ export default function ExplorerPage() {
                         username={user.pseudo_uniq}
                         imageUrl={user.img_profile}
                         bio={user.bio}
+                        initialFollowing={followingIds.has(String(user.id_user))}
+                        onFollowChange={handleFollowChange}
                       />
                     ))}
                   </div>
@@ -232,6 +267,7 @@ export default function ExplorerPage() {
                     imageUrl={post.author?.img_profile || null}
                     timestamp={timeAgo(post.createdAt, t)}
                     content={post.content}
+                    edited={post.edited}
                     images={post.images}
                     video={post.video}
                     likes={post.nb_like}
@@ -260,6 +296,8 @@ export default function ExplorerPage() {
                     username={user.pseudo_uniq}
                     imageUrl={user.img_profile}
                     bio={user.bio}
+                    initialFollowing={followingIds.has(String(user.id_user))}
+                    onFollowChange={handleFollowChange}
                   />
                 ))}
               </div>

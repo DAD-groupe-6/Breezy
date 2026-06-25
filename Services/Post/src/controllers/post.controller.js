@@ -44,8 +44,6 @@ async function getPost(req, res) {
 
 async function getUserPosts(req, res) {
     try {
-        // Ses propres posts sont toujours visibles (aucune permission requise) ;
-        // consulter ceux d'un autre profil exige la permission `view_others_posts`.
         const isOwnProfile = String(req.user?.id) === String(req.params.userId);
         if (!isOwnProfile && !(await roleHasPermission(req.user?.roleId, "view_others_posts"))) {
             // Posts masqués, mais on renvoie quand même le total pour l'afficher sur le profil.
@@ -53,8 +51,6 @@ async function getUserPosts(req, res) {
             return res.status(200).json({ posts: [], hasMore: false, total });
         }
         const { page, limit } = req.query;
-        // req.params.userId = l'auteur du profil visité ; req.user.id = le viewer connecté.
-        // Les deux sont distincts : sinon likedByMe serait calculé pour l'auteur, pas pour moi.
         const result = await PostService.getUserPosts(req.params.userId, req.user.id, { page, limit });
         res.status(200).json(result);
     } catch (err) {
@@ -68,6 +64,15 @@ async function deletePost(req, res) {
         const canModerate = await roleHasPermission(req.user?.roleId, "moderate_users");
         const result = await PostService.deletePost(req.params.id, req.user.id, canModerate);
         res.status(200).json(result);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function editPost(req, res) {
+    try {
+        const post = await PostService.editPost(req.params.id, req.user.id, req.body.content);
+        res.status(200).json(post);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }
@@ -164,26 +169,27 @@ async function unlikeComment(req, res) {
     }
 }
 
-// Recherche
-async function searchByContent(req, res) {
+async function executeSearch(req, res, type, value) {
     try {
-        const { keywords, page, limit } = req.query;
-        const result = await PostService.searchByContent(keywords, req.user.id, { page, limit });
+        const { page, limit } = req.query;
+        const result = type === "tag"
+            ? await PostService.searchByTag(value, req.user.id, { page, limit })
+            : await PostService.searchByContent(value, req.user.id, { page, limit });
         res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }
 }
 
+// Recherche
+async function searchByContent(req, res) {
+    const { keywords } = req.query;
+    return executeSearch(req, res, "content", keywords);
+}
+
 async function searchByTag(req, res) {
-    try {
-        const { tag } = req.params;
-        const { page, limit } = req.query;
-        const result = await PostService.searchByTag(tag, req.user.id, { page, limit });
-        res.status(200).json(result);
-    } catch (err) {
-        res.status(statusFor(err.message)).json({ message: err.message });
-    }
+    const { tag } = req.params;
+    return executeSearch(req, res, "tag", tag);
 }
 
 module.exports = {
@@ -191,6 +197,7 @@ module.exports = {
     getPost,
     getUserPosts,
     deletePost,
+    editPost,
     reportPost,
     likePost,
     unlikePost,

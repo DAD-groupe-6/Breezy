@@ -8,6 +8,7 @@ const TYPE_BY_ROUTING_KEY = {
     "post.liked": "like",
     "post.commented": "comment",
     "user.followed": "follow",
+    "post.mentioned": "mention",
 };
 
 // Permission unique (sur le rôle du destinataire) qui active/désactive toutes les

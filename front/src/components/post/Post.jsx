@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import UserInfo from '@/components/user/UserInfo';
 import PostMenu from './PostMenu';
 import PostMedia from './PostMedia';
@@ -17,6 +18,49 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/providers/AuthProvider';
 import BanModal from '@/components/moderation/BanModal';
 
+const TOKEN_REGEX = /[#@][\p{L}\p{N}\p{M}_]+/gu;
+
+function renderContentWithTokens(text, onTokenClick) {
+  const parts = [];
+  let lastIndex = 0;
+  let key = 0;
+
+  for (const match of text.matchAll(TOKEN_REGEX)) {
+    const token = match[0];
+    const start = match.index ?? 0;
+    const previousChar = start > 0 ? text[start - 1] : '';
+
+    if (previousChar && /[\p{L}\p{N}\p{M}_]/u.test(previousChar)) continue;
+
+    if (start > lastIndex) {
+      parts.push(text.slice(lastIndex, start));
+    }
+
+    parts.push(
+      <button
+        key={`token-${key}`}
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onTokenClick(token);
+        }}
+        className="mx-0 inline cursor-pointer rounded-sm border-0 bg-transparent p-0 font-semibold text-[var(--color-text-title)] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-text-title)] focus-visible:ring-offset-1"
+      >
+        {token}
+      </button>
+    );
+
+    key += 1;
+    lastIndex = start + token.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts;
+}
+
 export default function Post({
   postId,
   authorId,
@@ -25,6 +69,7 @@ export default function Post({
   imageUrl = null,
   timestamp,
   content = '',
+  edited = false,
   images = [],
   video = null,
   likes = 0,
@@ -34,6 +79,7 @@ export default function Post({
   onReport,
   onDelete,
 }) {
+  const router = useRouter();
   const [showComments, setShowComments] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -43,6 +89,11 @@ export default function Post({
   const [banModalOpen, setBanModalOpen] = useState(false);
   const [banPending, setBanPending] = useState(false);
   const [isAuthorBanned, setIsAuthorBanned] = useState(false);
+  const [contentValue, setContentValue] = useState(content);
+  const [isEdited, setIsEdited] = useState(edited);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(content);
+  const [savingEdit, setSavingEdit] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
@@ -120,11 +171,39 @@ export default function Post({
     }
   };
 
+  const handleStartEdit = () => {
+    setEditDraft(contentValue);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editDraft.trim();
+    // pas de contenu vide sans média
+    if (!trimmed && images.length === 0 && !video) return;
+    setSavingEdit(true);
+    try {
+      const { data } = await api.put(`/post/${postId}`, { content: trimmed });
+      setContentValue(data.content);
+      setIsEdited(true);
+      setIsEditing(false);
+      toast.success(t('toasts.postEdited'));
+    } catch (err) {
+      toast.error(t('toasts.postEditError'));
+      console.error('[Post] Échec de la modification du post', err);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const handleCommentClick = (e) => {
     e.stopPropagation();
     const next = !showComments;
     setShowComments(next);
     if (next) commentsHook.load();
+  };
+
+  const handleTokenClick = (token) => {
+    router.push(`/explorer?q=${encodeURIComponent(token)}`);
   };
 
   return (
@@ -146,6 +225,12 @@ export default function Post({
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm truncate">@{username}</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm whitespace-nowrap">{timestamp}</span>
+            {isEdited && (
+              <>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm italic whitespace-nowrap">{t('post.edited')}</span>
+              </>
+            )}
           </div>
 
           <PostMenu
@@ -154,6 +239,7 @@ export default function Post({
             canReport={canReport}
             isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
+            onEdit={handleStartEdit}
             alreadyReported={reported}
             onReport={() => setReportOpen(true)}
             onDelete={() => setConfirmOpen(true)}
@@ -162,8 +248,38 @@ export default function Post({
           />
         </div>
 
-        {content && (
-          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">{content}</p>
+        {isEditing ? (
+          <div className="mb-2" onClick={(e) => e.stopPropagation()}>
+            <textarea
+              value={editDraft}
+              onChange={(e) => setEditDraft(e.target.value)}
+              maxLength={300}
+              rows={3}
+              autoFocus
+              className="w-full resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-text-title)]"
+            />
+            <div className="mt-2 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface-2)] transition-colors"
+              >
+                {t('post.editCancel')}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="rounded-full bg-[var(--color-text-title)] px-4 py-1.5 text-xs font-semibold text-[var(--color-bg-surface)] hover:bg-[var(--color-accent-hover)] disabled:opacity-60 transition-colors"
+              >
+                {savingEdit ? t('post.editSaving') : t('post.editSave')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          contentValue && (
+            <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">
+              {renderContentWithTokens(contentValue, handleTokenClick)}
+            </p>
+          )
         )}
 
         <PostMedia images={images} />

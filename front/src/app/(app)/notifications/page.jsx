@@ -12,6 +12,7 @@ const TYPE_TO_ACTION = {
   like: 'likedPhoto',
   comment: 'commentedPhoto',
   follow: 'startedFollowing',
+  mention: 'mentionedYou',
 }
 
 export default function NotificationsPage() {
@@ -43,6 +44,7 @@ export default function NotificationsPage() {
             id: n.id,
             type: TYPE_TO_ACTION[n.type] || n.type,
             createdAt: n.createdAt,
+            actorId: n.actorId,
             actor: {
               displayName: author?.pseudo || null,
               username: author?.pseudo_uniq || null,

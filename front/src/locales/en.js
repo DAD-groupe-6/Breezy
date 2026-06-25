@@ -103,6 +103,7 @@ const en = {
         likedPhoto: 'liked your photo',
         startedFollowing: 'started following you',
         commentedPhoto: 'commented on your post',
+        mentionedYou: 'mentioned you',
         sharedPost: 'shared your post.',
         mentionedInComment: 'mentioned you in a comment',
       },
@@ -288,6 +289,8 @@ const en = {
     postCreateError: 'Failed to publish, please try again',
     postDeleted: 'Post deleted',
     postDeleteError: 'Unable to delete this post',
+    postEdited: 'Post updated',
+    postEditError: 'Unable to edit this post',
     likeError: 'Action failed, please try again',
     likeForbidden: "You don't have permission to like posts",
     followError: 'Action failed, please try again',
@@ -334,6 +337,11 @@ const en = {
   post: {
     optionsAria: 'More options',
     viewProfile: 'View profile',
+    edit: 'Edit',
+    editSave: 'Save',
+    editSaving: 'Saving…',
+    editCancel: 'Cancel',
+    edited: 'edited',
     report: 'Report',
     reportConfirm: {
       title: 'Report this post',
@@ -375,6 +383,10 @@ const en = {
     unknownUser: 'Unknown user',
     unknownHandle: 'unknown',
     cancel: 'Cancel',
+    close: 'Close',
+    success: 'Success',
+    error: 'Error',
+    info: 'Info',
   },
 
   errors: {

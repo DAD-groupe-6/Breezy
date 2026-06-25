@@ -4,7 +4,7 @@ const logger = require("../logger");
 const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://rabbitmq:5672";
 const EXCHANGE = "breezy.events";
 const QUEUE = "notifications";
-const BINDINGS = ["post.liked", "post.commented", "user.followed"];
+const BINDINGS = ["post.liked", "post.commented", "user.followed", "post.mentioned"];
 
 // RabbitMQ peut démarrer après le service → on réessaie quelques fois.
 async function connectWithRetry(retries = 10, delayMs = 3000) {

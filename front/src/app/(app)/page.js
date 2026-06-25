@@ -60,6 +60,7 @@ export default function Home() {
               imageUrl={post.author?.img_profile || null}
               timestamp={timeAgo(post.createdAt, t, locale)}
               content={post.content}
+              edited={post.edited}
               images={post.images}
               video={post.video}
               likes={post.nb_like}
