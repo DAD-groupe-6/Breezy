@@ -22,18 +22,24 @@ async function userHasPermission(userId, permissionName) {
     if (inflight.has(key)) return inflight.get(key);
 
     const promise = (async () => {
-        const url = `${AUTH_SERVICE_URL}/api/v1/auth/users/${userId}/permissions-by-name/${permissionName}`;
-        const response = await fetch(url, {
-            headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
-            signal: AbortSignal.timeout(5000),
-        });
-        if (!response.ok) {
-            throw new Error(`Auth permission check failed (${response.status})`);
+        try {
+            const url = `${AUTH_SERVICE_URL}/api/v1/auth/users/${userId}/permissions-by-name/${permissionName}`;
+            const response = await fetch(url, {
+                headers: { "x-internal-secret": INTERNAL_SERVICE_SECRET },
+                signal: AbortSignal.timeout(5000),
+            });
+            if (!response.ok) {
+                throw new Error(`Auth permission check failed (${response.status})`);
+            }
+            const data = await response.json();
+            const value = data?.hasPermission === true;
+            cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
+            return value;
+        } catch (err) {
+            // Dégradation gracieuse : Auth injoignable mais cache présent (même expiré) → on le sert.
+            if (cached) return cached.value;
+            throw err;
         }
-        const data = await response.json();
-        const value = data?.hasPermission === true;
-        cache.set(key, { value, expiresAt: Date.now() + CACHE_TTL_MS });
-        return value;
     })().finally(() => inflight.delete(key));
 
     inflight.set(key, promise);
