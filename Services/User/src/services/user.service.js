@@ -98,18 +98,8 @@ async function getSuggestions(currentUserId, limit = 5) {
     return users;
 }
 
-function parsePositiveInt(value, fallback, max) {
-    const parsed = Number.parseInt(value, 10);
-    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
-    return Math.min(parsed, max);
-}
-
-async function searchUsersByPseudo(pseudo_uniq, options = {}) {
+async function searchUsersByPseudo(pseudo_uniq) {
     const { Op } = require("sequelize");
-    const page = parsePositiveInt(options.page, 1, 1000000);
-    const limit = parsePositiveInt(options.limit, 10, 50);
-    const offset = (page - 1) * limit;
-
     const users = await User.findAll({
         where: {
             pseudo_uniq: {
@@ -117,20 +107,9 @@ async function searchUsersByPseudo(pseudo_uniq, options = {}) {
             }
         },
         attributes: ["id_user", "pseudo", "pseudo_uniq", "img_profile", "bio"],
-        offset,
-        limit: limit + 1,
-        order: [["pseudo_uniq", "ASC"]],
+        limit: 10
     });
-
-    const hasMore = users.length > limit;
-    return {
-        users: users.slice(0, limit),
-        pagination: {
-            page,
-            limit,
-            hasMore,
-        },
-    };
+    return users;
 }
 async function banUser(id_user, durationDays) {
     const user = await User.findByPk(id_user);

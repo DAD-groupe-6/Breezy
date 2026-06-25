@@ -5,19 +5,8 @@ const { authenticate } = require("../middlewares/auth.middleware");
 const { requirePermission } = require("../middlewares/permission.middleware");
 
 // Recherche et routes spécifiques avant les routes dynamiques `/:id`.
-router.get("/search", authenticate({ optional: true }), requirePermission("search_tags"), PostController.search);
-router.get("/search/content", authenticate({ optional: true }), requirePermission("search_tags"), (req, res) => {
-	if (!req.query.q && req.query.keywords) {
-		req.query.q = req.query.keywords;
-	}
-	req.query.kind = req.query.kind || "content";
-	return PostController.search(req, res);
-});
-router.get("/search/tags/:tag", authenticate({ optional: true }), requirePermission("search_tags"), (req, res) => {
-	req.query.q = req.query.q || `#${req.params.tag}`;
-	req.query.kind = req.query.kind || "tag";
-	return PostController.search(req, res);
-});
+router.get("/search/content", authenticate({ optional: true }), requirePermission("search_tags"), PostController.searchByContent);
+router.get("/search/tags/:tag", authenticate({ optional: true }), requirePermission("search_tags"), PostController.searchByTag);
 router.get("/user/:userId", authenticate({ optional: true }), requirePermission("list_user_posts"), PostController.getUserPosts);
 
 router.get("/:id", authenticate({ optional: true }), requirePermission("view_profile_posts"), PostController.getPost);

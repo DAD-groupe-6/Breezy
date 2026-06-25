@@ -1,78 +1,5 @@
 const PostService = require("../services/post.service");
-const axios = require("axios");
 const { roleHasPermission } = require("../middlewares/permission.middleware");
-
-const USER_SERVICE_BASE_URL = process.env.USER_SERVICE_BASE_URL || "http://service-user:3000/api/v1/user";
-const USER_SEARCH_TIMEOUT_MS = Number.parseInt(process.env.USER_SEARCH_TIMEOUT_MS || "2500", 10);
-const SEARCH_KINDS = ["tag", "profile", "content"];
-
-function normalizeKind(kind) {
-    return SEARCH_KINDS.includes(kind) ? kind : null;
-}
-
-function inferKindFromQuery(query) {
-    if (!query || !query.trim()) return null;
-    if (query.startsWith("#")) return "tag";
-    if (query.startsWith("@")) return "profile";
-    return "content";
-}
-
-function normalizeQueryForKind(query, kind) {
-    const trimmed = (query || "").trim();
-    if (!trimmed) return "";
-    if (kind === "tag") return trimmed.startsWith("#") ? trimmed.slice(1).trim() : trimmed;
-    if (kind === "profile") return trimmed.startsWith("@") ? trimmed.slice(1).trim() : trimmed;
-    return trimmed;
-}
-
-function parseLimit(limit, fallback = 10, max = 50) {
-    const parsed = Number.parseInt(limit, 10);
-    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
-    return Math.min(parsed, max);
-}
-
-function parsePage(page, fallback = 1) {
-    const parsed = Number.parseInt(page, 10);
-    if (!Number.isFinite(parsed) || parsed <= 0) return fallback;
-    return parsed;
-}
-
-function buildSearchResponse({ kind, rawQuery, normalizedQuery, page, limit, hasMore, items }) {
-    return {
-        version: 1,
-        query: {
-            kind,
-            raw: rawQuery,
-            normalized: normalizedQuery,
-        },
-        pagination: {
-            page,
-            limit,
-            hasMore,
-        },
-        results: items,
-        // Backward compatibility for existing clients.
-        kind,
-        hasMore,
-        items,
-    };
-}
-
-function mapSearchDownstreamError(err) {
-    if (err.response?.status) return err.response.status;
-
-    if (err.code === "ECONNABORTED") return 504;
-    if (["ECONNREFUSED", "ENOTFOUND", "EHOSTUNREACH", "EAI_AGAIN"].includes(err.code)) return 503;
-
-    return 502;
-}
-
-async function runPostSearch(kind, normalizedQuery, viewerId, page, limit) {
-    if (kind === "tag") {
-        return PostService.searchByTag(normalizedQuery, viewerId, { page, limit });
-    }
-    return PostService.searchByContent(normalizedQuery, viewerId, { page, limit });
-}
 
 function statusFor(message) {
     switch (message) {
@@ -235,71 +162,25 @@ async function unlikeComment(req, res) {
     }
 }
 
-async function search(req, res) {
+// Recherche
+async function searchByContent(req, res) {
     try {
-        const rawQuery = req.query.q || "";
-        const explicitKind = normalizeKind(req.query.kind || null);
-        const resolvedKind = explicitKind || inferKindFromQuery(rawQuery);
-
-        if (!resolvedKind) {
-            return res.status(400).json({ message: "q parameter is required" });
-        }
-
-        const normalizedQuery = normalizeQueryForKind(rawQuery, resolvedKind);
-        if (!normalizedQuery) {
-            return res.status(400).json({ message: "q parameter is required" });
-        }
-
-        const { page, limit } = req.query;
-        const safePage = parsePage(page);
-        const safeLimit = parseLimit(limit);
-
-        if (resolvedKind === "tag" || resolvedKind === "content") {
-            const result = await runPostSearch(resolvedKind, normalizedQuery, req.user.id, safePage, safeLimit);
-            return res.status(200).json(buildSearchResponse({
-                kind: resolvedKind,
-                rawQuery,
-                normalizedQuery,
-                page: safePage,
-                limit: safeLimit,
-                hasMore: Boolean(result.hasMore),
-                items: result.posts,
-            }));
-        }
-
-        const authHeader = req.headers["authorization"];
-        const { data } = await axios.get(`${USER_SERVICE_BASE_URL}/search`, {
-            params: {
-                pseudo_uniq: normalizedQuery,
-                page: safePage,
-                limit: safeLimit,
-                includeMeta: 1,
-            },
-            headers: authHeader ? { Authorization: authHeader } : undefined,
-            timeout: USER_SEARCH_TIMEOUT_MS,
-        });
-
-        const users = Array.isArray(data?.users)
-            ? data.users
-            : (Array.isArray(data) ? data : []);
-        const hasMeta = typeof data?.pagination?.hasMore === "boolean";
-        const hasMore = hasMeta ? data.pagination.hasMore : users.length >= safeLimit;
-
-        return res.status(200).json(buildSearchResponse({
-            kind: resolvedKind,
-            rawQuery,
-            normalizedQuery,
-            page: safePage,
-            limit: safeLimit,
-            hasMore,
-            items: users,
-        }));
+        const { keywords, page, limit } = req.query;
+        const result = await PostService.searchByContent(keywords, req.user.id, { page, limit });
+        res.status(200).json(result);
     } catch (err) {
-        if (err.response?.status) {
-            return res.status(err.response.status).json(err.response.data || { message: "Search request failed" });
-        }
-        const downstreamStatus = mapSearchDownstreamError(err);
-        return res.status(downstreamStatus).json({ message: "Search request failed" });
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function searchByTag(req, res) {
+    try {
+        const { tag } = req.params;
+        const { page, limit } = req.query;
+        const result = await PostService.searchByTag(tag, req.user.id, { page, limit });
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
     }
 }
 
@@ -316,5 +197,6 @@ module.exports = {
     deleteComment,
     likeComment,
     unlikeComment,
-    search,
+    searchByContent,
+    searchByTag,
 };

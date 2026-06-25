@@ -58,17 +58,12 @@ async function getSuggestions(req, res) {
 
 async function searchUsersByPseudo(req, res) {
     try {
-        const { pseudo_uniq, page, limit, includeMeta } = req.query;
+        const { pseudo_uniq } = req.query;
         if (!pseudo_uniq) {
             return res.status(400).json({ message: "pseudo_uniq parameter is required" });
         }
-        const result = await UserService.searchUsersByPseudo(pseudo_uniq, { page, limit });
-
-        if (includeMeta === "1") {
-            return res.status(200).json(result);
-        }
-
-        return res.status(200).json(result.users);
+        const result = await UserService.searchUsersByPseudo(pseudo_uniq);
+        res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
