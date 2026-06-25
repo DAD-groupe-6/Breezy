@@ -13,6 +13,11 @@ import { timeAgo } from '@/utils/time'
 
 const SEARCH_LIMIT = 10
 
+function readQueryFromUrl() {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('q') || ''
+}
+
 export default function ExplorerPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
@@ -29,6 +34,18 @@ export default function ExplorerPage() {
   // Permet d'accéder aux valeurs courantes depuis l'IntersectionObserver sans re-créer l'observer
   const stateRef = useRef({})
   stateRef.current = { query, searchType, searchPage, hasMore, isLoading }
+
+  useEffect(() => {
+    const initialQuery = readQueryFromUrl()
+    if (initialQuery) setQuery(initialQuery)
+
+    const handlePopState = () => {
+      setQuery(readQueryFromUrl())
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -70,7 +87,7 @@ export default function ExplorerPage() {
         const pseudo = searchQuery.slice(1).trim()
         if (!pseudo) { setResults([]); return }
         const { data } = await api.get(`/user/search`, { params: { pseudo_uniq: pseudo } })
-        setResults(data.slice(0, 10))
+        setResults(Array.isArray(data) ? data : [])
         setHasMore(false)
         setSearchPage(1)
       } else {
