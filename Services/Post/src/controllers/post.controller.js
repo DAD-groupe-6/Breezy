@@ -162,26 +162,27 @@ async function unlikeComment(req, res) {
     }
 }
 
-// Recherche
-async function searchByContent(req, res) {
+async function executeSearch(req, res, type, value) {
     try {
-        const { keywords, page, limit } = req.query;
-        const result = await PostService.searchByContent(keywords, req.user.id, { page, limit });
+        const { page, limit } = req.query;
+        const result = type === "tag"
+            ? await PostService.searchByTag(value, req.user.id, { page, limit })
+            : await PostService.searchByContent(value, req.user.id, { page, limit });
         res.status(200).json(result);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }
 }
 
+// Recherche
+async function searchByContent(req, res) {
+    const { keywords } = req.query;
+    return executeSearch(req, res, "content", keywords);
+}
+
 async function searchByTag(req, res) {
-    try {
-        const { tag } = req.params;
-        const { page, limit } = req.query;
-        const result = await PostService.searchByTag(tag, req.user.id, { page, limit });
-        res.status(200).json(result);
-    } catch (err) {
-        res.status(statusFor(err.message)).json({ message: err.message });
-    }
+    const { tag } = req.params;
+    return executeSearch(req, res, "tag", tag);
 }
 
 module.exports = {
