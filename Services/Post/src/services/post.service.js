@@ -274,9 +274,16 @@ async function getUserPosts(userId, viewerId, { page, limit } = {}) {
     return { posts: items.map((post) => toView(post, likedSet.has(String(post._id)))), hasMore, total };
 }
 
+// Nombre de posts d'un utilisateur, sans renvoyer leur contenu.
+// Sert à afficher le compteur du profil même quand le viewer n'a pas le droit de voir les posts.
+async function countUserPosts(userId) {
+    return Post.countDocuments({ id_user: String(userId), type: "post" });
+}
+
 module.exports = {
     createPost,
     getUserPosts,
+    countUserPosts,
     getPostById,
     getPostView,
     deletePost,

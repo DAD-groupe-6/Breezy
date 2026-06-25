@@ -16,9 +16,9 @@ export default function Home() {
   const { posts, hasMore, loading: feedLoading, loadMore, reset, removePost } = useRecommendedPosts(user?.id)
   const sentinelRef = useRef(null)
 
-  // Flux chronologique désactivé pour ce rôle (view_timeline absente) → on renvoie vers le profil
+  // Flux chronologique désactivé pour ce rôle (view_feed absente) → on renvoie vers le profil
   // (page toujours accessible, évite toute boucle si /explorer est lui aussi restreint).
-  const feedDisabled = permsLoaded && !hasPermission('view_timeline')
+  const feedDisabled = permsLoaded && !hasPermission('view_feed')
   useEffect(() => {
     if (feedDisabled) router.replace('/profil')
   }, [feedDisabled, router])

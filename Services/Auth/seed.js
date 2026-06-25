@@ -15,28 +15,27 @@ const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 const permissionsList = [
     { name: "create_account", description: "Fx1. Création de comptes utilisateurs" },
     { name: "publish_post", description: "Fx3. Publication de messages et réponses (posts et commentaires)" },
-    { name: "view_timeline", description: "Fx5. Flux chronologique — active/désactive la page d'accueil" },
+    { name: "view_feed", description: "Fx5. Flux chronologique — active/désactive la page d'accueil" },
     { name: "like_post", description: "Fx6. Liker un post" },
     { name: "follow_user", description: "Fx9. Suivre ou être suivi" },
-    { name: "list_user_posts", description: "Fx11. Liste des messages publiés sur le profil" },
-    { name: "list_others_posts", description: "Fx11b. Affichage des posts sous le profil d'autres utilisateurs" },
+    { name: "view_others_posts", description: "Fx11. Affichage des posts sous le profil d'autres utilisateurs (ses propres posts restent toujours visibles)" },
     { name: "search", description: "Fx13. Recherche de posts (contenu et tags)" },
     { name: "receive_notifications", description: "Fx14. Réception des notifications (mentions, likes, abonnés)" },
-    { name: "private_messages", description: "Fx17. Système de messages privés entre utilisateurs" },
+    { name: "send_messages", description: "Fx17. Système de messages privés entre utilisateurs" },
     { name: "add_images", description: "Fx18. Ajout d'images aux messages" },
     { name: "add_videos", description: "Fx19. Ajout de vidéos aux messages" },
     { name: "report_content", description: "Fx20. Signalement de contenu inapproprié" },
     { name: "moderate_users", description: "Fx21. Suspension ou bannissement des utilisateurs" },
-    { name: "multi_language", description: "Fx22. Interface multi-langues" },
-    { name: "custom_theme", description: "Fx23. Thème personnalisé" },
+    { name: "change_language", description: "Fx22. Interface multi-langues" },
+    { name: "change_theme", description: "Fx23. Thème personnalisé" },
     { name: "manage_roles", description: "Administration des rôles et des permissions" },
 ];
 
 const rolePermissionsMap = {
-    visiteur:       ["create_account", "custom_theme"],
-    utilisateur:    ["publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "multi_language", "custom_theme"],
-    moderateur:     ["publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "list_others_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme"],
-    administrateur: ["create_account", "publish_post", "view_timeline", "like_post", "follow_user", "list_user_posts", "list_others_posts", "search", "receive_notifications", "private_messages", "add_images", "add_videos", "report_content", "moderate_users", "multi_language", "custom_theme", "manage_roles"],
+    visiteur:       ["create_account", "change_theme"],
+    utilisateur:    ["publish_post", "view_feed", "like_post", "follow_user", "search", "receive_notifications", "send_messages", "add_images", "add_videos", "report_content", "change_language", "change_theme"],
+    moderateur:     ["publish_post", "view_feed", "like_post", "follow_user", "view_others_posts", "search", "receive_notifications", "send_messages", "add_images", "add_videos", "report_content", "moderate_users", "change_language", "change_theme"],
+    administrateur: ["create_account", "publish_post", "view_feed", "like_post", "follow_user", "view_others_posts", "search", "receive_notifications", "send_messages", "add_images", "add_videos", "report_content", "moderate_users", "change_language", "change_theme", "manage_roles"],
 };
 
 async function seedDatabase() {

@@ -36,9 +36,11 @@ export default function ProfileView({ userId, isOwnProfile }) {
     const [banModalOpen, setBanModalOpen] = useState(false)
     const [banPending, setBanPending] = useState(false)
     // Un utilisateur standard ne voit les posts que sur son propre profil ;
-    // consulter ceux d'un autre profil requiert la permission `list_others_posts`.
-    const canViewPosts = isOwnProfile || hasPermission('list_others_posts')
-    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId, canViewPosts)
+    // consulter ceux d'un autre profil requiert la permission `view_others_posts`.
+    const canViewPosts = isOwnProfile || hasPermission('view_others_posts')
+    // On charge toujours (le backend renvoie le total même posts masqués) → compteur correct.
+    // `canViewPosts` ne pilote plus que l'affichage de la liste vs le message "posts masqués".
+    const { posts, hasMore, loading: postsLoading, loadMore, reset: resetPosts, removePost, total: postsCount } = useUserPosts(userId)
     const sentinelRef = useRef(null)
 
     useEffect(() => {
@@ -181,7 +183,7 @@ export default function ProfileView({ userId, isOwnProfile }) {
                         canFollow={canFollow}
                         isBanned={isBanned}
                         onFollow={handleFollow}
-                        canMessage={!isOwnProfile && isFollowing && isMutualFollow && hasPermission('private_messages')}
+                        canMessage={!isOwnProfile && isFollowing && isMutualFollow && hasPermission('send_messages')}
                         onMessage={() => router.push(`/messages?with=${userId}`)}
                         onEditProfile={() => setEditOpen(true)}
                         onShowFollowers={() => setFollowModalTab('followers')}
