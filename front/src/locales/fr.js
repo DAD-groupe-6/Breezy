@@ -103,6 +103,7 @@ const fr = {
         likedPhoto: 'a aimé votre photo',
         startedFollowing: 'a commencé à vous suivre',
         commentedPhoto: 'a commenté votre publication',
+        mentionedYou: 'vous a mentionné',
         sharedPost: 'a partagé votre publication.',
         mentionedInComment: 'vous a mentionné dans un commentaire',
       },
@@ -297,6 +298,8 @@ const fr = {
     postCreateError: 'Échec de la publication, réessaie',
     postDeleted: 'Post supprimé',
     postDeleteError: 'Impossible de supprimer ce post',
+    postEdited: 'Publication modifiée',
+    postEditError: 'Impossible de modifier ce post',
     likeError: 'Action impossible, réessaie',
     followError: 'Action impossible, réessaie',
     banSuccess: 'Utilisateur banni avec succès',
@@ -342,6 +345,11 @@ const fr = {
   post: {
     optionsAria: "Plus d'options",
     viewProfile: 'Voir le profil',
+    edit: 'Modifier',
+    editSave: 'Enregistrer',
+    editSaving: 'Enregistrement…',
+    editCancel: 'Annuler',
+    edited: 'modifié',
     report: 'Signaler',
     reportConfirm: {
       title: 'Signaler ce post',

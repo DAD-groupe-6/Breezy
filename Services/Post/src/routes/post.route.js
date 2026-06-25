@@ -12,6 +12,7 @@ router.get("/user/:userId", authenticate({ optional: true }), requirePermission(
 router.get("/:id", authenticate({ optional: true }), requirePermission("view_profile_posts"), PostController.getPost);
 
 router.post("/", authenticate({ optional: true }), requirePermission("publish_post"), PostController.createPost);
+router.put("/:id", authenticate({ optional: true }), requirePermission("publish_post"), PostController.editPost);
 router.delete("/:id", authenticate({ optional: true }), requirePermission("publish_post"), PostController.deletePost);
 router.post("/:id/report", authenticate({ optional: true }), requirePermission("report_content"), PostController.reportPost);
 

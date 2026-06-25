@@ -26,6 +26,7 @@ export function useUserPosts(userId, enabled = true) {
         imageUrl: author?.img_profile || null,
         timestamp: timeAgo(post.createdAt, t, locale),
         content: post.content,
+        edited: post.edited || false,
         images: post.images,
         video: post.video || null,
         likes: post.nb_like,
