@@ -1,6 +1,10 @@
 const { verifyToken } = require("../utils/jwt.util");
 
-// Récupère le token depuis le cookie 'token' ou, à défaut, le header Authorization.
+/**
+ * Récupère le token depuis le cookie 'token', sinon le header Authorization.
+ * Entrée : req (Request)
+ * Sortie : token (string) ou null
+ */
 function extractToken(req) {
     if (req.cookies?.token) {
         return req.cookies.token;
@@ -12,9 +16,12 @@ function extractToken(req) {
     return null;
 }
 
-// Middleware d'authentification unifié.
-// - optional:false (défaut) : bloque avec 401 si le token est absent ou invalide.
-// - optional:true           : met req.user = null et laisse passer (la permission décide ensuite).
+/**
+ * Construit le middleware d'authentification. optional=false bloque en 401 si le token
+ * manque ou est invalide ; optional=true pose req.user=null et laisse passer.
+ * Entrée : options (object) { optional (boolean) }
+ * Sortie : middleware (function) (req, res, next)
+ */
 function authenticate({ optional = false } = {}) {
     return (req, res, next) => {
         const token = extractToken(req);

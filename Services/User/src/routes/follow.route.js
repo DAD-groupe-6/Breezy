@@ -6,7 +6,6 @@ const { requirePermission } = require("../middlewares/permission.middleware");
 
 router.post("/follow/add", authenticate({ optional: true }), requirePermission("follow_user"), FollowController.addFollow);
 router.post("/follow/remove", authenticate({ optional: true }), requirePermission("follow_user"), FollowController.removeFollow);
-// Listes de followers/following consultables par tout utilisateur authentifié (view_profile supprimée).
 router.get("/:id/followers", authenticate({ optional: true }), FollowController.getFollowers);
 router.get("/:id/following", authenticate({ optional: true }), FollowController.getFollowing);
 

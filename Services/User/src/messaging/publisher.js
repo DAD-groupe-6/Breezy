@@ -6,6 +6,11 @@ const EXCHANGE = "breezy.events";
 
 let channel = null;
 
+/**
+ * Connecte le publisher RabbitMQ et déclare l'exchange, avec plusieurs tentatives.
+ * Entrée : retries (number), delayMs (number)
+ * Sortie : rien (channel prêt, ou abandon loggé après épuisement des tentatives)
+ */
 async function connectPublisher(retries = 10, delayMs = 3000) {
     for (let i = 1; i <= retries; i++) {
         try {
@@ -23,7 +28,11 @@ async function connectPublisher(retries = 10, delayMs = 3000) {
     logger.error("Publisher RabbitMQ non connecté (les events ne seront pas publiés)");
 }
 
-// Publication best-effort : ne jamais faire échouer l'action métier si RabbitMQ est down.
+/**
+ * Publie un événement sur l'exchange (best-effort : ne fait jamais échouer l'action métier).
+ * Entrée : routingKey (string), payload (object)
+ * Sortie : rien
+ */
 function publishEvent(routingKey, payload) {
     if (!channel) {
         logger.error(`Event ${routingKey} non publié (pas de canal RabbitMQ)`);
