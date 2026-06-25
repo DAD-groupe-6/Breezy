@@ -1,7 +1,6 @@
 "use client"
 
-import { Suspense, useState, useEffect, useRef, useCallback } from 'react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from '@/hooks/useTranslation'
 import SearchBar from '@/components/navigation/SearchBar'
 import Post from '../../../components/post/Post'
@@ -10,16 +9,12 @@ import ScrollToTopButton from '@/components/post/ScrollToTopButton'
 import api from '@/utils/api'
 import { getCurrentUserId } from '@/utils/auth'
 import { resolveAuthor } from '@/utils/authors'
-import { inferSearchKind, normalizeQueryForKind, normalizeSearchKind } from '@/utils/search'
 import { timeAgo } from '@/utils/time'
 
 const SEARCH_LIMIT = 10
 
-function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const [query, setQuery] = useState(urlQuery)
-  const [searchKind, setSearchKind] = useState(() => normalizeSearchKind(urlKind) || inferSearchKind(urlQuery))
+export default function ExplorerPage() {
+  const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [searchType, setSearchType] = useState(null) // 'tag', 'profile', 'content'
   const [isLoading, setIsLoading] = useState(false)
@@ -31,44 +26,9 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
   const { t } = useTranslation()
   const searchTimeoutRef = useRef(null)
   const sentinelRef = useRef(null)
-  const latestRequestIdRef = useRef(0)
-  const latestNavRef = useRef(Number(urlNav) || 0)
-  const allowOlderNavRef = useRef(false)
   // Permet d'accéder aux valeurs courantes depuis l'IntersectionObserver sans re-créer l'observer
   const stateRef = useRef({})
   stateRef.current = { query, searchType, searchPage, hasMore, isLoading }
-
-  useEffect(() => {
-    const handlePopState = () => {
-      // Back/forward should be authoritative even if nav timestamp is older.
-      allowOlderNavRef.current = true
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
-
-  useEffect(() => {
-    const incomingNav = Number(urlNav) || 0
-    const allowOlderNav = allowOlderNavRef.current
-    allowOlderNavRef.current = false
-
-    if (incomingNav && incomingNav < latestNavRef.current && !allowOlderNav) {
-      return
-    }
-    if (incomingNav) latestNavRef.current = incomingNav
-
-    // Navigation/URL change: cancel pending work from previous query to avoid stale overwrites.
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
-    latestRequestIdRef.current += 1
-
-    setQuery((prev) => (prev === urlQuery ? prev : urlQuery))
-    setSearchKind(normalizeSearchKind(urlKind) || inferSearchKind(urlQuery))
-    setResults([])
-    setHasMore(false)
-    setSearchPage(1)
-    setError('')
-    setIsLoading(false)
-  }, [urlQuery, urlKind, urlNav])
 
   useEffect(() => {
     let cancelled = false
@@ -79,86 +39,66 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
     return () => { cancelled = true }
   }, [])
 
-  const determineSearchType = (q, explicitKind) => {
+  const determineSearchType = (q) => {
     if (!q.trim()) return null
-    return normalizeSearchKind(explicitKind) || inferSearchKind(q)
-  }
-
-  const syncUrlFromQuery = useCallback((nextQuery, nextKind) => {
-    const normalizedKind = normalizeSearchKind(nextKind)
-    const normalizedQuery = nextQuery
-    const currentKind = normalizeSearchKind(urlKind)
-
-    if (normalizedQuery === urlQuery && normalizedKind === currentKind) return
-
-    const params = new URLSearchParams()
-    if (normalizedQuery.trim()) {
-      params.set('q', normalizedQuery)
-      if (normalizedKind) params.set('kind', normalizedKind)
-    }
-    if (latestNavRef.current) params.set('nav', String(latestNavRef.current))
-
-    const nextUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
-    router.replace(nextUrl, { scroll: false })
-  }, [router, pathname, urlQuery, urlKind])
-
-  const handleSearchInputChange = (e) => {
-    const nextQuery = e.target.value
-    setQuery(nextQuery)
-    // During free typing we let backend infer the kind from q.
-    setSearchKind(null)
-    syncUrlFromQuery(nextQuery, null)
+    if (q.startsWith('#')) return 'tag'
+    if (q.startsWith('@')) return 'profile'
+    return 'content'
   }
 
   const fetchResults = useCallback(async (searchQuery, p) => {
-    const requestedKind = determineSearchType(searchQuery, searchKind)
-    if (!requestedKind) return
-    const requestId = ++latestRequestIdRef.current
+    const type = determineSearchType(searchQuery)
+    if (!type) return
 
     setIsLoading(true)
     if (p === 1) setError('')
 
     try {
-      const { data } = await api.get('/post/search', {
-        params: { q: searchQuery, kind: requestedKind, page: p, limit: SEARCH_LIMIT },
-      })
-      if (latestRequestIdRef.current !== requestId) return
-
-      const contractKind = data?.query?.kind || data?.kind
-      const responseKind = determineSearchType(searchQuery, contractKind) || requestedKind
-      const items = Array.isArray(data?.results)
-        ? data.results
-        : (Array.isArray(data?.items) ? data.items : [])
-      const hasMore = data?.pagination?.hasMore ?? data?.hasMore
-
-      if (responseKind === 'profile') {
-        setResults((prev) => (p === 1 ? items : [...prev, ...items]))
-      } else {
+      if (type === 'tag') {
+        const tag = searchQuery.slice(1).trim()
+        if (!tag) { setResults([]); return }
+        const { data } = await api.get(`/post/search/tags/${encodeURIComponent(tag)}`, {
+          params: { page: p, limit: SEARCH_LIMIT },
+        })
         const enriched = await Promise.all(
-          items.map(async (post) => ({ ...post, author: await resolveAuthor(post.id_user) }))
+          data.posts.map(async (post) => ({ ...post, author: await resolveAuthor(post.id_user) }))
         )
-        if (latestRequestIdRef.current !== requestId) return
         setResults((prev) => (p === 1 ? enriched : [...prev, ...enriched]))
+        setHasMore(data.hasMore)
+        setSearchPage(p)
+      } else if (type === 'profile') {
+        const pseudo = searchQuery.slice(1).trim()
+        if (!pseudo) { setResults([]); return }
+        const { data } = await api.get(`/user/search`, { params: { pseudo_uniq: pseudo } })
+        setResults(data.slice(0, 10))
+        setHasMore(false)
+        setSearchPage(1)
+      } else {
+        const { data } = await api.get(`/post/search/content`, {
+          params: { keywords: searchQuery, page: p, limit: SEARCH_LIMIT },
+        })
+        const enriched = await Promise.all(
+          data.posts.map(async (post) => ({ ...post, author: await resolveAuthor(post.id_user) }))
+        )
+        setResults((prev) => (p === 1 ? enriched : [...prev, ...enriched]))
+        setHasMore(data.hasMore)
+        setSearchPage(p)
       }
-
-      setHasMore(Boolean(hasMore))
-      setSearchPage(p)
     } catch (err) {
-      if (latestRequestIdRef.current !== requestId) return
       console.error('[ExplorerPage] Erreur de recherche:', err)
       setError(t('pages.explorer.searchError') || 'Erreur lors de la recherche')
       if (p === 1) setResults([])
       setHasMore(false)
     } finally {
-      if (latestRequestIdRef.current === requestId) setIsLoading(false)
+      setIsLoading(false)
     }
-  }, [t, searchKind])
+  }, [t])
 
   // Recherche avec debounce — reset à la page 1 à chaque nouveau terme
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
 
-    const type = determineSearchType(query, searchKind)
+    const type = determineSearchType(query)
     setSearchType(type)
 
     if (!query.trim()) {
@@ -175,10 +115,8 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
       fetchResults(query, 1)
     }, 300)
 
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current)
-    }
-  }, [query, searchKind, fetchResults])
+    return () => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current) }
+  }, [query, fetchResults])
 
   // Chargement automatique à l'approche du bas de la liste
   useEffect(() => {
@@ -209,7 +147,7 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
           <SearchBar
             id="explorer-search"
             value={query}
-            onChange={handleSearchInputChange}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder={t('pages.explorer.searchPlaceholder')}
             className="w-full"
           />
@@ -257,8 +195,8 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
 
           {!isLoading && query.trim() && results.length > 0 && (
             <div className="mt-4 text-xs text-[var(--color-text-secondary)]">
-              {searchType === 'tag' && `Résultats pour le tag : #${normalizeQueryForKind(query, 'tag')}`}
-              {searchType === 'profile' && `Résultats pour le profil : @${normalizeQueryForKind(query, 'profile')}`}
+              {searchType === 'tag' && `Résultats pour le tag : #${query.slice(1).trim()}`}
+              {searchType === 'profile' && `Résultats pour le profil : @${query.slice(1).trim()}`}
               {searchType === 'content' && `Résultats pour : "${query}"`}
             </div>
           )}
@@ -322,28 +260,5 @@ function ExplorerPageInner({ urlQuery, urlKind, urlNav }) {
 
       <ScrollToTopButton />
     </div>
-  )
-}
-
-function ExplorerPageContent() {
-  const searchParams = useSearchParams()
-  const urlQuery = searchParams.get('q') || ''
-  const urlKind = searchParams.get('kind') || null
-  const urlNav = searchParams.get('nav') || null
-
-  return (
-    <ExplorerPageInner
-      urlQuery={urlQuery}
-      urlKind={urlKind}
-      urlNav={urlNav}
-    />
-  )
-}
-
-export default function ExplorerPage() {
-  return (
-    <Suspense fallback={null}>
-      <ExplorerPageContent />
-    </Suspense>
   )
 }
