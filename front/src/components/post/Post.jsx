@@ -69,6 +69,7 @@ export default function Post({
   imageUrl = null,
   timestamp,
   content = '',
+  edited = false,
   images = [],
   video = null,
   likes = 0,
@@ -88,6 +89,11 @@ export default function Post({
   const [banModalOpen, setBanModalOpen] = useState(false);
   const [banPending, setBanPending] = useState(false);
   const [isAuthorBanned, setIsAuthorBanned] = useState(false);
+  const [contentValue, setContentValue] = useState(content);
+  const [isEdited, setIsEdited] = useState(edited);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editDraft, setEditDraft] = useState(content);
+  const [savingEdit, setSavingEdit] = useState(false);
   const toast = useToast();
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
@@ -164,6 +170,30 @@ export default function Post({
     }
   };
 
+  const handleStartEdit = () => {
+    setEditDraft(contentValue);
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async () => {
+    const trimmed = editDraft.trim();
+    // pas de contenu vide sans média
+    if (!trimmed && images.length === 0 && !video) return;
+    setSavingEdit(true);
+    try {
+      const { data } = await api.put(`/post/${postId}`, { content: trimmed });
+      setContentValue(data.content);
+      setIsEdited(true);
+      setIsEditing(false);
+      toast.success(t('toasts.postEdited'));
+    } catch (err) {
+      toast.error(t('toasts.postEditError'));
+      console.error('[Post] Échec de la modification du post', err);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const handleCommentClick = (e) => {
     e.stopPropagation();
     const next = !showComments;
@@ -194,6 +224,12 @@ export default function Post({
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm truncate">@{username}</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
             <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm whitespace-nowrap">{timestamp}</span>
+            {isEdited && (
+              <>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm">·</span>
+                <span className="text-[var(--color-text-secondary)] text-xs sm:text-sm italic whitespace-nowrap">{t('post.edited')}</span>
+              </>
+            )}
           </div>
 
           <PostMenu
@@ -201,6 +237,7 @@ export default function Post({
             canModerate={canModerate}
             isAuthorBanned={isAuthorBanned}
             onViewProfile={onViewProfile}
+            onEdit={handleStartEdit}
             alreadyReported={reported}
             onReport={() => setReportOpen(true)}
             onDelete={() => setConfirmOpen(true)}
@@ -209,10 +246,38 @@ export default function Post({
           />
         </div>
 
-        {content && (
-          <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">
-            {renderContentWithTokens(content, handleTokenClick)}
-          </p>
+        {isEditing ? (
+          <div className="mb-2" onClick={(e) => e.stopPropagation()}>
+            <textarea
+              value={editDraft}
+              onChange={(e) => setEditDraft(e.target.value)}
+              maxLength={300}
+              rows={3}
+              autoFocus
+              className="w-full resize-none rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface-2)] px-3 py-2 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-text-title)]"
+            />
+            <div className="mt-2 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="rounded-full px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface-2)] transition-colors"
+              >
+                {t('post.editCancel')}
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={savingEdit}
+                className="rounded-full bg-[var(--color-text-title)] px-4 py-1.5 text-xs font-semibold text-[var(--color-bg-surface)] hover:bg-[var(--color-accent-hover)] disabled:opacity-60 transition-colors"
+              >
+                {savingEdit ? t('post.editSaving') : t('post.editSave')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          contentValue && (
+            <p className="text-[var(--color-text-primary)] text-sm sm:text-base leading-relaxed mb-2 break-words">
+              {renderContentWithTokens(contentValue, handleTokenClick)}
+            </p>
+          )
         )}
 
         <PostMedia images={images} />

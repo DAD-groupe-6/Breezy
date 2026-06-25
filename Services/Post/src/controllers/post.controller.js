@@ -44,15 +44,11 @@ async function getPost(req, res) {
 
 async function getUserPosts(req, res) {
     try {
-        // Consulter le profil d'un autre utilisateur exige la permission `list_others_posts` ;
-        // sur son propre profil, `list_user_posts` (déjà vérifiée par la route) suffit.
         const isOwnProfile = String(req.user?.id) === String(req.params.userId);
         if (!isOwnProfile && !(await roleHasPermission(req.user?.roleId, "list_others_posts"))) {
             return res.status(403).json({ message: "You can only view your own posts" });
         }
         const { page, limit } = req.query;
-        // req.params.userId = l'auteur du profil visité ; req.user.id = le viewer connecté.
-        // Les deux sont distincts : sinon likedByMe serait calculé pour l'auteur, pas pour moi.
         const result = await PostService.getUserPosts(req.params.userId, req.user.id, { page, limit });
         res.status(200).json(result);
     } catch (err) {
@@ -66,6 +62,15 @@ async function deletePost(req, res) {
         const canModerate = await roleHasPermission(req.user?.roleId, "moderate_users");
         const result = await PostService.deletePost(req.params.id, req.user.id, canModerate);
         res.status(200).json(result);
+    } catch (err) {
+        res.status(statusFor(err.message)).json({ message: err.message });
+    }
+}
+
+async function editPost(req, res) {
+    try {
+        const post = await PostService.editPost(req.params.id, req.user.id, req.body.content);
+        res.status(200).json(post);
     } catch (err) {
         res.status(statusFor(err.message)).json({ message: err.message });
     }
@@ -190,6 +195,7 @@ module.exports = {
     getPost,
     getUserPosts,
     deletePost,
+    editPost,
     reportPost,
     likePost,
     unlikePost,

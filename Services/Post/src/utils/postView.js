@@ -15,6 +15,7 @@ function toView(post, likedByMe = false) {
         updatedAt: post.updatedAt,
         commentsCount: post.commentsCount,
         nb_like: post.nb_like,
+        edited: post.edited || false,
         likedByMe,
     };
 }
