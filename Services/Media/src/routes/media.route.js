@@ -10,9 +10,13 @@ const router = express.Router();
 
 const upload = multer({
     storage: new GridFsStorage(),
-    limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo
-    // Le contrôle de permission a lieu ici, AVANT l'écriture en base :
-    // une vidéo exige `add_videos` (Fx19), tout autre média `add_images` (Fx18).
+    limits: { fileSize: 50 * 1024 * 1024 },
+    /**
+     * Filtre chaque fichier avant écriture : type autorisé + permission selon le média
+     * (vidéo => add_videos, sinon add_images).
+     * Entrée : req (Request), file (object Multer), cb (function)
+     * Sortie : cb(null, true) si accepté, cb(err) sinon (err.status 403/503)
+     */
     fileFilter: async (req, file, cb) => {
         if (!ALLOWED_TYPES.includes(file.mimetype)) {
             return cb(new Error("Invalid file type"));

@@ -4,14 +4,16 @@ const path = require("path");
 const mongoose = require("mongoose");
 const { connectDB, getBucket } = require("./src/config/database.config");
 
-// --- Identifiants média FIXES (DOIVENT rester synchronisés avec Services/Post/seed.js et Services/User/seed.js) ---
-// Chaque fichier de seed-assets est inséré dans GridFS avec un _id déterministe, que Post/User référencent.
+/**
+ * Construit un ObjectId déterministe (24 caractères) à partir d'un entier.
+ * Entrée : n (number)
+ * Sortie : id (string)
+ */
 const objId = (n) => String(n).padStart(24, "0");
-const AVATAR_IDS = Array.from({ length: 12 }, (_, i) => objId(1 + i)); // avatars/avatar1..12.jpg
-const POST_IMAGE_IDS = Array.from({ length: 30 }, (_, i) => objId(101 + i)); // images/image1..30.jpg
-const POST_VIDEO_IDS = Array.from({ length: 6 }, (_, i) => objId(201 + i)); // videos/video1..6.mp4
+const AVATAR_IDS = Array.from({ length: 12 }, (_, i) => objId(1 + i));
+const POST_IMAGE_IDS = Array.from({ length: 30 }, (_, i) => objId(101 + i));
+const POST_VIDEO_IDS = Array.from({ length: 6 }, (_, i) => objId(201 + i));
 
-// Contenu de démonstration : uniquement en environnement de test.
 const IS_TEST_DATASET = process.env.SEED_DATASET === "test";
 
 const ASSETS_DIR = path.join(__dirname, "seed-assets");
@@ -21,6 +23,11 @@ const groups = [
     { dir: "videos", ids: POST_VIDEO_IDS, contentType: "video/mp4" },
 ];
 
+/**
+ * Liste les fichiers d'un dossier d'assets, triés par ordre numérique.
+ * Entrée : dir (string), nom du sous-dossier
+ * Sortie : files (array de string), chemins complets
+ */
 function listAssetFiles(dir) {
     const full = path.join(ASSETS_DIR, dir);
     return fs
@@ -30,14 +37,23 @@ function listAssetFiles(dir) {
         .map((f) => path.join(full, f));
 }
 
+/**
+ * Supprime un fichier s'il existe, en ignorant l'absence (rend le seed idempotent).
+ * Entrée : bucket (GridFSBucket), id (string)
+ * Sortie : rien
+ */
 async function deleteIfExists(bucket, id) {
     try {
         await bucket.delete(new mongoose.Types.ObjectId(id));
     } catch (e) {
-        // Fichier inexistant : on ignore (rend le seed idempotent).
     }
 }
 
+/**
+ * Écrit un fichier dans GridFS avec un _id imposé.
+ * Entrée : bucket (GridFSBucket), id (string), filePath (string), contentType (string)
+ * Sortie : Promise résolue à la fin de l'écriture
+ */
 function uploadOne(bucket, id, filePath, contentType) {
     return new Promise((resolve, reject) => {
         const upload = bucket.openUploadStreamWithId(
@@ -53,6 +69,12 @@ function uploadOne(bucket, id, filePath, contentType) {
     });
 }
 
+/**
+ * Charge les médias de démonstration dans GridFS (uniquement si SEED_DATASET=test),
+ * en delete-then-upload pour rester idempotent.
+ * Entrée : rien
+ * Sortie : rien (process.exit 0 si succès, 1 sinon)
+ */
 async function seedDatabase() {
     try {
         await connectDB();
@@ -74,7 +96,6 @@ async function seedDatabase() {
                 );
             }
             for (let i = 0; i < files.length; i++) {
-                // delete-then-upload : idempotent même sans RESET_SEED.
                 await deleteIfExists(bucket, group.ids[i]);
                 await uploadOne(bucket, group.ids[i], files[i], group.contentType);
                 total++;

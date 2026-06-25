@@ -4,6 +4,11 @@ const logger = require("../logger");
 
 let bucket;
 
+/**
+ * Connecte Mongo et prépare le bucket GridFS "media".
+ * Entrée : rien (lit MONGO_URI)
+ * Sortie : rien
+ */
 async function connectDB() {
     await mongoose.connect(process.env.MONGO_URI);
     logger.info("Connected to MongoDB");
@@ -15,6 +20,11 @@ async function connectDB() {
     logger.info("GridFS bucket ready");
 }
 
+/**
+ * Renvoie le bucket GridFS initialisé.
+ * Entrée : rien
+ * Sortie : bucket (GridFSBucket)
+ */
 function getBucket() {
     if (!bucket) throw new Error("GridFS bucket not initialized");
     return bucket;
